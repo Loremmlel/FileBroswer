@@ -5,7 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import tenshi.hinanawi.filebrowser.plugins.file
+import tenshi.hinanawi.filebrowser.plugins.files
 
 fun main() {
     embeddedServer(
@@ -21,5 +21,5 @@ fun Application.module() {
     install(ContentNegotiation) {
         json()
     }
-    file()
+    files()
 }
