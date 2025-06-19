@@ -8,7 +8,7 @@ import io.ktor.server.routing.routing
 import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.Response
-import java.io.File
+import java.nio.file.Paths
 
 fun Application.files() {
     routing {
@@ -22,14 +22,15 @@ fun Application.files() {
                     )
                     return@get
                 }
-                val dir = File(AppConfig.BASE_DIR + path)
-                if (!dir.absolutePath.startsWith(AppConfig.BASE_DIR)) {
+                val normalizedPath = Paths.get(AppConfig.BASE_DIR, path).normalize()
+                if (!normalizedPath.startsWith(AppConfig.BASE_DIR)) {
                     call.respond(
                         HttpStatusCode.Forbidden,
                         Response<FileInfo>(403, "无权访问", null)
                     )
                     return@get
                 }
+                val dir = normalizedPath.toFile()
                 if (!dir.isDirectory) {
                     call.respond(
                         HttpStatusCode.BadRequest,
