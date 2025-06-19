@@ -7,6 +7,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.FileInfo
+import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
 import java.nio.file.Paths
 
@@ -18,7 +19,7 @@ fun Application.files() {
                 if (path == null || !path.startsWith('/')) {
                     call.respond(
                         HttpStatusCode.BadRequest,
-                        Response<FileInfo>(400, "找不到目录", null)
+                        Response<FileInfo>(400, Message.FilesNotFound, null)
                     )
                     return@get
                 }
@@ -26,7 +27,7 @@ fun Application.files() {
                 if (!normalizedPath.startsWith(AppConfig.BASE_DIR)) {
                     call.respond(
                         HttpStatusCode.Forbidden,
-                        Response<FileInfo>(403, "无权访问", null)
+                        Response<FileInfo>(403, Message.FilesForbidden, null)
                     )
                     return@get
                 }
@@ -34,7 +35,7 @@ fun Application.files() {
                 if (!dir.isDirectory) {
                     call.respond(
                         HttpStatusCode.BadRequest,
-                        Response<FileInfo>(400, "要查找的文件不是目录", null)
+                        Response<FileInfo>(400, Message.FilesIsNotDirectory, null)
                     )
                     return@get
                 }
@@ -47,10 +48,11 @@ fun Application.files() {
                 }
                 call.respond(
                     HttpStatusCode.OK,
-                    Response<List<FileInfo>>(200, "成功", res)
+                    Response<List<FileInfo>>(200, Message.Success, res)
                 )
             } catch (e: Exception) {
-                call.respond(Response<FileInfo>(500, e.message, null))
+                call.respond(Response<FileInfo>(500, Message.InternalServerError, null))
+                e.printStackTrace()
             }
         }
     }
