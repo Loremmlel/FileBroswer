@@ -1,5 +1,6 @@
 package tenshi.hinanawi.filebrowser.plugins
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
@@ -13,25 +14,40 @@ fun Application.files() {
     routing {
         get("/files") {
             try {
-                val path = call.pathParameters["path"]
+                val path = call.queryParameters["path"]
                 if (path == null || !path.startsWith('/')) {
-                    call.respond(Response<FileInfo>(400, "查询参数不正确", null))
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        Response<FileInfo>(400, "找不到目录", null)
+                    )
                     return@get
                 }
                 val dir = File(AppConfig.BASE_DIR + path)
                 if (!dir.absolutePath.startsWith(AppConfig.BASE_DIR)) {
-                    call.respond(Response<FileInfo>(403, "无权访问", null))
+                    call.respond(
+                        HttpStatusCode.Forbidden,
+                        Response<FileInfo>(403, "无权访问", null)
+                    )
                     return@get
                 }
                 if (!dir.isDirectory) {
-                    call.respond(Response<FileInfo>(400, "查询参数不正确", null))
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        Response<FileInfo>(400, "要查找的文件不是目录", null)
+                    )
                     return@get
                 }
                 val res = mutableListOf<FileInfo>()
                 dir.listFiles().forEach {
+                    if (it.isHidden) {
+                        return@forEach
+                    }
                     res.add(FileInfo(it.name, it.length().toString(), it.isDirectory))
                 }
-                call.respond(Response<List<FileInfo>>(200, "成功", res))
+                call.respond(
+                    HttpStatusCode.OK,
+                    Response<List<FileInfo>>(200, "成功", res)
+                )
             } catch (e: Exception) {
                 call.respond(Response<FileInfo>(500, e.message, null))
             }

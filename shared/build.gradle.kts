@@ -38,16 +38,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // put your Multiplatform dependencies here
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
-        }
-        wasmJsMain.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
-        }
-        androidMain.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
-        }
-        jvmMain.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
