@@ -6,7 +6,7 @@ import androidx.compose.ui.window.application
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "filebrowser",
+        title = "文件浏览器",
     ) {
         App()
     }
