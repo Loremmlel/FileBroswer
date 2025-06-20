@@ -24,7 +24,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class FilesTest {
+class FilesEndpointTest {
     private lateinit var baseDir: File
 
     @BeforeTest
