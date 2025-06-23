@@ -49,7 +49,7 @@ fun BottomNav(
                         tint = if (selectedItem == route) {
                             MaterialTheme.colorScheme.primary
                         } else {
-                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f)
                         }
                     )
                 },
