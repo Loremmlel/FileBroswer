@@ -1,12 +1,11 @@
 package tenshi.hinanawi.filebrowser
 
-import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.testing.ApplicationTestBuilder
-import io.ktor.server.testing.testApplication
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.testing.*
 import kotlinx.coroutines.test.TestResult
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.assertNotNull
@@ -17,12 +16,8 @@ import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.plugins.files
 import java.io.File
 import java.nio.file.Files
-import java.util.Properties
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import java.util.*
+import kotlin.test.*
 
 class FilesEndpointTest {
     private lateinit var baseDir: File
@@ -119,7 +114,46 @@ class FilesEndpointTest {
         val items = parsed.data
         assertNotNull(items)
         assertEquals(2, items.size)
-        assertTrue { items.any{it.name == file1.name} }
-        assertTrue { items.any{it.name == file2.name} }
+        assertTrue { items.any { it.name == file1.name } }
+        assertTrue { items.any { it.name == file2.name } }
+    }
+
+    @Test
+    fun `test hidden files is not listing`() = fileTestApplication {
+        val dir = File(baseDir, "testDir").apply {
+            mkdir()
+        }
+        File(dir, ".file1.txt").apply {
+            createNewFile()
+        }
+        val file2 = File(dir, "file2.txt").apply {
+            createNewFile()
+        }
+        val response = client.get("/files?path=/testDir")
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = response.bodyAsText()
+        val parsed = Json.decodeFromString<Response<List<FileInfo>>>(body)
+        assertEquals(200, parsed.code)
+        assertEquals(Message.Success, parsed.message)
+        val items = parsed.data
+        assertNotNull(items)
+        assertEquals(1, items.size)
+        assertTrue { items.any { it.name == file2.name } }
+    }
+
+    @Test
+    fun `test directory listing throws exception`() = fileTestApplication {
+        val dir = File(baseDir, "noPermissionDir").apply {
+            mkdir()
+        }
+        dir.setReadable(false)
+
+        val response = client.get("/files?path=/noPermissionDir")
+        assertEquals(HttpStatusCode.InternalServerError, response.status)
+        val body = response.bodyAsText()
+        val parsed = Json.decodeFromString<Response<FileInfo>>(body)
+        assertEquals(500, parsed.code)
+        assertEquals(Message.InternalServerError, parsed.message)
+        dir.setReadable(true)
     }
 }
