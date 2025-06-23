@@ -24,7 +24,7 @@ import tenshi.hinanawi.filebrowser.contant.Route
 fun App(
     onNavHostReady: suspend (NavController) -> Unit = {}
 ) {
-    val mainScreenRatio = 0.85f
+    val mainScreenRatio = 0.88f
     val navController = rememberNavController()
     LaunchedEffect(navController) {
         onNavHostReady(navController)
@@ -49,7 +49,7 @@ fun App(
                 }
             }
             BottomNav(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().weight(1f),
                 navController
             )
         }
