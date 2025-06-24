@@ -143,17 +143,18 @@ class FilesEndpointTest {
 
     @Test
     fun `test directory listing throws exception`() = fileTestApplication {
-        val dir = File(baseDir, "noPermissionDir").apply {
-            mkdir()
-        }
-        dir.setReadable(false)
+        val invalidPath = "/\u0000"
 
-        val response = client.get("/files?path=/noPermissionDir")
+        val response = client.get("/files") {
+            parameter("path", invalidPath)
+        }
+
         assertEquals(HttpStatusCode.InternalServerError, response.status)
+
         val body = response.bodyAsText()
         val parsed = Json.decodeFromString<Response<FileInfo>>(body)
         assertEquals(500, parsed.code)
         assertEquals(Message.InternalServerError, parsed.message)
-        dir.setReadable(true)
+        assertNull(parsed.data)
     }
 }

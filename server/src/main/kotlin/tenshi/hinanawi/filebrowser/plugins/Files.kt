@@ -1,11 +1,9 @@
 package tenshi.hinanawi.filebrowser.plugins
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.Application
-import io.ktor.server.response.respond
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
-import kotlinx.coroutines.runBlocking
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.Message
@@ -52,7 +50,10 @@ fun Application.files() {
                     Response<List<FileInfo>>(200, Message.Success, res)
                 )
             } catch (e: Exception) {
-                call.respond(Response<FileInfo>(500, Message.InternalServerError, null))
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    Response<FileInfo>(500, Message.InternalServerError, null)
+                )
                 e.printStackTrace()
             }
         }
