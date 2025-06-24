@@ -8,6 +8,7 @@ import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
+import tenshi.hinanawi.filebrowser.util.getFileType
 import java.nio.file.Paths
 
 fun Application.files() {
@@ -43,7 +44,14 @@ fun Application.files() {
                     if (it.isHidden) {
                         return@forEach
                     }
-                    res.add(FileInfo(it.name, it.length().toString(), it.isDirectory))
+                    res.add(FileInfo(
+                        it.name,
+                        it.length().toString(),
+                        it.isDirectory,
+                        it.getFileType(),
+                        it.lastModified(),
+                        it.path.substring(AppConfig.BASE_DIR.length)
+                    ))
                 }
                 call.respond(
                     HttpStatusCode.OK,

@@ -6,5 +6,8 @@ import kotlinx.serialization.Serializable
 data class FileInfo(
     val name: String,
     val size: String,
-    val isDirectory: Boolean
+    val isDirectory: Boolean,
+    val type: FileType,
+    val lastModified: Long,
+    val path: String
 )
