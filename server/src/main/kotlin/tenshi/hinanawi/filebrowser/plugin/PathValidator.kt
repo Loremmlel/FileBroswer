@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.plugins
+package tenshi.hinanawi.filebrowser.plugin
 
 import io.ktor.http.*
 import io.ktor.server.application.*

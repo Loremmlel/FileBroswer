@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.plugins
+package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -8,8 +8,9 @@ import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
+import tenshi.hinanawi.filebrowser.plugin.PathValidator
+import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.util.getFileType
-import java.nio.file.Paths
 
 fun Application.files() {
     routing {

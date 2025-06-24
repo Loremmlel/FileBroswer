@@ -5,7 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import tenshi.hinanawi.filebrowser.plugins.files
+import tenshi.hinanawi.filebrowser.route.files
 
 fun main() {
     embeddedServer(

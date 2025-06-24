@@ -14,7 +14,7 @@ import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
-import tenshi.hinanawi.filebrowser.plugins.files
+import tenshi.hinanawi.filebrowser.route.files
 import java.io.File
 import java.nio.file.Files
 import java.util.*

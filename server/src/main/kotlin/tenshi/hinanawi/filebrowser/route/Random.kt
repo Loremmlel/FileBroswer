@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.plugins
+package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.server.application.Application
 import io.ktor.server.routing.get
