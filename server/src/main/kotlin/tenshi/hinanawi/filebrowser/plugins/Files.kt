@@ -13,25 +13,10 @@ import java.nio.file.Paths
 
 fun Application.files() {
     routing {
+        install(PathValidator)
         get("/files") {
             try {
-                val path = call.queryParameters["path"]
-                if (path == null || !path.startsWith('/')) {
-                    call.respond(
-                        HttpStatusCode.BadRequest,
-                        Response<FileInfo>(400, Message.FilesNotFound, null)
-                    )
-                    return@get
-                }
-                val normalizedPath = Paths.get(AppConfig.BASE_DIR, path).normalize()
-                if (!normalizedPath.startsWith(AppConfig.BASE_DIR)) {
-                    call.respond(
-                        HttpStatusCode.Forbidden,
-                        Response<FileInfo>(403, Message.FilesForbidden, null)
-                    )
-                    return@get
-                }
-                val dir = normalizedPath.toFile()
+                val dir = call.attributes[ValidatedFileKey]
                 if (!dir.isDirectory) {
                     call.respond(
                         HttpStatusCode.BadRequest,
@@ -71,28 +56,12 @@ fun Application.files() {
                     HttpStatusCode.InternalServerError,
                     Response<FileInfo>(500, Message.InternalServerError, null)
                 )
-                e.printStackTrace()
+                log.error(e.message)
             }
         }
         delete("/files") {
             try {
-                val path = call.queryParameters["path"]
-                if (path == null || !path.startsWith('/')) {
-                    call.respond(
-                        HttpStatusCode.BadRequest,
-                        Response(400, Message.FilesNotFound, null)
-                    )
-                    return@delete
-                }
-                val normalizedPath = Paths.get(AppConfig.BASE_DIR, path).normalize()
-                if (!normalizedPath.startsWith(AppConfig.BASE_DIR)) {
-                    call.respond(
-                        HttpStatusCode.Forbidden,
-                        Response(403, Message.FilesForbidden, null)
-                    )
-                    return@delete
-                }
-                val file = normalizedPath.toFile()
+                val file = call.attributes[ValidatedFileKey]
                 if (!file.exists()) {
                     call.respond(
                         HttpStatusCode.BadRequest,
