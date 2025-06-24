@@ -14,6 +14,7 @@ enum class Message(val message: String) {
     FilesNotFound("找不到目录"),
     FilesForbidden("无权访问"),
     FilesIsNotDirectory("要查找的文件不是目录"),
+    FilesDirectoryMustEmptyWhileDelete("要删除的目录必须为空"),
 
     Success("成功"),
     Failed("失败"),

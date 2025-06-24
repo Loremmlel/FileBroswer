@@ -74,5 +74,58 @@ fun Application.files() {
                 e.printStackTrace()
             }
         }
+        delete("/files") {
+            try {
+                val path = call.queryParameters["path"]
+                if (path == null || !path.startsWith('/')) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        Response(400, Message.FilesNotFound, null)
+                    )
+                    return@delete
+                }
+                val normalizedPath = Paths.get(AppConfig.BASE_DIR, path).normalize()
+                if (!normalizedPath.startsWith(AppConfig.BASE_DIR)) {
+                    call.respond(
+                        HttpStatusCode.Forbidden,
+                        Response(403, Message.FilesForbidden, null)
+                    )
+                    return@delete
+                }
+                val file = normalizedPath.toFile()
+                if (!file.exists()) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        Response(400, Message.FilesNotFound, null)
+                    )
+                    return@delete
+                }
+                if (!file.delete()) {
+                    if (file.isDirectory) {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            Response(400, Message.FilesDirectoryMustEmptyWhileDelete, null)
+                        )
+                        return@delete
+                    }
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        Response(500, Message.Failed, null)
+                    )
+                    log.warn("文件${file.path}删除失败")
+                    return@delete
+                }
+                call.respond(
+                    HttpStatusCode.NoContent,
+                    Response(204, Message.Success, null)
+                )
+            } catch (e: Exception) {
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    Response(500, Message.InternalServerError, null)
+                )
+                e.printStackTrace()
+            }
+        }
     }
 }

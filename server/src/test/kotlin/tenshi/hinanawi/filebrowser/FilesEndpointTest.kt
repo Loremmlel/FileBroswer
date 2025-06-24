@@ -183,4 +183,104 @@ class FilesEndpointTest {
         assertEquals(Message.InternalServerError, parsed.message)
         assertNull(parsed.data)
     }
+
+    @Test
+    fun `test delete - successful file deletion`() = fileTestApplication {
+        val fileToDelete = File(baseDir, "file-to-delete.txt").apply { createNewFile() }
+        assertTrue(fileToDelete.exists())
+
+        val response = client.delete("/files?path=/${fileToDelete.name}")
+
+        assertEquals(HttpStatusCode.NoContent, response.status)
+        assertFalse(fileToDelete.exists())
+    }
+
+    @Test
+    fun `test delete - missing path parameter`() = fileTestApplication {
+        val response = client.delete("/files")
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
+        assertEquals(400, parsed.code)
+        assertEquals(Message.FilesNotFound, parsed.message)
+    }
+
+    @Test
+    fun `test delete - invalid path format`() = fileTestApplication {
+        val response = client.delete("/files?path=somefile.txt")
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
+        assertEquals(400, parsed.code)
+        assertEquals(Message.FilesNotFound, parsed.message)
+    }
+
+    @Test
+    fun `test delete - path traversal attempt`() = fileTestApplication {
+        val response = client.delete("/files?path=/../../secrets.txt")
+        assertEquals(HttpStatusCode.Forbidden, response.status)
+        val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
+        assertEquals(403, parsed.code)
+        assertEquals(Message.FilesForbidden, parsed.message)
+    }
+
+    @Test
+    fun `test delete - file does not exist`() = fileTestApplication {
+        val response = client.delete("/files?path=/non-existent-file.txt")
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
+        assertEquals(400, parsed.code)
+        assertEquals(Message.FilesNotFound, parsed.message)
+    }
+
+    @Test
+    fun `test delete - attempt to delete non-empty directory`() = fileTestApplication {
+        // 覆盖: file.isDirectory is true inside !file.delete() block
+        val dir = File(baseDir, "notEmptyDir").apply { mkdir() }
+        File(dir, "child.txt").createNewFile() // 使目录非空
+
+        val response = client.delete("/files?path=/${dir.name}")
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
+        assertEquals(400, parsed.code)
+        assertEquals(Message.FilesDirectoryMustEmptyWhileDelete, parsed.message)
+        assertTrue(dir.exists(), "目录不应该被删除")
+    }
+
+    @Test
+    fun `test delete - file deletion fails due to other reasons`() = fileTestApplication {
+        // 覆盖: file.isDirectory is false inside !file.delete() block (权限问题)
+        // 通过移除父目录的写权限来模拟文件无法删除的场景
+        val protectedDir = File(baseDir, "protectedDir").apply { mkdir() }
+        val fileToFail = File(protectedDir, "locked.txt").apply { createNewFile() }
+
+        // 在 finally 中恢复权限，确保 tearDown 能成功清理
+        try {
+            protectedDir.setWritable(false)
+
+            val response = client.delete("/files?path=/${protectedDir.name}/${fileToFail.name}")
+
+            assertEquals(HttpStatusCode.InternalServerError, response.status)
+            val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
+            assertEquals(500, parsed.code)
+            assertEquals(Message.Failed, parsed.message)
+            assertTrue(fileToFail.exists(), "File should not be deleted")
+        } finally {
+            protectedDir.setWritable(true)
+        }
+    }
+
+    @Test
+    fun `test delete - throws internal exception`() = fileTestApplication {
+        // 覆盖: catch (e: Exception) block
+        val invalidPath = "/\u0000"
+
+        val response = client.delete("/files") {
+            parameter("path", invalidPath)
+        }
+
+        assertEquals(HttpStatusCode.InternalServerError, response.status)
+        val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
+        assertEquals(500, parsed.code)
+        assertEquals(Message.InternalServerError, parsed.message)
+    }
 }
