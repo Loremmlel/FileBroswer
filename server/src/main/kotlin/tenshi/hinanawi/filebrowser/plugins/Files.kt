@@ -53,6 +53,15 @@ fun Application.files() {
                         it.path.substring(AppConfig.BASE_DIR.length)
                     ))
                 }
+                res.sortWith(Comparator { a, b ->
+                    if (a.isDirectory && !b.isDirectory) {
+                        -1
+                    } else if (!a.isDirectory && b.isDirectory) {
+                        1
+                    } else {
+                        a.name.compareTo(b.name)
+                    }
+                })
                 call.respond(
                     HttpStatusCode.OK,
                     Response<List<FileInfo>>(200, Message.Success, res)

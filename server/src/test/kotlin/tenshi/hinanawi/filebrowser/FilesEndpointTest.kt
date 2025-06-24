@@ -51,15 +51,13 @@ class FilesEndpointTest {
 
     @Test
     fun `test missing path parameter`() = fileTestApplication {
-        val client = createClient {
-            followRedirects = false
-        }
         val response = client.get("/files")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         val body = response.bodyAsText()
-        val parsed = Json.decodeFromString<Response<FileInfo>>(body)
+        val parsed = Json.decodeFromString<Response<Unit>>(body)
         assertEquals(400, parsed.code)
         assertEquals(Message.FilesNotFound, parsed.message)
+        assertNull(parsed.data)
     }
 
     @Test
@@ -67,9 +65,10 @@ class FilesEndpointTest {
         val response = client.get("/files?path=invalid")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         val body = response.bodyAsText()
-        val parsed = Json.decodeFromString<Response<FileInfo>>(body)
+        val parsed = Json.decodeFromString<Response<Unit>>(body)
         assertEquals(400, parsed.code)
         assertEquals(Message.FilesNotFound, parsed.message)
+        assertNull(parsed.data)
     }
 
     @Test
@@ -77,9 +76,10 @@ class FilesEndpointTest {
         val response = client.get("/files?path=/../../")
         assertEquals(HttpStatusCode.Forbidden, response.status)
         val body = response.bodyAsText()
-        val parsed = Json.decodeFromString<Response<FileInfo>>(body)
+        val parsed = Json.decodeFromString<Response<Unit>>(body)
         assertEquals(403, parsed.code)
         assertEquals(Message.FilesForbidden, parsed.message)
+        assertNull(parsed.data)
     }
 
     @Test
@@ -90,9 +90,10 @@ class FilesEndpointTest {
         val response = client.get("/files?path=/${file.name}")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         val body = response.bodyAsText()
-        val parsed = Json.decodeFromString<Response<FileInfo>>(body)
+        val parsed = Json.decodeFromString<Response<Unit>>(body)
         assertEquals(400, parsed.code)
         assertEquals(Message.FilesIsNotDirectory, parsed.message)
+        assertNull(parsed.data)
     }
 
     @Test
@@ -118,6 +119,8 @@ class FilesEndpointTest {
         val items = parsed.data
         assertNotNull(items)
         assertEquals(3, items.size)
+        // 测试排序功能，文件夹在前
+        assertTrue { items[0].isDirectory }
         assertTrue {
             items.any {
                 it.name == file1.name
@@ -175,7 +178,7 @@ class FilesEndpointTest {
         assertEquals(HttpStatusCode.InternalServerError, response.status)
 
         val body = response.bodyAsText()
-        val parsed = Json.decodeFromString<Response<FileInfo>>(body)
+        val parsed = Json.decodeFromString<Response<Unit>>(body)
         assertEquals(500, parsed.code)
         assertEquals(Message.InternalServerError, parsed.message)
         assertNull(parsed.data)
