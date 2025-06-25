@@ -2,6 +2,7 @@ package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.path
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
@@ -11,6 +12,7 @@ import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.util.getFileType
+import tenshi.hinanawi.filebrowser.util.requestError
 
 fun Application.files() {
     routing {
@@ -32,7 +34,7 @@ fun Application.files() {
                     }
                     res.add(FileInfo(
                         it.name,
-                        it.length().toString(),
+                        it.length(),
                         it.isDirectory,
                         it.getFileType(),
                         it.lastModified(),
@@ -50,14 +52,14 @@ fun Application.files() {
                 })
                 call.respond(
                     HttpStatusCode.OK,
-                    Response<List<FileInfo>>(200, Message.Success, res)
+                    Response(200, Message.Success, res)
                 )
             } catch (e: Exception) {
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    Response<FileInfo>(500, Message.InternalServerError, null)
+                    Response(500, Message.InternalServerError, null)
                 )
-                log.error(e.message)
+                log.requestError(call, e)
             }
         }
         delete("/files") {
@@ -94,7 +96,7 @@ fun Application.files() {
                     HttpStatusCode.InternalServerError,
                     Response(500, Message.InternalServerError, null)
                 )
-                e.printStackTrace()
+                log.requestError(call, e)
             }
         }
     }
