@@ -65,13 +65,6 @@ fun Application.files() {
         delete("/files") {
             try {
                 val file = call.attributes[ValidatedFileKey]
-                if (!file.exists()) {
-                    call.respond(
-                        HttpStatusCode.BadRequest,
-                        Response(400, Message.FilesNotFound, null)
-                    )
-                    return@delete
-                }
                 if (!file.delete()) {
                     if (file.isDirectory) {
                         call.respond(
