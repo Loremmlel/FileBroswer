@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.tests
+package tenshi.hinanawi.filebrowser.test
 
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -13,6 +13,7 @@ import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.route.files
+import tenshi.hinanawi.filebrowser.util.skipTest
 import java.io.File
 import kotlin.test.*
 
@@ -132,8 +133,7 @@ class FilesEndpointTest : BaseEndpointTest() {
             createNewFile()
             if (isWindows) {
                 Runtime.getRuntime().exec("attrib +H \"${this.absolutePath}\"")
-                println("我真是操了，单独跑测试可以，一旦用gradle任务跑所有测试，这里就会失败。日了狗了，直接跳过！")
-                return@fileTestApplication
+                skipTest("我真是操了，单独跑测试可以，一旦用gradle任务跑所有测试，这里就会失败。日了狗了，直接跳过！")
             }
         }
         val file2 = File(dir, "file2.txt").apply {
@@ -235,8 +235,7 @@ class FilesEndpointTest : BaseEndpointTest() {
         // 覆盖: file.isDirectory is false inside !file.delete() block (权限问题)
         // 通过移除父目录的写权限来模拟文件无法删除的场景，windows则跳过
         if (isWindows) {
-            println("因为windows权限模型和unix权限模型不同，无法模拟权限问题，暂时跳过")
-            return@fileTestApplication
+            skipTest("因为windows权限模型和unix权限模型不同，无法模拟权限问题，暂时跳过")
         }
         val protectedDir = File(baseDir, "protectedDir").apply { mkdir() }
         val fileToFail = File(protectedDir, "locked.txt").apply { createNewFile() }
