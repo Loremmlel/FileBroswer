@@ -8,36 +8,18 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.test.TestResult
 import kotlinx.serialization.json.Json
-import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.route.random
 import java.io.File
-import java.nio.file.Files
-import java.util.*
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-class RandomEndpointTest {
-    private lateinit var baseDir: File
-
-    @BeforeTest
-    fun setUp() {
-        baseDir = Files.createTempDirectory("testRandomBaseDir").toFile()
-
-        val propsField = AppConfig::class.java.getDeclaredField("props")
-        propsField.isAccessible = true
-
-        val props = propsField.get(AppConfig) as Properties
-        props.setProperty("BASE_DIR", baseDir.absolutePath)
-    }
-
-    @AfterTest
-    fun tearDown() {
-        baseDir.deleteRecursively()
-    }
-
+class RandomEndpointTest : BaseEndpointTest() {
     private fun randomTestApplication(block: suspend ApplicationTestBuilder.() -> Unit): TestResult = testApplication {
         install(ContentNegotiation) {
             json()
