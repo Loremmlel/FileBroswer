@@ -1,6 +1,6 @@
 package tenshi.hinanawi.filebrowser.config
 
-import java.util.Properties
+import java.util.*
 
 object AppConfig {
     private val props = Properties()

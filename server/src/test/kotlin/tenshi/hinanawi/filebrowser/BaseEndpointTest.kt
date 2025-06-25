@@ -3,7 +3,7 @@ package tenshi.hinanawi.filebrowser
 import tenshi.hinanawi.filebrowser.config.AppConfig
 import java.io.File
 import java.nio.file.Files
-import java.util.Properties
+import java.util.*
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 

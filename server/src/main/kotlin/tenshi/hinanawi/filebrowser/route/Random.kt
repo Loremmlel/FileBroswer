@@ -2,7 +2,7 @@ package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.path
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
@@ -38,7 +38,7 @@ fun Application.random() {
 private fun scanDirectory(dir: File, type: FileType): List<FileInfo> {
     val res = mutableListOf<FileInfo>()
     if (!dir.isDirectory) {
-         return res
+        return res
     }
     for (file in dir.listFiles() ?: emptyArray()) {
         if (file.isDirectory) {

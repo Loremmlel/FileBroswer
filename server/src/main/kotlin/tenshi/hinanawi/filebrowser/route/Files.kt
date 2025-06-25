@@ -2,7 +2,6 @@ package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.path
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
@@ -32,14 +31,16 @@ fun Application.files() {
                     if (it.isHidden) {
                         return@forEach
                     }
-                    res.add(FileInfo(
-                        it.name,
-                        it.length(),
-                        it.isDirectory,
-                        it.getFileType(),
-                        it.lastModified(),
-                        it.path.substring(AppConfig.BASE_DIR.length)
-                    ))
+                    res.add(
+                        FileInfo(
+                            it.name,
+                            it.length(),
+                            it.isDirectory,
+                            it.getFileType(),
+                            it.lastModified(),
+                            it.path.substring(AppConfig.BASE_DIR.length)
+                        )
+                    )
                 }
                 res.sortWith(Comparator { a, b ->
                     if (a.isDirectory && !b.isDirectory) {
