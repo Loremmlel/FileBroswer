@@ -37,7 +37,7 @@ fun Application.random() {
 
 private fun scanDirectory(dir: File, type: FileType): List<FileInfo> {
     val res = mutableListOf<FileInfo>()
-    if (dir.isDirectory.not()) {
+    if (!dir.isDirectory) {
          return res
     }
     for (file in dir.listFiles() ?: emptyArray()) {

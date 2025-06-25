@@ -6,6 +6,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import tenshi.hinanawi.filebrowser.route.files
+import tenshi.hinanawi.filebrowser.route.random
 
 fun main() {
     embeddedServer(
@@ -22,4 +23,5 @@ fun Application.module() {
         json()
     }
     files()
+    random()
 }
