@@ -22,5 +22,6 @@ dependencies {
     implementation(libs.ktor.serializationKotlinxJson)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
-    testImplementation(libs.mockk)
+    testImplementation(libs.junit.platform.suite.api)
+    testImplementation(libs.junit.platform.suite.engine)
 }

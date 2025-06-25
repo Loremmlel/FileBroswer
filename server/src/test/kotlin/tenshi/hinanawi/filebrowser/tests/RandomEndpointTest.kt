@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser
+package tenshi.hinanawi.filebrowser.tests
 
 import io.ktor.client.request.*
 import io.ktor.client.statement.*

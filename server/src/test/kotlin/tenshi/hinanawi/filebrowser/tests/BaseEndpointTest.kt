@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser
+package tenshi.hinanawi.filebrowser.tests
 
 import tenshi.hinanawi.filebrowser.config.AppConfig
 import java.io.File

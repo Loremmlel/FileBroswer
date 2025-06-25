@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser
+package tenshi.hinanawi.filebrowser.tests
 
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -8,7 +8,6 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.test.TestResult
 import kotlinx.serialization.json.Json
-import org.junit.jupiter.api.assertNotNull
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.Message
