@@ -225,9 +225,9 @@ class FilesEndpointTest {
     @Test
     fun `test delete - file does not exist`() = fileTestApplication {
         val response = client.delete("/files?path=/non-existent-file.txt")
-        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(HttpStatusCode.NotFound, response.status)
         val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
-        assertEquals(400, parsed.code)
+        assertEquals(404, parsed.code)
         assertEquals(Message.FilesNotFound, parsed.message)
     }
 

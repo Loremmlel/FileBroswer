@@ -12,10 +12,10 @@ enum class FileType {
     override fun toString(): String = this.name
 }
 
-fun String.parseFileType(): FileType = when (this) {
+fun String.parseFileType(): FileType? = when (this) {
     FileType.Folder.name -> FileType.Folder
     FileType.Image.name -> FileType.Image
     FileType.Video.name -> FileType.Video
     FileType.Other.name -> FileType.Other
-    else -> throw IllegalArgumentException("${this}不能被转化为FileType")
+    else -> null
 }

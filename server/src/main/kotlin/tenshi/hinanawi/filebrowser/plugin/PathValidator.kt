@@ -38,6 +38,13 @@ val PathValidator = createRouteScopedPlugin("PathValidator") {
 
             // 3. 如果所有验证都通过，将 File 对象放入 attributes 中
             val file = normalizedPath.toFile()
+            if (!file.exists()) {
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    Response(404, Message.FilesNotFound, null)
+                )
+                return@on
+            }
             call.attributes.put(ValidatedFileKey, file)
         } catch (e: Exception) {
             call.respond(
