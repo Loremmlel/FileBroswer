@@ -25,4 +25,13 @@ abstract class BaseEndpointTest {
     fun tearDown() {
         baseDir.deleteRecursively()
     }
+
+    protected val isWindows: Boolean get() = System.getProperty("os.name").lowercase().contains("win")
+
+    protected fun String.normalizedPath(): String {
+        if (isWindows) {
+            return replace("/", "\\")
+        }
+        return this
+    }
 }

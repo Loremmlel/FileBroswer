@@ -72,7 +72,6 @@ tasks.register<Test>("apiTestVerbose") {
 
 // 增强默认测试任务
 tasks.test {
-    // 优化测试日志显示
     testLogging {
         // 只显示重要的测试事件，过滤掉内部调试信息
         events("passed", "skipped", "failed")
