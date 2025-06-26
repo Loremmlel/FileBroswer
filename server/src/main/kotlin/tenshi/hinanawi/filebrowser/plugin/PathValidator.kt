@@ -11,9 +11,9 @@ import tenshi.hinanawi.filebrowser.model.Response
 import java.io.File
 import java.nio.file.Paths
 
-val ValidatedFileKey = AttributeKey<File>("ValidatedFileKey")
+internal val ValidatedFileKey = AttributeKey<File>("ValidatedFileKey")
 
-val PathValidator = createRouteScopedPlugin("PathValidator") {
+internal val PathValidator = createRouteScopedPlugin("PathValidator") {
     on(CallSetup) { call ->
         val path = call.request.queryParameters["path"]
 

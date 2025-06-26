@@ -12,7 +12,7 @@ import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
 
-fun Application.random() {
+internal fun Application.random() {
     routing {
         install(PathValidator)
         get("/random") {

@@ -13,7 +13,7 @@ import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.util.getFileType
 import tenshi.hinanawi.filebrowser.util.requestError
 
-fun Application.files() {
+internal fun Application.files() {
     routing {
         install(PathValidator)
         get("/files") {
