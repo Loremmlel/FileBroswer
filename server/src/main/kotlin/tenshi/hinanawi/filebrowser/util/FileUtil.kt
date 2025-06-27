@@ -15,3 +15,22 @@ internal fun File.getFileType(): FileType = when {
     VIDEO_SUFFIX.any { this.extension.endsWith(it) } -> FileType.Video
     else -> FileType.Other
 }
+
+internal fun File.getContentType(): String = when(this.extension) {
+    "jpg" -> "image/jpeg"
+    "jpeg" -> "image/jpeg"
+    "png" -> "image/png"
+    "gif" -> "image/gif"
+    "webp" -> "image/webp"
+    "bmp" -> "image/bmp"
+    "svg" -> "image/svg+xml"
+    "ico" -> "image/x-icon"
+    "mp4" -> "video/mp4"
+    "mkv" -> "video/x-matroska"
+    "avi" -> "video/x-msvideo"
+    "mov" -> "video/quicktime"
+    "wmv" -> "video/x-ms-wmv"
+    "flv" -> "video/x-flv"
+    "3gp" -> "video/3gpp"
+    else -> "application/octet-stream"
+}

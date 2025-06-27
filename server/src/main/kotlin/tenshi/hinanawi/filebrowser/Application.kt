@@ -6,6 +6,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import tenshi.hinanawi.filebrowser.route.files
+import tenshi.hinanawi.filebrowser.route.image
 import tenshi.hinanawi.filebrowser.route.random
 
 fun main() {
@@ -24,4 +25,5 @@ fun Application.module() {
     }
     files()
     random()
+    image()
 }

@@ -16,6 +16,8 @@ enum class Message(val message: String) {
     FilesIsNotDirectory("要查找的文件不是目录"),
     FilesDirectoryMustEmptyWhileDelete("要删除的目录必须为空"),
 
+    ImageIsNotImage("请求的文件不是图片"),
+
     Success("成功"),
     Failed("失败"),
     InternalServerError("服务器内部错误");
