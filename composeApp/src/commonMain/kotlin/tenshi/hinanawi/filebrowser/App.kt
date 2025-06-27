@@ -1,5 +1,6 @@
 package tenshi.hinanawi.filebrowser
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import tenshi.hinanawi.filebrowser.component.BottomNav
+import tenshi.hinanawi.filebrowser.component.ErrorOverlay
 import tenshi.hinanawi.filebrowser.contant.Route
 
 @Composable
@@ -30,28 +32,31 @@ fun App(
         onNavHostReady(navController)
     }
     MaterialTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .safeContentPadding(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            NavHost(
-                modifier = Modifier.fillMaxHeight(mainScreenRatio),
-                navController = navController,
-                startDestination = Route.MainScreen.stringRoute
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeContentPadding(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                composable(route = Route.MainScreen.stringRoute) {
-                    Text("我是主页")
+                NavHost(
+                    modifier = Modifier.fillMaxHeight(mainScreenRatio),
+                    navController = navController,
+                    startDestination = Route.MainScreen.stringRoute
+                ) {
+                    composable(route = Route.MainScreen.stringRoute) {
+                        Text("我是主页")
+                    }
+                    composable(route = Route.FavoriteScreen.stringRoute) {
+                        Text("我是收藏")
+                    }
                 }
-                composable(route = Route.FavoriteScreen.stringRoute) {
-                    Text("我是收藏")
-                }
+                BottomNav(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    navController
+                )
             }
-            BottomNav(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                navController
-            )
+            ErrorOverlay()
         }
     }
 }
