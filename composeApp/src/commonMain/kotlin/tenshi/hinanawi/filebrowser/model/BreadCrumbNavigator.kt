@@ -1,7 +1,9 @@
 package tenshi.hinanawi.filebrowser.model
 
 import androidx.compose.runtime.toMutableStateList
+import kotlin.jvm.JvmInline
 
+@JvmInline
 value class BreadCrumb(
     val dirName: String
 )

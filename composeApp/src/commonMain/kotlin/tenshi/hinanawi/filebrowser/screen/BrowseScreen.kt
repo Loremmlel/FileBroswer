@@ -30,7 +30,7 @@ import tenshi.hinanawi.filebrowser.viewmodel.ViewModelFactory
 
 @Composable
 fun BrowseScreen(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     viewModel: BrowseViewModel = ViewModelFactory.create(
         BrowseViewModel::class,
         OnlineFileRepository()
