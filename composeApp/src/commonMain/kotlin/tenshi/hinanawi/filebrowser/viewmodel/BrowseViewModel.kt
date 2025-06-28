@@ -1,12 +1,10 @@
 package tenshi.hinanawi.filebrowser.viewmodel
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
@@ -21,6 +19,9 @@ class BrowseViewModel(
     private val _files = MutableStateFlow(emptyList<FileInfo>())
     val files get() = _files.asStateFlow()
 
+    private var _loading = mutableStateOf(true)
+    val loading: State<Boolean> = _loading
+
     fun getData() {
         loadFiles()
     }
@@ -28,13 +29,24 @@ class BrowseViewModel(
     private fun loadFiles() {
         viewModelScope.launch {
             filesRepository.getFiles(navigator.requestPath)
+                .onStart {
+                    _loading.value = true
+                }
                 .catch {
                     ErrorHandler.handleException(it)
+                    _loading.value = false
                 }
                 .onEach {
                     _files.value = it
                 }
+                .onCompletion {
+                    _loading.value = false
+                }
                 .collect()
         }
+    }
+
+    fun deleteFile(file: FileInfo) {
+
     }
 }
