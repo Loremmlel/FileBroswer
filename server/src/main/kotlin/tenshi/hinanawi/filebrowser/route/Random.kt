@@ -9,6 +9,7 @@ import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.*
 import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
+import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
 
@@ -17,6 +18,7 @@ internal fun Application.random() = routing {
         install(PathValidator)
         get("/random") {
             try {
+                call.contentTypeJson()
                 val type = call.queryParameters["type"]?.parseFileType() ?: FileType.Video
                 val dir = call.attributes[ValidatedFileKey]
                 val files = scanDirectory(dir, type)

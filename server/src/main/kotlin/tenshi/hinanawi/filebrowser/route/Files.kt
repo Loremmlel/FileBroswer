@@ -10,6 +10,7 @@ import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
+import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getFileType
 import tenshi.hinanawi.filebrowser.util.requestError
 
@@ -18,6 +19,7 @@ internal fun Application.files() = routing {
         install(PathValidator)
         get {
             try {
+                call.contentTypeJson()
                 val dir = call.attributes[ValidatedFileKey]
                 if (!dir.isDirectory) {
                     call.respond(

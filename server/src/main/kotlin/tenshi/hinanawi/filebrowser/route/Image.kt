@@ -9,6 +9,7 @@ import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
+import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getContentType
 import tenshi.hinanawi.filebrowser.util.getFileType
 import tenshi.hinanawi.filebrowser.util.requestError
@@ -21,6 +22,7 @@ internal fun Application.image() = routing {
                 val file = call.attributes[ValidatedFileKey]
 
                 if (file.getFileType() != FileType.Image) {
+                    call.contentTypeJson()
                     call.respond(
                         HttpStatusCode.BadRequest,
                         Response(400, Message.ImageIsNotImage, null)
@@ -36,6 +38,7 @@ internal fun Application.image() = routing {
                     call.respond(inputStream)
                 }
             } catch (e: Exception) {
+                call.contentTypeJson()
                 call.respond(HttpStatusCode.InternalServerError, Response(500, Message.InternalServerError, null))
                 log.requestError(call, e)
             }

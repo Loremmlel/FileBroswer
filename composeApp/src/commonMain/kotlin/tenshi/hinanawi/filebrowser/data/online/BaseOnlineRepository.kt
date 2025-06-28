@@ -17,8 +17,13 @@ abstract class BaseOnlineRepository {
             }
             HttpResponseValidator {
                 validateResponse { response ->
+                    val headers = response.headers
+                    val contentType = headers["Content-Type"]
+                    if (contentType != "application/json") {
+                        return@validateResponse
+                    }
                     val body = response.body<Response<*>>()
-                    if (body.code != 200) {
+                    if (body.code in 400..599) {
                         throw ApiException(body.code, body.message)
                     }
                 }
