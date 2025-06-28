@@ -24,7 +24,7 @@ import tenshi.hinanawi.filebrowser.model.ErrorInfo
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 @Composable
-internal fun ErrorOverlay() {
+internal fun ErrorOverlay(modifier: Modifier = Modifier) {
     var currentError by remember { mutableStateOf<ErrorInfo?>(null) }
 
     LaunchedEffect(Unit) {
@@ -34,6 +34,7 @@ internal fun ErrorOverlay() {
     }
 
     AnimatedVisibility(
+        modifier = modifier,
         visible = currentError != null
     ) {
         currentError?.let { error ->
@@ -57,6 +58,7 @@ private fun ErrorOverlayContent(
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.5f)
+                .align(Alignment.Center)
                 .clip(RoundedCornerShape(16.dp))
                 .clickable {},  // 阻止点击穿透
             colors = CardDefaults.cardColors(containerColor = backgroundColor),

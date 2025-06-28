@@ -20,6 +20,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import tenshi.hinanawi.filebrowser.component.BottomNav
 import tenshi.hinanawi.filebrowser.component.ErrorOverlay
 import tenshi.hinanawi.filebrowser.contant.Route
+import tenshi.hinanawi.filebrowser.screen.BrowseScreen
 
 @Composable
 @Preview
@@ -45,7 +46,7 @@ fun App(
                     startDestination = Route.MainScreen.stringRoute
                 ) {
                     composable(route = Route.MainScreen.stringRoute) {
-                        Text("我是主页")
+                        BrowseScreen()
                     }
                     composable(route = Route.FavoriteScreen.stringRoute) {
                         Text("我是收藏")
@@ -56,7 +57,7 @@ fun App(
                     navController
                 )
             }
-            ErrorOverlay()
+            ErrorOverlay(modifier = Modifier.fillMaxSize())
         }
     }
 }
