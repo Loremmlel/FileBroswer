@@ -3,6 +3,8 @@ package tenshi.hinanawi.filebrowser.model
 import androidx.compose.runtime.toMutableStateList
 import kotlin.jvm.JvmInline
 
+internal const val ROOT_DIR_NAME = "/"
+
 @JvmInline
 value class BreadCrumbItem(
     val dirName: String
@@ -32,6 +34,9 @@ class BreadCrumbNavigator(
     }
 
     fun popTo(targetDirName: String, inclusive: Boolean = true) {
+        if (targetDirName == ROOT_DIR_NAME) {
+            resetToRoot()
+        }
         val targetIndex = _path.indexOfFirst { it.dirName == targetDirName }
         if (targetIndex != -1) {
             val removeFrom = if (inclusive) targetIndex else targetIndex + 1

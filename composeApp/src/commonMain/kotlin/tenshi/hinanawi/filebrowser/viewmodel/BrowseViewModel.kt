@@ -1,7 +1,5 @@
 package tenshi.hinanawi.filebrowser.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -16,11 +14,8 @@ class BrowseViewModel(
 ) : ViewModel() {
     val navigator = BreadCrumbNavigator(onPathChanged = ::getData)
 
-    private val _files = MutableStateFlow(emptyList<FileInfo>())
-    val files get() = _files.asStateFlow()
-
-    private var _loading = mutableStateOf(true)
-    val loading: State<Boolean> = _loading
+    private val _uiState = MutableStateFlow(BrowserUiState())
+    val uiState = _uiState.asStateFlow()
 
     fun getData() {
         loadFiles()
@@ -29,20 +24,30 @@ class BrowseViewModel(
     private fun loadFiles() {
         viewModelScope.launch {
             filesRepository.getFiles(navigator.requestPath)
+                .distinctUntilChanged()
                 .onStart {
-                    _loading.value = true
+                    _uiState.update {
+                        it.copy(loading = true)
+                    }
+                    println("uiState: ${_uiState.value}")
                 }
-                .catch {
-                    ErrorHandler.handleException(it)
-                    _loading.value = false
+                .catch { exception ->
+                    ErrorHandler.handleException(exception)
+                    _uiState.update {
+                        it.copy(loading = false)
+                    }
+                    println("uiState: ${_uiState.value}")
                 }
-                .onEach {
-                    _files.value = it
+                .collect { files ->
+                    println("files: $files")
+                    _uiState.update {
+                        it.copy(
+                            files = files,
+                            loading = false
+                        )
+                    }
+                    println("uiState: ${_uiState.value}")
                 }
-                .onCompletion {
-                    _loading.value = false
-                }
-                .collect()
         }
     }
 
@@ -50,3 +55,8 @@ class BrowseViewModel(
 
     }
 }
+
+data class BrowserUiState(
+    val files: List<FileInfo> = emptyList(),
+    val loading: Boolean = false
+)

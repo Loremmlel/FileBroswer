@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
+import tenshi.hinanawi.filebrowser.model.ROOT_DIR_NAME
 
 
 @Composable
@@ -28,7 +29,7 @@ fun BreadCrumb(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val paths = buildList {
-            add(BreadCrumbItem("/"))
+            add(BreadCrumbItem(ROOT_DIR_NAME))
             addAll(navigator.path)
         }
         paths.forEachIndexed { index, path ->

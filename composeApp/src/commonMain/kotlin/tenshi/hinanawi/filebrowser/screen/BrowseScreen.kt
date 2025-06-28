@@ -22,22 +22,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.BreadCrumb
 import tenshi.hinanawi.filebrowser.component.FileItem
-import tenshi.hinanawi.filebrowser.data.online.OnlineFileRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
-import tenshi.hinanawi.filebrowser.viewmodel.ViewModelFactory
+
 
 @Composable
 fun BrowseScreen(
     modifier: Modifier = Modifier,
-    viewModel: BrowseViewModel = ViewModelFactory.create(
-        BrowseViewModel::class,
-        OnlineFileRepository()
-    )
+    viewModel: BrowseViewModel
 ) {
-    val files by viewModel.files.collectAsState()
-    val loading by viewModel.loading
+    val state by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getData()
@@ -61,7 +56,7 @@ fun BrowseScreen(
                 .fillMaxWidth()
         ) {
             when {
-                loading -> {
+                state.loading -> {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
@@ -73,7 +68,7 @@ fun BrowseScreen(
                     }
                 }
 
-                files.isEmpty() -> {
+                state.files.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -84,7 +79,7 @@ fun BrowseScreen(
 
                 else -> {
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(150.dp),
+                        columns = GridCells.Adaptive(200.dp),
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp),
@@ -92,7 +87,7 @@ fun BrowseScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(
-                            items = files,
+                            items = state.files,
                             key = { file -> file.name }
                         ) { file ->
                             FileItem(
