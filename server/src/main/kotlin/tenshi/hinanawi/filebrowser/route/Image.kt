@@ -13,10 +13,10 @@ import tenshi.hinanawi.filebrowser.util.getContentType
 import tenshi.hinanawi.filebrowser.util.getFileType
 import tenshi.hinanawi.filebrowser.util.requestError
 
-internal fun Application.image() {
-    routing {
+internal fun Application.image() = routing {
+    route("/image") {
         install(PathValidator)
-        get("/image") {
+        get {
             try {
                 val file = call.attributes[ValidatedFileKey]
 

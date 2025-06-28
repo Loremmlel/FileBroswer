@@ -13,10 +13,10 @@ import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.util.getFileType
 import tenshi.hinanawi.filebrowser.util.requestError
 
-internal fun Application.files() {
-    routing {
+internal fun Application.files() = routing {
+    route("/files") {
         install(PathValidator)
-        get("/files") {
+        get {
             try {
                 val dir = call.attributes[ValidatedFileKey]
                 if (!dir.isDirectory) {
@@ -63,7 +63,7 @@ internal fun Application.files() {
                 log.requestError(call, e)
             }
         }
-        delete("/files") {
+        delete {
             try {
                 val file = call.attributes[ValidatedFileKey]
                 if (!file.delete()) {
