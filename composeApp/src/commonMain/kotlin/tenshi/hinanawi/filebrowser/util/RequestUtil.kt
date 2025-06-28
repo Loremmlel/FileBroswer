@@ -13,7 +13,7 @@ object ErrorHandler {
         _errorFlow.emit(ErrorInfo(code, message))
     }
 
-    suspend fun handleException(exception: Exception) {
+    suspend fun handleException(exception: Throwable) {
         val (code, message) = when (exception) {
             is ApiException -> exception.code to "API请求错误: ${exception.code}: ${exception.message}"
             else -> 0 to "未知错误: ${exception.message}"
