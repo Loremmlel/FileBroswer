@@ -4,23 +4,23 @@ import androidx.compose.runtime.toMutableStateList
 import kotlin.jvm.JvmInline
 
 @JvmInline
-value class BreadCrumb(
+value class BreadCrumbItem(
     val dirName: String
 )
 
 class BreadCrumbNavigator(
-    initialPath: List<BreadCrumb> = emptyList(),
-    private val onPathChanged: (List<BreadCrumb>) -> Unit = {}
+    initialPath: List<BreadCrumbItem> = emptyList(),
+    private val onPathChanged: () -> Unit = {}
 ) {
     private val _path = initialPath.toMutableStateList()
 
-    val path: List<BreadCrumb> get() = _path
+    val path: List<BreadCrumbItem> get() = _path
 
     val currentDirName get() = _path.last().dirName
 
     val requestPath get() = "/" + _path.joinToString("/") { it.dirName }
 
-    fun navigateTo(item: BreadCrumb, mergeDuplicates: Boolean = true) {
+    fun navigateTo(item: BreadCrumbItem, mergeDuplicates: Boolean = true) {
         if (mergeDuplicates) {
             val existingIndex = _path.indexOfFirst { it.dirName == item.dirName }
             if (existingIndex != -1) {
@@ -28,7 +28,7 @@ class BreadCrumbNavigator(
             }
         }
         _path.add(item)
-        onPathChanged(_path.toList())
+        onPathChanged()
     }
 
     fun popTo(targetDirName: String, inclusive: Boolean = true) {
@@ -36,19 +36,19 @@ class BreadCrumbNavigator(
         if (targetIndex != -1) {
             val removeFrom = if (inclusive) targetIndex else targetIndex + 1
             _path.removeAll { _path.indexOf(it) >= removeFrom }
-            onPathChanged(_path.toList())
+            onPathChanged()
         }
     }
 
     fun popBack() {
         if (_path.isNotEmpty()) {
             _path.removeLast()
-            onPathChanged(_path.toList())
+            onPathChanged()
         }
     }
 
     fun resetToRoot() {
         _path.clear()
-        onPathChanged(_path.toList())
+        onPathChanged()
     }
 }

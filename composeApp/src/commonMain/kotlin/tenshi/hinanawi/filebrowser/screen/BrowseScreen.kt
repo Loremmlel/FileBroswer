@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.BreadCrumb
 import tenshi.hinanawi.filebrowser.component.FileItem
 import tenshi.hinanawi.filebrowser.data.online.OnlineFileRepository
-import tenshi.hinanawi.filebrowser.model.BreadCrumb
+import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
 import tenshi.hinanawi.filebrowser.viewmodel.ViewModelFactory
@@ -38,7 +38,8 @@ fun BrowseScreen(
 ) {
     val files by viewModel.files.collectAsState()
     val loading by viewModel.loading
-    LaunchedEffect(viewModel.navigator.requestPath) {
+
+    LaunchedEffect(Unit) {
         viewModel.getData()
     }
 
@@ -98,7 +99,7 @@ fun BrowseScreen(
                                 file = file,
                                 onClick = {
                                     if (file.isDirectory) {
-                                        viewModel.navigator.navigateTo(BreadCrumb(file.name))
+                                        viewModel.navigator.navigateTo(BreadCrumbItem(file.name))
                                     }
                                 },
                                 onDelete = {

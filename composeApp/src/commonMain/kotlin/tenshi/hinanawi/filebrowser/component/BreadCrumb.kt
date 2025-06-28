@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
 
 
@@ -26,7 +27,11 @@ fun BreadCrumb(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        navigator.path.forEachIndexed { index, path ->
+        val paths = buildList {
+            add(BreadCrumbItem("/"))
+            addAll(navigator.path)
+        }
+        paths.forEachIndexed { index, path ->
             if (index > 0) {
                 Icon(
                     imageVector = Icons.Default.ChevronRight,

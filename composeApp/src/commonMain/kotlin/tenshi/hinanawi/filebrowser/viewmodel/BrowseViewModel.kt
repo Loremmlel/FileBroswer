@@ -14,7 +14,7 @@ import tenshi.hinanawi.filebrowser.util.ErrorHandler
 class BrowseViewModel(
     private val filesRepository: FilesRepository
 ) : ViewModel() {
-    val navigator = BreadCrumbNavigator()
+    val navigator = BreadCrumbNavigator(onPathChanged = ::getData)
 
     private val _files = MutableStateFlow(emptyList<FileInfo>())
     val files get() = _files.asStateFlow()
