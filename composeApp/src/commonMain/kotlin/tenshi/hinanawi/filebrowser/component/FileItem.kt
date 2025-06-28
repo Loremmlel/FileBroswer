@@ -56,6 +56,8 @@ internal fun FileItem(
     isFavorite: Boolean = false,
     onFavoriteToggle: (Boolean) -> Unit = {},
 ) {
+    val iconButtonSize = 18.dp
+    val iconSize = 48.dp
     var showConfirm by remember { mutableStateOf(false) }
 
     Box(
@@ -77,7 +79,7 @@ internal fun FileItem(
                     color = if (isFavorite) MaterialTheme.colorScheme.secondaryContainer
                     else MaterialTheme.colorScheme.surfaceVariant,
                     shape = CircleShape
-                ).size(36.dp)
+                ).size(iconButtonSize)
             ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Default.Favorite
@@ -96,7 +98,7 @@ internal fun FileItem(
                     modifier = Modifier.background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = CircleShape
-                    ).size(36.dp)
+                    ).size(iconButtonSize)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Download,
@@ -112,7 +114,7 @@ internal fun FileItem(
                     modifier = Modifier.background(
                         color = MaterialTheme.colorScheme.errorContainer,
                         shape = CircleShape
-                    ).size(36.dp)
+                    ).size(iconButtonSize)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -134,28 +136,28 @@ internal fun FileItem(
                 FileType.Folder -> Icon(
                     imageVector = Icons.Default.Folder,
                     contentDescription = "文件夹",
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(iconSize),
                     tint = MaterialTheme.colorScheme.primary
                 )
 
                 FileType.Image -> Icon(
                     imageVector = Icons.Default.Image,
                     contentDescription = "图片",
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(iconSize),
                     tint = MaterialTheme.colorScheme.primary
                 )
 
                 FileType.Video -> Icon(
                     imageVector = Icons.Default.VideoFile,
                     contentDescription = "视频",
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(iconSize),
                     tint = MaterialTheme.colorScheme.primary
                 )
 
                 FileType.Other -> Icon(
                     imageVector = Icons.AutoMirrored.Filled.InsertDriveFile,
                     contentDescription = "其他",
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(iconSize),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }

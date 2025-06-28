@@ -53,7 +53,7 @@ fun BreadCrumb(
                 Text(
                     text = path.dirName,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (index == navigator.path.size - 1) MaterialTheme.colorScheme.onSurface
+                    color = if (index == paths.size - 1) MaterialTheme.colorScheme.onSurface
                     else MaterialTheme.colorScheme.primary
                 )
             }
