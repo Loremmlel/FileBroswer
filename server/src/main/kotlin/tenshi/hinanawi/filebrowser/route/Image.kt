@@ -31,8 +31,8 @@ internal fun Application.image() = routing {
         }
 
         val contentType = file.getContentType()
-        call.response.header("Content-Type", contentType)
-        call.response.header("Content-Length", file.length())
+        call.response.header(HttpHeaders.ContentType, contentType)
+        call.response.header(HttpHeaders.ContentLength, file.length())
 
         file.inputStream().use { inputStream ->
           call.respond(inputStream)
