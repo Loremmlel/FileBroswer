@@ -87,7 +87,8 @@ class BrowseViewModel(
     if (currentImageIndex == -1) {
        return
     }
-    val nextImage = _uiState.value.files.firstBefore(currentImageIndex) { it.type == FileType.Image }
+    // 写反了，耻辱
+    val nextImage = _uiState.value.files.firstAfter(currentImageIndex) { it.type == FileType.Image }
     if (nextImage != null) {
       openImagePreview(nextImage)
     } else {
@@ -102,7 +103,7 @@ class BrowseViewModel(
     if (currentImageIndex == -1) {
        return
     }
-    val previousImage = _uiState.value.files.firstAfter(currentImageIndex) { it.type == FileType.Image }
+    val previousImage = _uiState.value.files.firstBefore(currentImageIndex) { it.type == FileType.Image }
     if (previousImage != null) {
       openImagePreview(previousImage)
     } else {
