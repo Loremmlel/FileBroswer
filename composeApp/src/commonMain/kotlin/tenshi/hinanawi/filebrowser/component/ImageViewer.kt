@@ -45,8 +45,7 @@ fun ImageViewer(
   Box(
     modifier = modifier
       .fillMaxSize()
-      .background(Color.Black.copy(alpha = 0.9f)),
-    contentAlignment = Alignment.Center
+      .background(Color.Black.copy(alpha = 0.9f))
   ) {
     RemoteImage(
       path = file.path,
@@ -54,12 +53,14 @@ fun ImageViewer(
       modifier = Modifier
         .fillMaxSize()
         .padding(vertical = 60.dp, horizontal = 40.dp)
+        .align(Alignment.Center)
     )
     // 标题栏
     Box(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(16.dp)
+        .padding(16.dp),
+      contentAlignment = Alignment.TopCenter
     ) {
       Text(
         text = file.name,

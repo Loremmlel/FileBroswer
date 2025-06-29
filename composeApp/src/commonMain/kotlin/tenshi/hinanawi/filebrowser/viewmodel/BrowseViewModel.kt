@@ -9,6 +9,8 @@ import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
+import tenshi.hinanawi.filebrowser.util.firstAfter
+import tenshi.hinanawi.filebrowser.util.firstBefore
 
 class BrowseViewModel(
   private val filesRepository: FilesRepository
@@ -18,7 +20,13 @@ class BrowseViewModel(
   private val _uiState = MutableStateFlow(BrowserUiState())
   val uiState = _uiState.asStateFlow()
 
-  private val allImages: List<FileInfo> get() = uiState.value.files.filter { it.type == FileType.Image }
+  private val _firstImage get() = _uiState.value.files.firstOrNull {
+    it.type == FileType.Image
+  }
+
+  private val _lastImage get() = _uiState.value.files.lastOrNull {
+    it.type == FileType.Image
+  }
 
   fun getData() {
     loadFiles()
@@ -56,7 +64,7 @@ class BrowseViewModel(
     }
   }
 
-  fun openImagePreview(image: FileInfo) {
+  fun openImagePreview(image: FileInfo?) {
     _uiState.update {
       it.copy(
         previewItem = image
@@ -73,16 +81,32 @@ class BrowseViewModel(
   }
 
   fun nextImagePreview() {
-    val currentIndex = uiState.value.files.indexOf(uiState.value.previewItem)
-    if (currentIndex < uiState.value.files.size - 1) {
-      openImagePreview(uiState.value.files[currentIndex + 1])
+    val currentImageIndex = _uiState.value.files.indexOfFirst {
+      it.name == _uiState.value.previewItem?.name
+    }
+    if (currentImageIndex == -1) {
+       return
+    }
+    val nextImage = _uiState.value.files.firstBefore(currentImageIndex) { it.type == FileType.Image }
+    if (nextImage != null) {
+      openImagePreview(nextImage)
+    } else {
+      openImagePreview(_firstImage)
     }
   }
 
   fun previousImagePreview() {
-    val currentIndex = uiState.value.files.indexOf(uiState.value.previewItem)
-    if (currentIndex > 0) {
-      openImagePreview(uiState.value.files[currentIndex - 1])
+    val currentImageIndex = _uiState.value.files.indexOfFirst {
+      it.name == _uiState.value.previewItem?.name
+    }
+    if (currentImageIndex == -1) {
+       return
+    }
+    val previousImage = _uiState.value.files.firstAfter(currentImageIndex) { it.type == FileType.Image }
+    if (previousImage != null) {
+      openImagePreview(previousImage)
+    } else {
+      openImagePreview(_lastImage)
     }
   }
 }
