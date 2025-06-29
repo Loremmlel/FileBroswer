@@ -40,7 +40,7 @@ internal fun Application.files() = routing {
               it.isDirectory,
               it.getFileType(),
               it.lastModified(),
-              it.path.substring(AppConfig.BASE_DIR.length)
+              it.path.substring(AppConfig.BASE_DIR.length).replace("\\", "/")
             )
           )
         }

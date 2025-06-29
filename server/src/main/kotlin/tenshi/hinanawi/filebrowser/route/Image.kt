@@ -39,7 +39,10 @@ internal fun Application.image() = routing {
         }
       } catch (e: Exception) {
         call.contentTypeJson()
-        call.respond(HttpStatusCode.InternalServerError, Response(500, Message.InternalServerError, null))
+        call.respond(
+          HttpStatusCode.InternalServerError,
+          Response(500, Message.InternalServerError, null)
+        )
         log.requestError(call, e)
       }
     }
