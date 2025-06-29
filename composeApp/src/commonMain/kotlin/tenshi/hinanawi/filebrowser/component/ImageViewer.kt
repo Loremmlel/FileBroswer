@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +31,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import tenshi.hinanawi.filebrowser.data.online.OnlineImageRepository
 import tenshi.hinanawi.filebrowser.model.FileInfo
+import tenshi.hinanawi.filebrowser.viewmodel.RemoteImageViewModel
 
 @Composable
 fun ImageViewer(
@@ -42,6 +45,8 @@ fun ImageViewer(
 ) {
   val operationIconSize = 32.dp
   val iconButtonPadding = 4.dp
+
+  val remoteImageViewModel = remember { RemoteImageViewModel(OnlineImageRepository()) }
   Box(
     modifier = modifier
       .fillMaxSize()
@@ -53,7 +58,9 @@ fun ImageViewer(
       modifier = Modifier
         .fillMaxSize()
         .padding(vertical = 60.dp, horizontal = 40.dp)
-        .align(Alignment.Center)
+        .align(Alignment.Center),
+      // 唉，又是ViewModel问题导致的一闪而过
+      viewModel = remoteImageViewModel
     )
     // 标题栏
     Box(

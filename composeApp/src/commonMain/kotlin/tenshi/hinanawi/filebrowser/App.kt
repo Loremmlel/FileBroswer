@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -32,7 +33,7 @@ fun App(
   // 不知道为什么cmp不支持viewModel函数，然后传入factory参数来构造viewModel
   // 只好采用土法了
   // uiState的异常也和这个有关。原本我是在函数参数的默认值构造viewModel的，可能在重新组合的时候造成一些问题
-  val browseViewModel = BrowseViewModel(OnlineFileRepository())
+  val browseViewModel = remember { BrowseViewModel(OnlineFileRepository()) }
   MaterialTheme {
     Box(modifier = Modifier.fillMaxSize()) {
       Column(

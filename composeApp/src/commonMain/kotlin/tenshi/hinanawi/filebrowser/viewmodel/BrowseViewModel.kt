@@ -29,6 +29,7 @@ class BrowseViewModel(
   }
 
   fun getData() {
+    closeImagePreview()
     loadFiles()
   }
 

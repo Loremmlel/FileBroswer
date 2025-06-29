@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.ImageRepository
+import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 class RemoteImageViewModel(
   private val imageRepository: ImageRepository
@@ -20,6 +21,7 @@ class RemoteImageViewModel(
       imageRepository.getImageStream(path)
         .catch {
           _imageLoadState.value = ImageLoadState.Error(it.message ?: "Unknown Error")
+          ErrorHandler.handleException(it)
         }
         .collect {
           _imageLoadState.value = it
