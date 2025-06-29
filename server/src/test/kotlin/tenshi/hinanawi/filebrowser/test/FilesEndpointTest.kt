@@ -1,5 +1,6 @@
 package tenshi.hinanawi.filebrowser.test
 
+import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -174,8 +175,11 @@ class FilesEndpointTest : BaseEndpointTest() {
     assertTrue(fileToDelete.exists())
 
     val response = client.delete("/files?path=/${fileToDelete.name}")
+    val body = response.bodyAsText()
+    val parsed = Json.decodeFromString<Response<Unit>>(body)
 
-    assertEquals(HttpStatusCode.NoContent, response.status)
+    assertEquals(204, parsed.code)
+    assertEquals(HttpStatusCode.OK, response.status)
     assertFalse(fileToDelete.exists())
   }
 

@@ -84,8 +84,9 @@ internal fun Application.files() = routing {
           log.warn("文件${file.path}删除失败")
           return@delete
         }
+        // 当响应体为204 No Content时，响应体为空，会导致序列化问题
         call.respond(
-          HttpStatusCode.NoContent,
+          HttpStatusCode.OK,
           Response(204, Message.Success, null)
         )
       } catch (e: Exception) {
