@@ -21,13 +21,14 @@ import tenshi.hinanawi.filebrowser.viewmodel.RemoteImageViewModel
 
 @Composable
 fun RemoteImage(
-  url: String,
+  path: String,
   viewModel: RemoteImageViewModel = RemoteImageViewModel(OnlineImageRepository()),
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  contentDescription: String = "远程图片资源"
 ) {
   val imageLoadState by viewModel.image.collectAsState()
-  LaunchedEffect(url) {
-    viewModel.loadImage(url)
+  LaunchedEffect(path) {
+    viewModel.loadImage(path)
   }
   Box(modifier.fillMaxSize()) {
     when (val currentState = imageLoadState) {
@@ -43,7 +44,7 @@ fun RemoteImage(
       is ImageLoadState.Success ->
         Image(
           painter = currentState.painter,
-          contentDescription = "远程图片资源",
+          contentDescription = contentDescription,
           modifier = modifier.fillMaxSize(),
           contentScale = ContentScale.Fit
         )

@@ -16,9 +16,9 @@ class RemoteImageViewModel(
   private val _imageLoadState = MutableStateFlow<ImageLoadState>(ImageLoadState.Loading)
   val image = _imageLoadState.asStateFlow()
 
-  fun loadImage(url: String) {
+  fun loadImage(path: String) {
     viewModelScope.launch {
-      imageRepository.getImageStream(url)
+      imageRepository.getImageStream(path)
         .onStart {
           _imageLoadState.value = ImageLoadState.Loading
         }
