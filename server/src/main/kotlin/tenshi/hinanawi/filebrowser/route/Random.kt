@@ -16,7 +16,9 @@ import java.io.File
 internal fun Application.random() = routing {
   route("/random") {
     install(PathValidator)
-    get("/random") {
+    // fix: 操，忘了删这玩意儿，导致测试失败了
+    // 单元测试真有用好吧
+    get {
       try {
         call.contentTypeJson()
         val type = call.queryParameters["type"]?.parseFileType() ?: FileType.Video
