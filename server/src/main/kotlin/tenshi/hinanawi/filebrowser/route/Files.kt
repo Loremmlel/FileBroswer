@@ -67,6 +67,7 @@ internal fun Application.files() = routing {
     }
     delete {
       try {
+        call.contentTypeJson()
         val file = call.attributes[ValidatedFileKey]
         if (!file.delete()) {
           if (file.isDirectory) {
