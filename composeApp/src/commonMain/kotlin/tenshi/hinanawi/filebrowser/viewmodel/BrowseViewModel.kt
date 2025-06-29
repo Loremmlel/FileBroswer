@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
 import tenshi.hinanawi.filebrowser.model.FileInfo
+import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 class BrowseViewModel(
@@ -16,6 +17,8 @@ class BrowseViewModel(
 
   private val _uiState = MutableStateFlow(BrowserUiState())
   val uiState = _uiState.asStateFlow()
+
+  private val allImages: List<FileInfo> get() = uiState.value.files.filter { it.type == FileType.Image }
 
   fun getData() {
     loadFiles()
@@ -36,7 +39,6 @@ class BrowseViewModel(
           }
         }
         .collect { files ->
-          println("files: $files")
           _uiState.update {
             it.copy(
               files = files,
@@ -54,12 +56,39 @@ class BrowseViewModel(
     }
   }
 
-  fun imagePreview() {
+  fun openImagePreview(image: FileInfo) {
+    _uiState.update {
+      it.copy(
+        previewItem = image
+      )
+    }
+  }
 
+  fun closeImagePreview() {
+    _uiState.update {
+      it.copy(
+        previewItem = null
+      )
+    }
+  }
+
+  fun nextImagePreview() {
+    val currentIndex = uiState.value.files.indexOf(uiState.value.previewItem)
+    if (currentIndex < uiState.value.files.size - 1) {
+      openImagePreview(uiState.value.files[currentIndex + 1])
+    }
+  }
+
+  fun previousImagePreview() {
+    val currentIndex = uiState.value.files.indexOf(uiState.value.previewItem)
+    if (currentIndex > 0) {
+      openImagePreview(uiState.value.files[currentIndex - 1])
+    }
   }
 }
 
 data class BrowserUiState(
   val files: List<FileInfo> = emptyList(),
-  val fileLoading: Boolean = false
+  val fileLoading: Boolean = false,
+  val previewItem: FileInfo? = null
 )

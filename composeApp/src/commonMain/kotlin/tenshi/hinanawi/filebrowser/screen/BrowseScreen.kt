@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.BreadCrumb
 import tenshi.hinanawi.filebrowser.component.FileItem
+import tenshi.hinanawi.filebrowser.component.ImageViewer
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
@@ -24,7 +25,8 @@ import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
 
 @Composable
 fun BrowseScreen(
-  modifier: Modifier = Modifier, viewModel: BrowseViewModel
+  modifier: Modifier = Modifier,
+  viewModel: BrowseViewModel
 ) {
   val state by viewModel.uiState.collectAsState()
 
@@ -93,6 +95,14 @@ fun BrowseScreen(
           }
         }
       }
+    }
+    if (state.previewItem != null) {
+      ImageViewer(
+        file = state.previewItem!!,
+        onDismiss = viewModel::closeImagePreview,
+        onNext = viewModel::nextImagePreview,
+        onPrev = viewModel::previousImagePreview
+      )
     }
   }
 }
