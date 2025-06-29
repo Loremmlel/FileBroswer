@@ -31,7 +31,7 @@ internal fun FileItem(
   isFavorite: Boolean = false,
   onFavoriteToggle: (Boolean) -> Unit = {},
 ) {
-  val iconButtonSize = 18.dp
+  val iconButtonSize = 24.dp
   val iconButtonPadding = 4.dp
   val iconSize = 48.dp
   var showConfirm by remember { mutableStateOf(false) }
