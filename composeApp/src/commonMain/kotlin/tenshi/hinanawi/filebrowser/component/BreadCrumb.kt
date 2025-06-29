@@ -21,42 +21,42 @@ import tenshi.hinanawi.filebrowser.model.ROOT_DIR_NAME
 
 @Composable
 fun BreadCrumb(
-    navigator: BreadCrumbNavigator,
-    modifier: Modifier = Modifier
+  navigator: BreadCrumbNavigator,
+  modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val paths = buildList {
-            add(BreadCrumbItem(ROOT_DIR_NAME))
-            addAll(navigator.path)
-        }
-        paths.forEachIndexed { index, path ->
-            if (index > 0) {
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = "分隔符",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .padding(horizontal = 4.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            // 路径项
-            TextButton(
-                onClick = { navigator.popTo(path.dirName, false) },
-                modifier = Modifier.padding(0.dp),
-                contentPadding = PaddingValues(4.dp)
-            ) {
-                Text(
-                    text = path.dirName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (index == paths.size - 1) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.primary
-                )
-            }
-        }
+  Row(
+    modifier = modifier,
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    val paths = buildList {
+      add(BreadCrumbItem(ROOT_DIR_NAME))
+      addAll(navigator.path)
     }
+    paths.forEachIndexed { index, path ->
+      if (index > 0) {
+        Icon(
+          imageVector = Icons.Default.ChevronRight,
+          contentDescription = "分隔符",
+          modifier = Modifier
+            .size(24.dp)
+            .padding(horizontal = 4.dp),
+          tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      }
+
+      // 路径项
+      TextButton(
+        onClick = { navigator.popTo(path.dirName, false) },
+        modifier = Modifier.padding(0.dp),
+        contentPadding = PaddingValues(4.dp)
+      ) {
+        Text(
+          text = path.dirName,
+          style = MaterialTheme.typography.bodyMedium,
+          color = if (index == paths.size - 1) MaterialTheme.colorScheme.onSurface
+          else MaterialTheme.colorScheme.primary
+        )
+      }
+    }
+  }
 }

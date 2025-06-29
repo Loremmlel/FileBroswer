@@ -4,13 +4,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ResponseWithoutData(
-    val code: Int,
-    val message: Message
+  val code: Int,
+  val message: Message
 )
 
 @Serializable
 data class Response<T>(
-    val code: Int,
-    val message: Message,
-    val data: T?
+  val code: Int,
+  val message: Message,
+  val data: T?
 )

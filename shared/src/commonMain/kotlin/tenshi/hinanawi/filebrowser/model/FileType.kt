@@ -4,18 +4,18 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class FileType {
-    Folder,
-    Image,
-    Video,
-    Other;
+  Folder,
+  Image,
+  Video,
+  Other;
 
-    override fun toString(): String = this.name
+  override fun toString(): String = this.name
 }
 
 fun String.parseFileType(): FileType? = when (this) {
-    FileType.Folder.name -> FileType.Folder
-    FileType.Image.name -> FileType.Image
-    FileType.Video.name -> FileType.Video
-    FileType.Other.name -> FileType.Other
-    else -> null
+  FileType.Folder.name -> FileType.Folder
+  FileType.Image.name -> FileType.Image
+  FileType.Video.name -> FileType.Video
+  FileType.Other.name -> FileType.Other
+  else -> null
 }

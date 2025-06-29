@@ -19,22 +19,22 @@ private const val resourceHanZiTTF = "./fonts/MicrosoftYaHei.ttf"
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalBrowserHistoryApi
 fun main() {
-    val body = document.body ?: return
-    ComposeViewport(body) {
-        val fontFamilyResolver = LocalFontFamilyResolver.current
-        var fontLoaded by remember { mutableStateOf(false) }
-        if (fontLoaded) {
-            App(onNavHostReady = { window.bindToNavigation(it) })
-        } else {
-            Text("Loading...")
-        }
-
-        LaunchedEffect(Unit) {
-            val fontBytes = loadRes(resourceHanZiTTF).toByteArray()
-            val fontFamily = FontFamily(listOf(Font("MicrosoftYaHei", fontBytes)))
-            fontFamilyResolver.preload(fontFamily)
-            fontLoaded = true
-        }
+  val body = document.body ?: return
+  ComposeViewport(body) {
+    val fontFamilyResolver = LocalFontFamilyResolver.current
+    var fontLoaded by remember { mutableStateOf(false) }
+    if (fontLoaded) {
+      App(onNavHostReady = { window.bindToNavigation(it) })
+    } else {
+      Text("Loading...")
     }
+
+    LaunchedEffect(Unit) {
+      val fontBytes = loadRes(resourceHanZiTTF).toByteArray()
+      val fontFamily = FontFamily(listOf(Font("MicrosoftYaHei", fontBytes)))
+      fontFamilyResolver.preload(fontFamily)
+      fontLoaded = true
+    }
+  }
 }
 

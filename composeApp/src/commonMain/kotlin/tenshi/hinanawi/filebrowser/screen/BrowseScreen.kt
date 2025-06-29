@@ -24,89 +24,75 @@ import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
 
 @Composable
 fun BrowseScreen(
-    modifier: Modifier = Modifier,
-    viewModel: BrowseViewModel
+  modifier: Modifier = Modifier, viewModel: BrowseViewModel
 ) {
-    val state by viewModel.uiState.collectAsState()
+  val state by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getData()
-    }
+  LaunchedEffect(Unit) {
+    viewModel.getData()
+  }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+  Column(
+    modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+  ) {
+    BreadCrumb(
+      navigator = viewModel.navigator,
+      modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+    Box(
+      modifier = Modifier.weight(1f).fillMaxWidth()
     ) {
-        BreadCrumb(
-            navigator = viewModel.navigator,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            when {
-                state.loading -> {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator()
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text("加载中...", style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-
-                state.files.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("文件夹为空", style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-
-                else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(200.dp),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(
-                            items = state.files,
-                            key = { file -> file.name }
-                        ) { file ->
-                            FileItem(
-                                file = file,
-                                onClick = {
-                                    if (file.isDirectory) {
-                                        viewModel.navigator.navigateTo(BreadCrumbItem(file.name))
-                                    }
-                                },
-                                onDelete = {
-                                    viewModel.deleteFile(file)
-                                },
-                                onDownload = if (!file.isDirectory && (file.type == FileType.Image || file.type == FileType.Video)) {
-                                    {}
-                                } else null,
-                                isFavorite = false,
-                                onFavoriteToggle = {
-
-                                }
-                            )
-                        }
-                    }
-                }
-            }
+      when {
+        state.loading -> {
+          Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("加载中...", style = MaterialTheme.typography.bodyLarge)
+          }
         }
+
+        state.files.isEmpty() -> {
+          Box(
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+          ) {
+            Text("文件夹为空", style = MaterialTheme.typography.bodyLarge)
+          }
+        }
+
+        else -> {
+          LazyVerticalGrid(
+            columns = GridCells.Adaptive(200.dp),
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+          ) {
+            items(
+              items = state.files, key = { file -> file.name }) { file ->
+              FileItem(
+                file = file,
+                onClick = {
+                  if (file.isDirectory) {
+                    viewModel.navigator.navigateTo(BreadCrumbItem(file.name))
+                  }
+                },
+                onDelete = {
+                  viewModel.deleteFile(file)
+                },
+                onDownload = if (!file.isDirectory && (file.type == FileType.Image || file.type == FileType.Video)) { fileInfo ->
+
+                } else null,
+                isFavorite = false,
+                onFavoriteToggle = {
+
+                })
+            }
+          }
+        }
+      }
     }
+  }
 }

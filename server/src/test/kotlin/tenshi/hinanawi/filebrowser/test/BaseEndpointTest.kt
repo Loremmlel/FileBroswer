@@ -8,30 +8,30 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
 abstract class BaseEndpointTest {
-    protected lateinit var baseDir: File
+  protected lateinit var baseDir: File
 
-    @BeforeTest
-    fun setUp() {
-        baseDir = Files.createTempDirectory("testRandomBaseDir").toFile()
+  @BeforeTest
+  fun setUp() {
+    baseDir = Files.createTempDirectory("testRandomBaseDir").toFile()
 
-        val propsField = AppConfig::class.java.getDeclaredField("props")
-        propsField.isAccessible = true
+    val propsField = AppConfig::class.java.getDeclaredField("props")
+    propsField.isAccessible = true
 
-        val props = propsField.get(AppConfig) as Properties
-        props.setProperty("BASE_DIR", baseDir.absolutePath)
+    val props = propsField.get(AppConfig) as Properties
+    props.setProperty("BASE_DIR", baseDir.absolutePath)
+  }
+
+  @AfterTest
+  fun tearDown() {
+    baseDir.deleteRecursively()
+  }
+
+  protected val isWindows: Boolean get() = System.getProperty("os.name").lowercase().contains("win")
+
+  protected fun String.normalizedPath(): String {
+    if (isWindows) {
+      return replace("/", "\\")
     }
-
-    @AfterTest
-    fun tearDown() {
-        baseDir.deleteRecursively()
-    }
-
-    protected val isWindows: Boolean get() = System.getProperty("os.name").lowercase().contains("win")
-
-    protected fun String.normalizedPath(): String {
-        if (isWindows) {
-            return replace("/", "\\")
-        }
-        return this
-    }
+    return this
+  }
 }

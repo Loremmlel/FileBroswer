@@ -10,20 +10,20 @@ import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 class OnlineFileRepository : BaseOnlineRepository(), FilesRepository {
-    override fun getFiles(path: String) = flow {
-        try {
-            val response = client.get("$SERVER_URL/files?path=$path").body<Response<List<FileInfo>>>()
-            emit(response.data ?: emptyList())
-        } catch (e: Exception) {
-            ErrorHandler.handleException(e)
-            emptyList<List<FileInfo>>()
-        }
-    }
-
-    override suspend fun deleteFile(path: String) = try {
-        client.delete("$SERVER_URL/files?path=$path").body<Response<Unit>>()
-        Unit
+  override fun getFiles(path: String) = flow {
+    try {
+      val response = client.get("$SERVER_URL/files?path=$path").body<Response<List<FileInfo>>>()
+      emit(response.data ?: emptyList())
     } catch (e: Exception) {
-        ErrorHandler.handleException(e)
+      ErrorHandler.handleException(e)
+      emptyList<List<FileInfo>>()
     }
+  }
+
+  override suspend fun deleteFile(path: String) = try {
+    client.delete("$SERVER_URL/files?path=$path").body<Response<Unit>>()
+    Unit
+  } catch (e: Exception) {
+    ErrorHandler.handleException(e)
+  }
 }

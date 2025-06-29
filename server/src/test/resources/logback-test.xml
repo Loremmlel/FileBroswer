@@ -9,25 +9,25 @@
 
     <!-- 设置根日志级别为 WARN，过滤掉大部分调试信息 -->
     <root level="WARN">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
     </root>
 
     <!-- 特别设置 Ktor 相关的日志级别 -->
-    <logger name="io.ktor" level="ERROR" />
-    <logger name="io.ktor.test" level="ERROR" />
-    <logger name="io.ktor.server" level="ERROR" />
-    <logger name="io.ktor.client" level="ERROR" />
-    <logger name="io.ktor.server.engine" level="ERROR" />
-    <logger name="io.ktor.server.engine.internal" level="ERROR" />
-    <logger name="io.ktor.server.routing" level="ERROR" />
-    <logger name="io.ktor.client.plugins" level="ERROR" />
-    
+    <logger name="io.ktor" level="ERROR"/>
+    <logger name="io.ktor.test" level="ERROR"/>
+    <logger name="io.ktor.server" level="ERROR"/>
+    <logger name="io.ktor.client" level="ERROR"/>
+    <logger name="io.ktor.server.engine" level="ERROR"/>
+    <logger name="io.ktor.server.engine.internal" level="ERROR"/>
+    <logger name="io.ktor.server.routing" level="ERROR"/>
+    <logger name="io.ktor.client.plugins" level="ERROR"/>
+
     <!-- 设置 Netty 日志级别 -->
-    <logger name="io.netty" level="ERROR" />
-    
+    <logger name="io.netty" level="ERROR"/>
+
     <!-- 设置 kotlinx.coroutines 日志级别 -->
-    <logger name="kotlinx.coroutines" level="ERROR" />
-    
+    <logger name="kotlinx.coroutines" level="ERROR"/>
+
     <!-- 只显示应用程序的日志 -->
-    <logger name="tenshi.hinanawi.filebrowser" level="INFO" />
+    <logger name="tenshi.hinanawi.filebrowser" level="INFO"/>
 </configuration>

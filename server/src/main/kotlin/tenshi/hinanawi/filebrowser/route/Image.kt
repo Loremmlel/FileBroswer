@@ -15,33 +15,33 @@ import tenshi.hinanawi.filebrowser.util.getFileType
 import tenshi.hinanawi.filebrowser.util.requestError
 
 internal fun Application.image() = routing {
-    route("/image") {
-        install(PathValidator)
-        get {
-            try {
-                val file = call.attributes[ValidatedFileKey]
+  route("/image") {
+    install(PathValidator)
+    get {
+      try {
+        val file = call.attributes[ValidatedFileKey]
 
-                if (file.getFileType() != FileType.Image) {
-                    call.contentTypeJson()
-                    call.respond(
-                        HttpStatusCode.BadRequest,
-                        Response(400, Message.ImageIsNotImage, null)
-                    )
-                    return@get
-                }
-
-                val contentType = file.getContentType()
-                call.response.header("Content-Type", contentType)
-                call.response.header("Content-Length", file.length())
-
-                file.inputStream().use { inputStream ->
-                    call.respond(inputStream)
-                }
-            } catch (e: Exception) {
-                call.contentTypeJson()
-                call.respond(HttpStatusCode.InternalServerError, Response(500, Message.InternalServerError, null))
-                log.requestError(call, e)
-            }
+        if (file.getFileType() != FileType.Image) {
+          call.contentTypeJson()
+          call.respond(
+            HttpStatusCode.BadRequest,
+            Response(400, Message.ImageIsNotImage, null)
+          )
+          return@get
         }
+
+        val contentType = file.getContentType()
+        call.response.header("Content-Type", contentType)
+        call.response.header("Content-Length", file.length())
+
+        file.inputStream().use { inputStream ->
+          call.respond(inputStream)
+        }
+      } catch (e: Exception) {
+        call.contentTypeJson()
+        call.respond(HttpStatusCode.InternalServerError, Response(500, Message.InternalServerError, null))
+        log.requestError(call, e)
+      }
     }
+  }
 }
