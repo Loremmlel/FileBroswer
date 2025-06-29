@@ -19,9 +19,6 @@ class RemoteImageViewModel(
   fun loadImage(path: String) {
     viewModelScope.launch {
       imageRepository.getImageStream(path)
-        .onStart {
-          _imageLoadState.value = ImageLoadState.Loading
-        }
         .catch {
           _imageLoadState.value = ImageLoadState.Error(it.message ?: "Unknown Error")
         }

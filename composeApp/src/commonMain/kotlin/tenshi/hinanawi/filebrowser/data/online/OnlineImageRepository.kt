@@ -8,29 +8,36 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.cio.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.data.repo.ImageRepository
+import tenshi.hinanawi.filebrowser.util.ErrorHandler
 import tenshi.hinanawi.filebrowser.viewmodel.ImageLoadState
 
 class OnlineImageRepository: BaseOnlineRepository(), ImageRepository {
-  override fun getImageStream(path: String): Flow<ImageLoadState> = flow {
+  // fix: Kotlin Flow 的并发发射限制：普通 flow 构建器不允许从多个协程并发发射数据
+  // 解决方案：使用 callbackFlow
+  override fun getImageStream(path: String): Flow<ImageLoadState> = callbackFlow {
+    trySend(ImageLoadState.Loading)
     val response = client.get("/image?path=$path") {
       onDownload { bytesSentTotal, contentLength ->
         if (contentLength != null) {
           val progress = bytesSentTotal.toFloat() / contentLength
-          emit(ImageLoadState.Progress(progress))
+          trySend(ImageLoadState.Progress(progress))
         }
       }
     }
     if (response.headers[HttpHeaders.ContentType]?.startsWith("image/") != true) {
-      emit(ImageLoadState.Error("服务器错误: ${response.status}"))
-      return@flow
+      trySend(ImageLoadState.Error("服务器错误: ${response.status}"))
+      close()
+      return@callbackFlow
     }
     val imageBitmap = response.bodyAsChannel().toByteArray().decodeToImageBitmap()
     val painter = BitmapPainter(imageBitmap)
-    emit(ImageLoadState.Success(painter))
+    trySend(ImageLoadState.Success(painter))
+    close()
   }.catch { throwable ->
-    emit(ImageLoadState.Error("flow错误: ${throwable.message}"))
+    ErrorHandler.handleException(throwable)
+    emit(ImageLoadState.Error("加载图片失败"))
   }
 }

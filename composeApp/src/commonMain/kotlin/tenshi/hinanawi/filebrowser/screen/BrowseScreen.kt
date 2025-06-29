@@ -77,12 +77,12 @@ fun BrowseScreen(
                 file = file,
                 onClick = {
                   when {
-                    file.isDirectory -> viewModel.navigator.navigateTo(BreadCrumbItem(file.name))
-                    file.type == FileType.Image -> viewModel
+                    file.isDirectory -> viewModel.navigator.navigateTo(BreadCrumbItem(it.name))
+                    file.type == FileType.Image -> viewModel.openImagePreview(it)
                   }
                 },
                 onDelete = {
-                  viewModel.deleteFile(file)
+                  viewModel.deleteFile(it)
                 },
                 onDownload = if (!file.isDirectory && (file.type == FileType.Image || file.type == FileType.Video)) { fileInfo ->
 
