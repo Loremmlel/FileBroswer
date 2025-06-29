@@ -24,19 +24,16 @@ class BrowseViewModel(
   private fun loadFiles() {
     viewModelScope.launch {
       filesRepository.getFiles(navigator.requestPath)
-        .distinctUntilChanged()
         .onStart {
           _uiState.update {
             it.copy(loading = true)
           }
-          println("uiState: ${_uiState.value}")
         }
         .catch { exception ->
           ErrorHandler.handleException(exception)
           _uiState.update {
             it.copy(loading = false)
           }
-          println("uiState: ${_uiState.value}")
         }
         .collect { files ->
           println("files: $files")
@@ -46,13 +43,15 @@ class BrowseViewModel(
               loading = false
             )
           }
-          println("uiState: ${_uiState.value}")
         }
     }
   }
 
   fun deleteFile(file: FileInfo) {
-
+    viewModelScope.launch {
+      filesRepository.deleteFile("${navigator.requestPath}/${file.name}")
+      getData()
+    }
   }
 }
 

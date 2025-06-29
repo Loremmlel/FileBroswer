@@ -20,6 +20,7 @@ abstract class BaseOnlineRepository {
           // 响应拦截器不关心类型，所以创建一个没有data的Response即可
           // 然后启用忽略未知键，就可以了，具体类型在后面请求拿到
           ignoreUnknownKeys = true
+          explicitNulls = false
         })
       }
       HttpResponseValidator {

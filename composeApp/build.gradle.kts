@@ -76,6 +76,9 @@ kotlin {
       implementation(libs.kotlinx.coroutinesSwing)
       implementation(libs.ktor.client.okhttp)
     }
+    wasmJsMain.dependencies {
+      implementation(libs.ktor.client.js)
+    }
   }
 }
 

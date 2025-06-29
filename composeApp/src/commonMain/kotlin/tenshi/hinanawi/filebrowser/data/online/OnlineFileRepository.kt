@@ -7,6 +7,7 @@ import tenshi.hinanawi.filebrowser.SERVER_URL
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.Response
+import tenshi.hinanawi.filebrowser.model.ResponseWithoutData
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 class OnlineFileRepository : BaseOnlineRepository(), FilesRepository {
@@ -21,7 +22,7 @@ class OnlineFileRepository : BaseOnlineRepository(), FilesRepository {
   }
 
   override suspend fun deleteFile(path: String) = try {
-    client.delete("$SERVER_URL/files?path=$path").body<Response<Unit>>()
+    client.delete("$SERVER_URL/files?path=$path")
     Unit
   } catch (e: Exception) {
     ErrorHandler.handleException(e)

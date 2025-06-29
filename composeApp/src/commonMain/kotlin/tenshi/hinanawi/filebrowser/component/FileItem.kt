@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,15 +32,16 @@ internal fun FileItem(
   onFavoriteToggle: (Boolean) -> Unit = {},
 ) {
   val iconButtonSize = 18.dp
+  val iconButtonPadding = 4.dp
   val iconSize = 48.dp
   var showConfirm by remember { mutableStateOf(false) }
 
   Box(
     modifier = Modifier
       .fillMaxWidth()
-      .clip(RoundedCornerShape(8.dp))
+      .clip(RoundedCornerShape(16.dp))
+      .background(MaterialTheme.colorScheme.primaryContainer)
       .clickable { onClick(file) }
-      .background(MaterialTheme.colorScheme.surface)
       .padding(12.dp)
   ) {
     // 顶部操作按钮
@@ -48,11 +51,13 @@ internal fun FileItem(
     ) {
       IconButton(
         onClick = { onFavoriteToggle(isFavorite) },
-        modifier = Modifier.background(
-          color = if (isFavorite) MaterialTheme.colorScheme.secondaryContainer
-          else MaterialTheme.colorScheme.surfaceVariant,
-          shape = CircleShape
-        ).size(iconButtonSize)
+        modifier = Modifier
+          .background(
+            color = if (isFavorite) MaterialTheme.colorScheme.secondaryContainer
+            else MaterialTheme.colorScheme.surfaceVariant,
+            shape = CircleShape
+          ).size(iconButtonSize)
+          .padding(iconButtonPadding)
       ) {
         Icon(
           imageVector = if (isFavorite) Icons.Default.Favorite
@@ -68,10 +73,13 @@ internal fun FileItem(
       if (onDownload != null && (file.type == FileType.Image || file.type == FileType.Video)) {
         IconButton(
           onClick = { onDownload(file) },
-          modifier = Modifier.background(
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            shape = CircleShape
-          ).size(iconButtonSize)
+          modifier = Modifier
+            .background(
+              color = MaterialTheme.colorScheme.surfaceVariant,
+              shape = CircleShape
+            )
+            .size(iconButtonSize)
+            .padding(iconButtonPadding)
         ) {
           Icon(
             imageVector = Icons.Default.Download,
@@ -84,10 +92,13 @@ internal fun FileItem(
       if (onDelete != null) {
         IconButton(
           onClick = { showConfirm = true },
-          modifier = Modifier.background(
-            color = MaterialTheme.colorScheme.errorContainer,
-            shape = CircleShape
-          ).size(iconButtonSize)
+          modifier = Modifier
+            .background(
+              color = MaterialTheme.colorScheme.errorContainer,
+              shape = CircleShape
+            )
+            .size(iconButtonSize)
+            .padding(iconButtonPadding)
         ) {
           Icon(
             imageVector = Icons.Default.Close,
