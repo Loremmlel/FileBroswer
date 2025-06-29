@@ -43,7 +43,7 @@ fun BrowseScreen(
       modifier = Modifier.weight(1f).fillMaxWidth()
     ) {
       when {
-        state.loading -> {
+        state.fileLoading -> {
           Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -70,13 +70,13 @@ fun BrowseScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
           ) {
-            items(
-              items = state.files, key = { file -> file.name }) { file ->
+            items(state.files, key = { file -> file.name }) { file ->
               FileItem(
                 file = file,
                 onClick = {
-                  if (file.isDirectory) {
-                    viewModel.navigator.navigateTo(BreadCrumbItem(file.name))
+                  when {
+                    file.isDirectory -> viewModel.navigator.navigateTo(BreadCrumbItem(file.name))
+                    file.type == FileType.Image -> viewModel
                   }
                 },
                 onDelete = {

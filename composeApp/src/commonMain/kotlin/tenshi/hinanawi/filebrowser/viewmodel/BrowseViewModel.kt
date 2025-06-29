@@ -26,13 +26,13 @@ class BrowseViewModel(
       filesRepository.getFiles(navigator.requestPath)
         .onStart {
           _uiState.update {
-            it.copy(loading = true)
+            it.copy(fileLoading = true)
           }
         }
         .catch { exception ->
           ErrorHandler.handleException(exception)
           _uiState.update {
-            it.copy(loading = false)
+            it.copy(fileLoading = false)
           }
         }
         .collect { files ->
@@ -40,7 +40,7 @@ class BrowseViewModel(
           _uiState.update {
             it.copy(
               files = files,
-              loading = false
+              fileLoading = false
             )
           }
         }
@@ -53,9 +53,13 @@ class BrowseViewModel(
       getData()
     }
   }
+
+  fun imagePreview() {
+
+  }
 }
 
 data class BrowserUiState(
   val files: List<FileInfo> = emptyList(),
-  val loading: Boolean = false
+  val fileLoading: Boolean = false
 )

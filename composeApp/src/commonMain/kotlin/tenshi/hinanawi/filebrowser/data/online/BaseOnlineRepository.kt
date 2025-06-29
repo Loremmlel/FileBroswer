@@ -4,9 +4,11 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.statement.bodyAsText
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import tenshi.hinanawi.filebrowser.SERVER_HOST
+import tenshi.hinanawi.filebrowser.SERVER_PORT
 import tenshi.hinanawi.filebrowser.exception.ApiException
 import tenshi.hinanawi.filebrowser.model.ResponseWithoutData
 
@@ -15,6 +17,13 @@ abstract class BaseOnlineRepository {
 
   companion object {
     private val _client = HttpClient {
+      defaultRequest {
+        url {
+          protocol = URLProtocol.HTTP
+          host = SERVER_HOST
+          port = SERVER_PORT
+        }
+      }
       install(ContentNegotiation) {
         json(Json {
           // 呵呵，纠结我两个多小时的问题，泛型类和kotlinx.serialization序列化器匹配，就这么丑陋的解决了
