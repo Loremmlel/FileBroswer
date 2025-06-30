@@ -1,7 +1,7 @@
 package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
-import io.ktor.server.request.header
+import io.ktor.server.plugins.partialcontent.PartialContent
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
@@ -15,6 +15,7 @@ import java.io.File
 
 fun Route.video() {
     route("/video") {
+        install(PartialContent)
         get("/{taskId}/{...}") {
             call.safeExecute {
                 val taskId = parameters["taskId"] ?: run {
@@ -49,7 +50,21 @@ fun Route.video() {
                     )
                     return@safeExecute
                 }
-
+                when (file.extension.lowercase()) {
+                    "m3u8" -> {
+                        response.header(HttpHeaders.CacheControl, "no-cache, no-store, must-revalidate")
+                        response.header(HttpHeaders.Pragma, "no-cache")
+                        response.header(HttpHeaders.Expires, "0")
+                    }
+                    "ts" -> {
+                        response.header(HttpHeaders.CacheControl, "public, max-age=31536000, immutable")
+                        response.header(HttpHeaders.ETag, "\"${file.lastModified()}-${file.length()}\"")
+                    }
+                    else -> {
+                        response.header(HttpHeaders.CacheControl, "public, max-age=3600")
+                        response.header(HttpHeaders.ETag, "\"${file.lastModified()}-${file.length()}\"")
+                    }
+                }
                 val contentType = file.getContentType()
                 response.header("Content-Type", contentType)
                 respondFile(file)
