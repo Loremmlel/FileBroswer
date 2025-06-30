@@ -1,25 +1,17 @@
 package tenshi.hinanawi.filebrowser.util
 
-import io.ktor.util.collections.ConcurrentMap
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import io.ktor.util.collections.*
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.TranscodeQuality
 import tenshi.hinanawi.filebrowser.model.TranscodeRequest
 import tenshi.hinanawi.filebrowser.model.TranscodeState
 import tenshi.hinanawi.filebrowser.model.TranscodeStatus
 import java.io.File
-import java.util.UUID
+import java.util.*
 import kotlin.time.Duration.Companion.minutes
 
 class TranscodeManager {
@@ -114,12 +106,15 @@ class TranscodeManager {
             task.isCancelled -> {
                 task.updateStatus { it.copy(status = TranscodeState.Cancelled) }
             }
+
             completed == true -> {
                 task.updateStatus { it.copy(status = TranscodeState.Completed, progress = 1.0) }
             }
+
             completed == null -> {
                 task.updateStatus { it.copy(status = TranscodeState.Error, error = "任务超时") }
             }
+
             else -> {
                 task.updateStatus { it.copy(status = TranscodeState.Error, error = "转码失败") }
             }

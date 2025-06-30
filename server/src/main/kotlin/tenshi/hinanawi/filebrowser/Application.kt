@@ -11,6 +11,8 @@ import io.ktor.server.routing.routing
 import tenshi.hinanawi.filebrowser.route.files
 import tenshi.hinanawi.filebrowser.route.image
 import tenshi.hinanawi.filebrowser.route.random
+import tenshi.hinanawi.filebrowser.route.transcode
+import tenshi.hinanawi.filebrowser.util.TranscodeManager
 
 fun main() {
   embeddedServer(
@@ -43,5 +45,6 @@ fun Application.module() {
     files()
     random()
     image()
+    transcode(TranscodeManager())
   }
 }

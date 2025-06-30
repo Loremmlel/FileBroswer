@@ -18,6 +18,10 @@ enum class Message(val message: String) {
 
   ImageIsNotImage("请求的文件不是图片"),
 
+  TranscodeIsNotVideo("要转码的文件不是视频"),
+  TranscodeIdUndefined("缺少转码任务id"),
+  TranscodeTaskNotFound("转码任务不存在"),
+
   Success("成功"),
   Failed("失败"),
   InternalServerError("服务器内部错误");
