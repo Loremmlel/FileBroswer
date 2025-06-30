@@ -2,19 +2,11 @@ package tenshi.hinanawi.filebrowser.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.Icon
@@ -39,8 +31,9 @@ import tenshi.hinanawi.filebrowser.viewmodel.RemoteImageViewModel
 fun ImageViewer(
   file: FileInfo,
   onDismiss: () -> Unit,
-  onPrev: (() -> Unit)? = null,
-  onNext: (() -> Unit)? = null,
+  onPrev: () -> Unit,
+  onNext: () -> Unit,
+  onDownload: (FileInfo) -> Unit,
   modifier: Modifier = Modifier
 ) {
   val operationIconSize = 32.dp
@@ -87,7 +80,7 @@ fun ImageViewer(
       Row {
         // 下载按钮
         IconButton(
-          onClick = { },
+          onClick = { onDownload(file) },
           modifier = Modifier
             .background(
               color = MaterialTheme.colorScheme.surfaceVariant,
@@ -123,31 +116,27 @@ fun ImageViewer(
     }
 
     // 导航按钮 - 上一张
-    if (onPrev != null) {
-      Box(
-        modifier = Modifier
-          .align(Alignment.CenterStart)
-          .padding(start = 16.dp)
-      ) {
-        NavigationButton(
-          icon = Icons.AutoMirrored.Default.ArrowBack,
-          onClick = onPrev
-        )
-      }
+    Box(
+      modifier = Modifier
+        .align(Alignment.CenterStart)
+        .padding(start = 16.dp)
+    ) {
+      NavigationButton(
+        icon = Icons.AutoMirrored.Default.ArrowBack,
+        onClick = onPrev
+      )
     }
 
     // 导航按钮 - 下一张
-    if (onNext != null) {
-      Box(
-        modifier = Modifier
-          .align(Alignment.CenterEnd)
-          .padding(end = 16.dp)
-      ) {
-        NavigationButton(
-          icon = Icons.AutoMirrored.Default.ArrowForward,
-          onClick = onNext
-        )
-      }
+    Box(
+      modifier = Modifier
+        .align(Alignment.CenterEnd)
+        .padding(end = 16.dp)
+    ) {
+      NavigationButton(
+        icon = Icons.AutoMirrored.Default.ArrowForward,
+        onClick = onNext
+      )
     }
   }
 }

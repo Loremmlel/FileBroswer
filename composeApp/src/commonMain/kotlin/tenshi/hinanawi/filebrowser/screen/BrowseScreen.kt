@@ -101,7 +101,8 @@ fun BrowseScreen(
         file = state.previewItem!!,
         onDismiss = viewModel::closeImagePreview,
         onNext = viewModel::nextImagePreview,
-        onPrev = viewModel::previousImagePreview
+        onPrev = viewModel::previousImagePreview,
+        onDownload = viewModel::downloadFile
       )
     }
   }
