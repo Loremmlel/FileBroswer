@@ -65,6 +65,10 @@ class BrowseViewModel(
     }
   }
 
+  fun downloadFile(file: FileInfo) {
+
+  }
+
   fun openImagePreview(image: FileInfo?) {
     _uiState.update {
       it.copy(

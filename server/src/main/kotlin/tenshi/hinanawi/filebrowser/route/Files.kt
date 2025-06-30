@@ -1,6 +1,7 @@
 package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
+import io.ktor.server.plugins.partialcontent.PartialContent
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
@@ -16,6 +17,7 @@ import tenshi.hinanawi.filebrowser.util.getFileType
 internal fun Route.files() {
   route("/files") {
     install(PathValidator)
+    install(PartialContent)
     get {
       call.safeExecute {
         contentTypeJson()
@@ -81,6 +83,22 @@ internal fun Route.files() {
           HttpStatusCode.OK,
           Response(204, Message.Success, null)
         )
+      }
+    }
+    get("/download") {
+      call.safeExecute {
+        val file = attributes[ValidatedFileKey]
+        response.header(
+          HttpHeaders.ContentDisposition,
+          ContentDisposition.Attachment
+            .withParameter(ContentDisposition.Parameters.FileName, file.name)
+            .toString()
+        )
+        response.header(
+          HttpHeaders.ContentLength,
+          file.length().toString()
+        )
+        respondFile(file)
       }
     }
   }

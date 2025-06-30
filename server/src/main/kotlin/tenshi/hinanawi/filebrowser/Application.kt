@@ -46,6 +46,5 @@ fun Application.module() {
     image()
     transcode(TranscodeManager())
     video()
-    download()
   }
 }

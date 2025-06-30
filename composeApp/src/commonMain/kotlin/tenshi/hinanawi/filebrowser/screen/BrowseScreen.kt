@@ -84,7 +84,7 @@ fun BrowseScreen(
                 onDelete = {
                   viewModel.deleteFile(it)
                 },
-                onDownload = if (!file.isDirectory && (file.type == FileType.Image || file.type == FileType.Video)) { fileInfo ->
+                onDownload = if (!file.isDirectory) { fileInfo ->
 
                 } else null,
                 isFavorite = false,
