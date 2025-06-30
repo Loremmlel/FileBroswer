@@ -85,7 +85,7 @@ fun BrowseScreen(
                   viewModel.deleteFile(it)
                 },
                 onDownload = if (!file.isDirectory) { fileInfo ->
-
+                  viewModel.downloadFile(fileInfo)
                 } else null,
                 isFavorite = false,
                 onFavoriteToggle = {

@@ -88,6 +88,13 @@ internal fun Route.files() {
     get("/download") {
       call.safeExecute {
         val file = attributes[ValidatedFileKey]
+        if (file.isDirectory) {
+          respond(
+            HttpStatusCode.BadRequest,
+            Response<Unit>(400, Message.FilesCannotDownloadDirectory, null)
+          )
+          return@safeExecute
+        }
         response.header(
           HttpHeaders.ContentDisposition,
           ContentDisposition.Attachment

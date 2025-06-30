@@ -7,4 +7,6 @@ interface FilesRepository {
   fun getFiles(path: String): Flow<List<FileInfo>>
 
   suspend fun deleteFile(path: String)
+
+  suspend fun downloadFile(path: String, fileName: String)
 }

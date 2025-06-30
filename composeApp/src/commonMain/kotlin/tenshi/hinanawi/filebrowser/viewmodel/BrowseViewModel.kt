@@ -66,7 +66,14 @@ class BrowseViewModel(
   }
 
   fun downloadFile(file: FileInfo) {
-
+    viewModelScope.launch {
+      try {
+        val filePath = "${navigator.requestPath}/${file.name}"
+        filesRepository.downloadFile(filePath, file.name)
+      } catch (e: Exception) {
+        ErrorHandler.handleException(e)
+      }
+    }
   }
 
   fun openImagePreview(image: FileInfo?) {
