@@ -14,6 +14,7 @@ internal object AppConfig {
 
   const val CACHE_DIR_NAME = ".cache"
 
-  val BASE_DIR: String get() = props.getProperty("BASE_DIR", "\$HOME/Movies")
-  val CACHE_DIR: String get() = "${BASE_DIR}/$CACHE_DIR_NAME"
+  val basePath: String get() = props.getProperty("BASE_DIR", "\$HOME/Movies")
+  val cachePath: String get() = "${basePath}/$CACHE_DIR_NAME"
+
 }

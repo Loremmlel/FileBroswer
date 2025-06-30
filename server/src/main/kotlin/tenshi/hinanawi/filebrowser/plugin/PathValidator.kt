@@ -27,8 +27,8 @@ internal val PathValidator = createRouteScopedPlugin("PathValidator") {
     }
     try {
       // 验证逻辑 2: 路径规范化和安全检查
-      val normalizedPath = Paths.get(AppConfig.BASE_DIR, path).normalize()
-      if (!normalizedPath.startsWith(AppConfig.BASE_DIR)) {
+      val normalizedPath = Paths.get(AppConfig.basePath, path).normalize()
+      if (!normalizedPath.startsWith(AppConfig.basePath)) {
         call.respond(
           HttpStatusCode.Forbidden,
           Response(403, Message.FilesForbidden, null)

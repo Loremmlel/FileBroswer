@@ -59,7 +59,7 @@ private fun scanDirectory(dir: File, type: FileType): List<FileInfo> {
         isDirectory = file.isDirectory,
         type = file.getFileType(),
         lastModified = file.lastModified(),
-        path = file.path.substring(AppConfig.BASE_DIR.length).replace("\\", "/")
+        path = file.path.substring(AppConfig.basePath.length).replace("\\", "/")
       )
     )
   }
