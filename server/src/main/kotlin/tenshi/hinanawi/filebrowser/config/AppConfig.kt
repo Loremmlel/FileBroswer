@@ -17,4 +17,6 @@ internal object AppConfig {
   val basePath: String get() = props.getProperty("BASE_DIR", "\$HOME/Movies")
   val cachePath: String get() = "${basePath}/$CACHE_DIR_NAME"
 
+  val maxConcurrentTasks get() = props.getProperty("MAX_CONCURRENT_TASKS", "3").toInt()
+  val taskTimeoutMinutes get() = props.getProperty("TASK_TIMEOUT_MINUTES", "30").toLong()
 }
