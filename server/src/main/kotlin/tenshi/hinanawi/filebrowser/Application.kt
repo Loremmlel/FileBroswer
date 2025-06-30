@@ -9,10 +9,13 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.plugin.GlobalExceptionHandler
+import tenshi.hinanawi.filebrowser.plugin.RequestLogging
+import tenshi.hinanawi.filebrowser.plugin.ResponseBodyLogging
 import tenshi.hinanawi.filebrowser.route.*
 import tenshi.hinanawi.filebrowser.util.TranscodeManager
 
 fun main() {
+  System.setProperty("io.ktor.development", "true")
   embeddedServer(
     Netty,
     port = SERVER_PORT,
@@ -23,6 +26,8 @@ fun main() {
 }
 
 fun Application.module() {
+  install(RequestLogging)
+  install(ResponseBodyLogging)
   install(GlobalExceptionHandler)
   install(ContentNegotiation) {
     json()
