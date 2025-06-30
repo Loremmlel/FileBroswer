@@ -12,5 +12,8 @@ internal object AppConfig {
     } ?: throw IllegalStateException("加载env文件失败")
   }
 
+  const val CACHE_DIR_NAME = ".cache"
+
   val BASE_DIR: String get() = props.getProperty("BASE_DIR", "\$HOME/Movies")
+  val CACHE_DIR: String get() = "${BASE_DIR}/$CACHE_DIR_NAME"
 }

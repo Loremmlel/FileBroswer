@@ -30,7 +30,7 @@ internal fun Application.files() = routing {
         }
         val res = mutableListOf<FileInfo>()
         dir.listFiles().forEach {
-          if (it.isHidden) {
+          if (it.isHidden || it.name == AppConfig.CACHE_DIR_NAME) {
             return@forEach
           }
           res.add(
