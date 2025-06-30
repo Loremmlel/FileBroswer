@@ -1,7 +1,6 @@
 package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.model.FileType
@@ -12,9 +11,8 @@ import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getContentType
 import tenshi.hinanawi.filebrowser.util.getFileType
-import tenshi.hinanawi.filebrowser.util.requestError
 
-internal fun Application.image() = routing {
+internal fun Route.image() {
   route("/image") {
     install(PathValidator)
     get {
@@ -43,7 +41,6 @@ internal fun Application.image() = routing {
           HttpStatusCode.InternalServerError,
           Response(500, Message.InternalServerError, null)
         )
-        log.requestError(call, e)
       }
     }
   }

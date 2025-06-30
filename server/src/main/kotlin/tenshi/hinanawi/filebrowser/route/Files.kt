@@ -1,7 +1,6 @@
 package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
@@ -12,9 +11,8 @@ import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getFileType
-import tenshi.hinanawi.filebrowser.util.requestError
 
-internal fun Application.files() = routing {
+internal fun Route.files() = {
   route("/files") {
     install(PathValidator)
     get {
@@ -62,7 +60,6 @@ internal fun Application.files() = routing {
           HttpStatusCode.InternalServerError,
           Response(500, Message.InternalServerError, null)
         )
-        log.requestError(call, e)
       }
     }
     delete {
@@ -81,7 +78,6 @@ internal fun Application.files() = routing {
             HttpStatusCode.InternalServerError,
             Response(500, Message.Failed, null)
           )
-          log.warn("文件${file.path}删除失败")
           return@delete
         }
         // 当响应体为204 No Content时，响应体为空，会导致序列化问题
@@ -94,7 +90,6 @@ internal fun Application.files() = routing {
           HttpStatusCode.InternalServerError,
           Response(500, Message.InternalServerError, null)
         )
-        log.requestError(call, e)
       }
     }
   }

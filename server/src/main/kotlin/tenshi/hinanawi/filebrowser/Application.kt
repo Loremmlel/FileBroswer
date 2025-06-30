@@ -7,6 +7,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.routing.routing
 import tenshi.hinanawi.filebrowser.route.files
 import tenshi.hinanawi.filebrowser.route.image
 import tenshi.hinanawi.filebrowser.route.random
@@ -38,7 +39,9 @@ fun Application.module() {
     allowSameOrigin = true
     allowCredentials = true
   }
-  files()
-  random()
-  image()
+  routing {
+    files()
+    random()
+    image()
+  }
 }

@@ -1,8 +1,6 @@
 package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
@@ -13,7 +11,7 @@ import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
 
-internal fun Application.random() = routing {
+internal fun Route.random() {
   route("/random") {
     install(PathValidator)
     // fix: 操，忘了删这玩意儿，导致测试失败了
@@ -33,7 +31,6 @@ internal fun Application.random() = routing {
           HttpStatusCode.InternalServerError,
           Response(500, Message.InternalServerError, null)
         )
-        log.error("接口${call.request.path()}错误: ${e.message}")
       }
     }
   }
