@@ -8,5 +8,5 @@ interface FilesRepository {
 
   suspend fun deleteFile(path: String)
 
-  suspend fun downloadFile(path: String, fileName: String)
+  suspend fun downloadFile(path: String, filename: String)
 }

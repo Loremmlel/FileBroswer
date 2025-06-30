@@ -20,13 +20,15 @@ class BrowseViewModel(
   private val _uiState = MutableStateFlow(BrowserUiState())
   val uiState = _uiState.asStateFlow()
 
-  private val _firstImage get() = _uiState.value.files.firstOrNull {
-    it.type == FileType.Image
-  }
+  private val _firstImage
+    get() = _uiState.value.files.firstOrNull {
+      it.type == FileType.Image
+    }
 
-  private val _lastImage get() = _uiState.value.files.lastOrNull {
-    it.type == FileType.Image
-  }
+  private val _lastImage
+    get() = _uiState.value.files.lastOrNull {
+      it.type == FileType.Image
+    }
 
   fun getData() {
     closeImagePreview()
@@ -97,7 +99,7 @@ class BrowseViewModel(
       it.name == _uiState.value.previewItem?.name
     }
     if (currentImageIndex == -1) {
-       return
+      return
     }
     // 写反了，耻辱
     val nextImage = _uiState.value.files.firstAfter(currentImageIndex) { it.type == FileType.Image }
@@ -113,7 +115,7 @@ class BrowseViewModel(
       it.name == _uiState.value.previewItem?.name
     }
     if (currentImageIndex == -1) {
-       return
+      return
     }
     val previousImage = _uiState.value.files.firstBefore(currentImageIndex) { it.type == FileType.Image }
     if (previousImage != null) {

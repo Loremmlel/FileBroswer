@@ -67,8 +67,8 @@ internal fun FileItem(
         )
       }
 
-      // 下载按钮（仅对图片/视频）
-      if (onDownload != null && (file.type == FileType.Image || file.type == FileType.Video)) {
+      // 下载按钮
+      if (onDownload != null) {
         IconButton(
           onClick = { onDownload(file) },
           modifier = Modifier

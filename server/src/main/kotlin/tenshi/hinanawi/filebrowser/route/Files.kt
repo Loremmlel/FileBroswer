@@ -12,7 +12,9 @@ import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.plugin.safeExecute
 import tenshi.hinanawi.filebrowser.util.contentTypeJson
+import tenshi.hinanawi.filebrowser.util.getContentType
 import tenshi.hinanawi.filebrowser.util.getFileType
+import java.io.FileInputStream
 
 internal fun Route.files() {
   route("/files") {
@@ -102,10 +104,21 @@ internal fun Route.files() {
             .toString()
         )
         response.header(
-          HttpHeaders.ContentLength,
-          file.length().toString()
+          HttpHeaders.ContentType,
+          file.getContentType()
         )
         respondFile(file)
+        respondOutputStream {
+          FileInputStream(file).use { inputStream ->
+            val buffer = ByteArray(8192)
+            var bytes = inputStream.read(buffer)
+            while (bytes > 0) {
+              write(buffer)
+              flush()
+              bytes = inputStream.read(buffer)
+            }
+          }
+        }
       }
     }
   }

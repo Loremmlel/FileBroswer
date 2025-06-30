@@ -34,6 +34,7 @@ fun Application.module() {
     allowMethod(HttpMethod.Patch)
 
     allowHeader(HttpHeaders.Authorization)
+    allowHeader(HttpHeaders.Range)
 
     anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
 
