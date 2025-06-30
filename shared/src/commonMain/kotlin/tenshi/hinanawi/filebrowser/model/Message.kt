@@ -22,6 +22,10 @@ enum class Message(val message: String) {
   TranscodeIdUndefined("缺少转码任务id"),
   TranscodeTaskNotFound("转码任务不存在"),
 
+  VideoTaskIdUndefined("缺少转码任务id"),
+  VideoPathSegmentUndefined("缺少文件路径"),
+  VideoIsNotVideo("请求的文件不是视频"),
+
   Success("成功"),
   Failed("失败"),
   InternalServerError("服务器内部错误");

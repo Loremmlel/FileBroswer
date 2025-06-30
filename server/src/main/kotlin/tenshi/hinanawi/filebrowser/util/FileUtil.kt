@@ -4,7 +4,7 @@ import tenshi.hinanawi.filebrowser.model.FileType
 import java.io.File
 
 internal val IMAGE_SUFFIX = listOf("png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "ico")
-internal val VIDEO_SUFFIX = listOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "3gp")
+internal val VIDEO_SUFFIX = listOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "3gp", "ts")
 
 internal fun File.getFileType(): FileType = when {
   isDirectory -> FileType.Folder

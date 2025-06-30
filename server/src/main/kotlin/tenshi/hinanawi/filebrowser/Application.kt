@@ -12,6 +12,7 @@ import tenshi.hinanawi.filebrowser.route.files
 import tenshi.hinanawi.filebrowser.route.image
 import tenshi.hinanawi.filebrowser.route.random
 import tenshi.hinanawi.filebrowser.route.transcode
+import tenshi.hinanawi.filebrowser.route.video
 import tenshi.hinanawi.filebrowser.util.TranscodeManager
 
 fun main() {
@@ -46,5 +47,6 @@ fun Application.module() {
     random()
     image()
     transcode(TranscodeManager())
+    video()
   }
 }
