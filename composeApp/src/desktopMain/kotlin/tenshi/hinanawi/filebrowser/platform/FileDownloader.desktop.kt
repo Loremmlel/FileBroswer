@@ -43,7 +43,7 @@ class DesktopFileDownloader : FileDownloader {
             }
           }
         } else {
-          throw Exception("用户取消了下载")
+          return@withContext
         }
       } catch (e: Exception) {
         throw Exception("流式下载失败: ${e.message}")
