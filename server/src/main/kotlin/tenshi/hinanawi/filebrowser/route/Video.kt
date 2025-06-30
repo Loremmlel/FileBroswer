@@ -1,6 +1,7 @@
 package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
+import io.ktor.server.request.header
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
@@ -8,6 +9,7 @@ import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.plugin.safeExecute
+import tenshi.hinanawi.filebrowser.util.getContentType
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
 
@@ -48,12 +50,8 @@ fun Route.video() {
                     return@safeExecute
                 }
 
-                val contentType = when (file.extension.lowercase()) {
-                    "m3u8" -> ContentType.parse("application/vnd.apple.mpegurl")
-                    "ts" -> ContentType.parse("video/mp2t")
-                    else -> ContentType.Application.OctetStream
-                }
-                response.header("Content-Type", contentType.toString())
+                val contentType = file.getContentType()
+                response.header("Content-Type", contentType)
                 respondFile(file)
             }
         }

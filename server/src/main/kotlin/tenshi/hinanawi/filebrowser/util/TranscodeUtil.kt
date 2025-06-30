@@ -10,8 +10,11 @@ import tenshi.hinanawi.filebrowser.model.TranscodeQuality
 import tenshi.hinanawi.filebrowser.model.TranscodeRequest
 import tenshi.hinanawi.filebrowser.model.TranscodeState
 import tenshi.hinanawi.filebrowser.model.TranscodeStatus
+import java.io.BufferedReader
 import java.io.File
+import java.io.InputStreamReader
 import java.util.*
+import java.util.regex.Pattern
 import kotlin.time.Duration.Companion.minutes
 
 class TranscodeManager {
@@ -88,12 +91,18 @@ class TranscodeManager {
         task.updateStatus {
             it.copy(status = TranscodeState.Processing, outputPath = playlistFile.absolutePath)
         }
+
+        // 首先获取视频时长
+        val duration = getVideoDuration(task.inputPath)
+        task.videoDuration = duration
+
         val process = ProcessBuilder().apply {
             command(buildFfmpegCommand(task, playlistFile))
             redirectErrorStream(false)
         }.start()
         task.process = process
 
+        // 启动进度监控
         launch {
             monitorProgress(task, process)
         }
@@ -121,15 +130,80 @@ class TranscodeManager {
         }
     }
 
-    private suspend fun monitorProgress(task: TranscodeTask, process: Process) {
-        // 简化的进度监控，实际进度需要解析ffmpeg输出
-        var progress = 0.0
-        while (process.isAlive && !task.isCancelled) {
-            delay(1000)
-            progress = minOf(progress + 0.01, 0.99)
-            task.updateStatus {
-                it.copy(progress = progress)
+    /**
+     * 获取视频时长（秒）
+     */
+    private suspend fun getVideoDuration(inputPath: String): Double = withContext(Dispatchers.IO) {
+        try {
+            val process = ProcessBuilder().apply {
+                command(
+                    "ffprobe",
+                    "-v", "quiet",
+                    "-show_entries", "format=duration",
+                    "-of", "csv=p=0",
+                    inputPath
+                )
+                redirectErrorStream(true)
+            }.start()
+
+            val output = process.inputStream.bufferedReader().readText().trim()
+            process.waitFor()
+
+            output.toDoubleOrNull() ?: 0.0
+        } catch (_: Exception) {
+            0.0
+        }
+    }
+
+    /**
+     * 监控ffmpeg转码进度
+     */
+    private suspend fun monitorProgress(task: TranscodeTask, process: Process) = withContext(Dispatchers.IO) {
+        try {
+            val errorReader = BufferedReader(InputStreamReader(process.errorStream))
+            val timePattern = Pattern.compile("time=([0-9]{2}):([0-9]{2}):([0-9]{2})\\.([0-9]{2})")
+
+            var line: String?
+            while (process.isAlive && !task.isCancelled) {
+                line = errorReader.readLine()
+                if (line == null) {
+                    delay(100)
+                    continue
+                }
+
+                // 解析时间进度
+                val matcher = timePattern.matcher(line)
+                if (matcher.find()) {
+                    try {
+                        val hours = matcher.group(1).toInt()
+                        val minutes = matcher.group(2).toInt()
+                        val seconds = matcher.group(3).toInt()
+                        val centiseconds = matcher.group(4).toInt()
+
+                        val currentTime = hours * 3600 + minutes * 60 + seconds + centiseconds / 100.0
+
+                        val progress = if (task.videoDuration > 0) {
+                            minOf(currentTime / task.videoDuration, 0.99)
+                        } else {
+                            0.0
+                        }
+
+                        task.updateStatus {
+                            it.copy(progress = progress)
+                        }
+                    } catch (_: Exception) {}
+                }
+
+                // 检查是否有错误信息
+                if (line.contains("Error") || line.contains("error")) {
+                    task.updateStatus {
+                        it.copy(status = TranscodeState.Error, error = line)
+                    }
+                    break
+                }
             }
+        } catch (_: Exception) {
+            // 进度监控出错，但不影响转码任务
         }
     }
 
@@ -160,9 +234,11 @@ class TranscodeManager {
             "-crf", task.quality.crf,
             "-c:a", "aac",
             "-f", "hls",
-            "hls_time", "10",
+            "-hls_time", "10",
             "-hls_list_size", "0",
             "-hls_segment_filename", segmentPath,
+            "-progress", "pipe:2", // 输出进度到stderr
+            "-loglevel", "info",    // 设置日志级别
             playlistFile.absolutePath
         )
     }
@@ -192,6 +268,7 @@ private class TranscodeTask(
     var process: Process? = null
     var isCancelled = false
         private set
+    var videoDuration: Double = 0.0
 
     fun updateStatus(update: (TranscodeStatus) -> TranscodeStatus) {
         _status.value = update(_status.value)
