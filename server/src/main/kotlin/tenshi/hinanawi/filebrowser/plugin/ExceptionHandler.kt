@@ -1,0 +1,74 @@
+package tenshi.hinanawi.filebrowser.plugin
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.application.hooks.*
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.uri
+import io.ktor.server.response.*
+import io.ktor.util.*
+import org.slf4j.LoggerFactory
+import tenshi.hinanawi.filebrowser.model.Message
+import tenshi.hinanawi.filebrowser.model.Response
+
+/**
+ * 全局异常处理插件
+ * 统一处理所有未捕获的异常，记录日志并返回标准错误响应
+ */
+val GlobalExceptionHandler = createApplicationPlugin("GlobalExceptionHandler") {
+    val logger = LoggerFactory.getLogger("ExceptionHandler")
+    
+    on(CallFailed) { call, cause ->
+        logger.error("Request failed: ${call.request.httpMethod.value} ${call.request.uri}", cause)
+        
+        // 如果响应还没有发送，发送错误响应
+        if (!call.response.isCommitted) {
+            try {
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    Response(500, Message.InternalServerError, null)
+                )
+            } catch (e: Exception) {
+                logger.error("Failed to send error response", e)
+            }
+        }
+    }
+}
+
+/**
+ * 路由级别的异常处理扩展函数
+ * 用于包装路由处理逻辑，自动捕获异常并记录日志
+ */
+suspend inline fun ApplicationCall.safeExecute(
+    crossinline block: suspend ApplicationCall.() -> Unit
+) {
+    val logger = LoggerFactory.getLogger("RouteHandler")
+    try {
+        block()
+    } catch (e: Exception) {
+        logger.error("Route execution failed: ${request.httpMethod.value} ${request.uri}", e)
+        
+        if (!response.isCommitted) {
+            respond(
+                HttpStatusCode.InternalServerError,
+                Response(500, Message.InternalServerError, null)
+            )
+        }
+    }
+}
+
+/**
+ * 带自定义错误处理的安全执行扩展函数
+ */
+suspend inline fun ApplicationCall.safeExecute(
+    crossinline onError: suspend ApplicationCall.(Exception) -> Unit,
+    crossinline block: suspend ApplicationCall.() -> Unit
+) {
+    val logger = LoggerFactory.getLogger("RouteHandler")
+    try {
+        block()
+    } catch (e: Exception) {
+        logger.error("Route execution failed: ${request.httpMethod.value} ${request.uri}", e)
+        onError(e)
+    }
+}

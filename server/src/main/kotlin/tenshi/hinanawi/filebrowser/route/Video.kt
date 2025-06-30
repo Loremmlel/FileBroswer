@@ -7,44 +7,45 @@ import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
+import tenshi.hinanawi.filebrowser.plugin.safeExecute
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
 
 fun Route.video() {
     route("/video") {
         get("/{taskId}/{...}") {
-            try {
-                val taskId = call.parameters["taskId"] ?: run {
-                    call.respond(
+            call.safeExecute {
+                val taskId = parameters["taskId"] ?: run {
+                    respond(
                         HttpStatusCode.BadRequest,
                         Response(400, Message.VideoTaskIdUndefined, null)
                     )
-                    return@get
+                    return@safeExecute
                 }
-                val pathSegments = call.parameters.getAll("...")?.joinToString("/") ?: run {
-                    call.respond(
+                val pathSegments = parameters.getAll("...")?.joinToString("/") ?: run {
+                    respond(
                         HttpStatusCode.BadRequest,
                         Response(400, Message.VideoPathSegmentUndefined, null)
                     )
-                    return@get
+                    return@safeExecute
                 }
 
                 val filePath = File("${AppConfig.cachePath}/$taskId", pathSegments).canonicalPath
                 if (!filePath.startsWith(AppConfig.cachePath)) {
-                    call.respond(
+                    respond(
                         HttpStatusCode.Forbidden,
                         Response(403, Message.FilesForbidden, null)
                     )
-                    return@get
+                    return@safeExecute
                 }
 
                 val file = File(filePath)
                 if (!file.exists() || file.getFileType() != FileType.Video) {
-                    call.respond(
+                    respond(
                         HttpStatusCode.NotFound,
                         Response(404, Message.VideoIsNotVideo, null)
                     )
-                    return@get
+                    return@safeExecute
                 }
 
                 val contentType = when (file.extension.lowercase()) {
@@ -52,13 +53,8 @@ fun Route.video() {
                     "ts" -> ContentType.parse("video/mp2t")
                     else -> ContentType.Application.OctetStream
                 }
-                call.response.header("Content-Type", contentType.toString())
-                call.respondFile(file)
-            } catch (e: Exception) {
-                call.respond(
-                    HttpStatusCode.InternalServerError,
-                    Response(500, Message.InternalServerError, null)
-                )
+                response.header("Content-Type", contentType.toString())
+                respondFile(file)
             }
         }
     }

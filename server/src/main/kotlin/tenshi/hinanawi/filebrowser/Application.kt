@@ -7,12 +7,9 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.routing.routing
-import tenshi.hinanawi.filebrowser.route.files
-import tenshi.hinanawi.filebrowser.route.image
-import tenshi.hinanawi.filebrowser.route.random
-import tenshi.hinanawi.filebrowser.route.transcode
-import tenshi.hinanawi.filebrowser.route.video
+import io.ktor.server.routing.*
+import tenshi.hinanawi.filebrowser.plugin.GlobalExceptionHandler
+import tenshi.hinanawi.filebrowser.route.*
 import tenshi.hinanawi.filebrowser.util.TranscodeManager
 
 fun main() {
@@ -26,6 +23,7 @@ fun main() {
 }
 
 fun Application.module() {
+  install(GlobalExceptionHandler)
   install(ContentNegotiation) {
     json()
   }

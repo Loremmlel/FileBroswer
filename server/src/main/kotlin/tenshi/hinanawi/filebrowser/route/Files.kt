@@ -9,22 +9,23 @@ import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
+import tenshi.hinanawi.filebrowser.plugin.safeExecute
 import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getFileType
 
-internal fun Route.files() = {
+internal fun Route.files() {
   route("/files") {
     install(PathValidator)
     get {
-      try {
-        call.contentTypeJson()
-        val dir = call.attributes[ValidatedFileKey]
+      call.safeExecute {
+        contentTypeJson()
+        val dir = attributes[ValidatedFileKey]
         if (!dir.isDirectory) {
-          call.respond(
+          respond(
             HttpStatusCode.BadRequest,
             Response<FileInfo>(400, Message.FilesIsNotDirectory, null)
           )
-          return@get
+          return@safeExecute
         }
         val res = mutableListOf<FileInfo>()
         dir.listFiles().forEach {
@@ -51,44 +52,34 @@ internal fun Route.files() = {
             a.name.compareTo(b.name)
           }
         })
-        call.respond(
+        respond(
           HttpStatusCode.OK,
           Response(200, Message.Success, res)
-        )
-      } catch (e: Exception) {
-        call.respond(
-          HttpStatusCode.InternalServerError,
-          Response(500, Message.InternalServerError, null)
         )
       }
     }
     delete {
-      try {
-        call.contentTypeJson()
-        val file = call.attributes[ValidatedFileKey]
+      call.safeExecute {
+        contentTypeJson()
+        val file = attributes[ValidatedFileKey]
         if (!file.delete()) {
           if (file.isDirectory) {
-            call.respond(
+            respond(
               HttpStatusCode.BadRequest,
               Response(400, Message.FilesDirectoryMustEmptyWhileDelete, null)
             )
-            return@delete
+            return@safeExecute
           }
-          call.respond(
+          respond(
             HttpStatusCode.InternalServerError,
             Response(500, Message.Failed, null)
           )
-          return@delete
+          return@safeExecute
         }
         // 当响应体为204 No Content时，响应体为空，会导致序列化问题
-        call.respond(
+        respond(
           HttpStatusCode.OK,
           Response(204, Message.Success, null)
-        )
-      } catch (e: Exception) {
-        call.respond(
-          HttpStatusCode.InternalServerError,
-          Response(500, Message.InternalServerError, null)
         )
       }
     }

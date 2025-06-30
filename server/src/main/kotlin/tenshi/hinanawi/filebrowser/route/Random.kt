@@ -7,6 +7,7 @@ import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.*
 import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
+import tenshi.hinanawi.filebrowser.plugin.safeExecute
 import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
@@ -17,19 +18,14 @@ internal fun Route.random() {
     // fix: 操，忘了删这玩意儿，导致测试失败了
     // 单元测试真有用好吧
     get {
-      try {
-        call.contentTypeJson()
+      call.safeExecute {
+        contentTypeJson()
         val type = call.queryParameters["type"]?.parseFileType() ?: FileType.Video
         val dir = call.attributes[ValidatedFileKey]
         val files = scanDirectory(dir, type)
-        call.respond(
+        respond(
           HttpStatusCode.OK,
           Response(200, Message.Success, files)
-        )
-      } catch (e: Exception) {
-        call.respond(
-          HttpStatusCode.InternalServerError,
-          Response(500, Message.InternalServerError, null)
         )
       }
     }

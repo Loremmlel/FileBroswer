@@ -6,6 +6,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.routing.routing
 import io.ktor.server.testing.*
 import kotlinx.coroutines.test.TestResult
 import kotlinx.serialization.json.Json
@@ -25,7 +26,9 @@ class FilesEndpointTest : BaseEndpointTest() {
       json()
     }
     application {
-      files()
+      routing {
+        files()
+      }
     }
     block()
   }
