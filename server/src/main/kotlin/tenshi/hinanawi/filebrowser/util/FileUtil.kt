@@ -1,6 +1,5 @@
 package tenshi.hinanawi.filebrowser.util
 
-import io.ktor.http.ContentType
 import tenshi.hinanawi.filebrowser.model.FileType
 import java.io.File
 
