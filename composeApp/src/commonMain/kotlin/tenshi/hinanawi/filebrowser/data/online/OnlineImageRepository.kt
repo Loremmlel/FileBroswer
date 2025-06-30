@@ -7,6 +7,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.cio.*
+import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
@@ -32,7 +33,33 @@ class OnlineImageRepository: BaseOnlineRepository(), ImageRepository {
       close()
       return@callbackFlow
     }
-    val imageBitmap = response.bodyAsChannel().toByteArray().decodeToImageBitmap()
+
+    // 流式读取图片数据
+    val channel = response.bodyAsChannel()
+    val chunks = mutableListOf<ByteArray>()
+    var totalSize = 0
+
+    val buffer = ByteArray(8192) // 8KB 缓冲区
+    while (!channel.isClosedForRead) {
+      val bytesRead = channel.readAvailable(buffer)
+      if (bytesRead > 0) {
+        val chunk = buffer.copyOf(bytesRead)
+        chunks.add(chunk)
+        totalSize += bytesRead
+      } else if (bytesRead == -1) {
+        break
+      }
+    }
+
+    // 合并所有数据块
+    val imageData = ByteArray(totalSize)
+    var offset = 0
+    chunks.forEach { chunk ->
+      chunk.copyInto(imageData, offset)
+      offset += chunk.size
+    }
+
+    val imageBitmap = imageData.decodeToImageBitmap()
     val painter = BitmapPainter(imageBitmap)
     trySend(ImageLoadState.Success(painter))
     close()

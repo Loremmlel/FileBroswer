@@ -3,42 +3,65 @@ package tenshi.hinanawi.filebrowser.platform
 import android.content.Context
 import android.os.Environment
 import android.provider.MediaStore
+import io.ktor.utils.io.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
 class AndroidFileDownloader(private val context: Context) : FileDownloader {
-  override suspend fun downloadFile(url: String, fileName: String, fileData: ByteArray) {
-    try {
-      // 获取下载目录
-      val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-      val file = File(downloadsDir, fileName)
-      
-      // 写入文件
-      FileOutputStream(file).use { outputStream ->
-        outputStream.write(fileData)
-      }
-
-
-      // 添加文件到下载数据库系统
-      val contentValues = android.content.ContentValues().apply {
-        put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-        put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
-        put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-        put(MediaStore.Downloads.IS_PENDING, 1)
-      }
-      val resolver = context.contentResolver
-      val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-
-      uri?.let {
-        resolver.openOutputStream(it)?.use { outputStream ->
-          outputStream.write(fileData)
+  override suspend fun downloadFile(
+    url: String,
+    filename: String,
+    inputChannel: ByteReadChannel?,
+    contentLength: Long?
+  ) {
+    withContext(Dispatchers.IO) {
+      try {
+        if (inputChannel == null) {
+          throw Exception("输入流为空")
         }
-        contentValues.clear()
-        contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
-        resolver.update(it, contentValues, null, null)
+        // 获取下载目录
+        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val file = File(downloadsDir, filename)
+
+        // 流式写入文件
+        FileOutputStream(file).use { outputStream ->
+          val buffer = ByteArray(8192) // 8KB 缓冲区
+          while (!inputChannel.isClosedForRead) {
+            val bytesRead = inputChannel.readAvailable(buffer)
+            if (bytesRead > 0) {
+              outputStream.write(buffer, 0, bytesRead)
+            } else if (bytesRead == -1) {
+              break
+            }
+          }
+        }
+
+        // 添加文件到下载数据库系统
+        val contentValues = android.content.ContentValues().apply {
+          put(MediaStore.Downloads.DISPLAY_NAME, filename)
+          put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
+          put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+          put(MediaStore.Downloads.IS_PENDING, 1)
+        }
+        val resolver = context.contentResolver
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+        uri?.let {
+          resolver.openOutputStream(it)?.use { outputStream ->
+            // 重新读取文件内容写入到MediaStore
+            file.inputStream().use { inputStream ->
+              inputStream.copyTo(outputStream)
+            }
+          }
+          contentValues.clear()
+          contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
+          resolver.update(it, contentValues, null, null)
+        }
+      } catch (e: Exception) {
+        throw Exception("流式下载失败: ${e.message}")
       }
-    } catch (e: Exception) {
-      throw Exception("下载失败: ${e.message}")
     }
   }
 }

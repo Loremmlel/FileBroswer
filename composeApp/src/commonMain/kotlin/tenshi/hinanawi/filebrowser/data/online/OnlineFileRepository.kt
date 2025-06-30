@@ -3,10 +3,11 @@ package tenshi.hinanawi.filebrowser.data.online
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.util.cio.*
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import tenshi.hinanawi.filebrowser.SERVER_URL
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
+import tenshi.hinanawi.filebrowser.getPlatform
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.platform.createFileDownloader
@@ -29,12 +30,20 @@ class OnlineFileRepository : BaseOnlineRepository(), FilesRepository {
     ErrorHandler.handleException(e)
   }
 
-  override suspend fun downloadFile(path: String, fileName: String) = try {
-    val response = client.get("/files/download?path=$path")
-    val fileData = response.bodyAsChannel().toByteArray()
-    val downloadUrl = "/files/download?path=$path"
-    fileDownloader.downloadFile(downloadUrl, fileName, fileData)
-  } catch (e: Exception) {
-    ErrorHandler.handleException(e)
+  override suspend fun downloadFile(path: String, filename: String) {
+    try {
+      val downloadUrl = "$SERVER_URL/files/download?path=$path"
+      if (getPlatform().name == "Web with Kotlin/Wasm") {
+        fileDownloader.downloadFile(downloadUrl, filename)
+        return
+      }
+      val response = client.get("/files/download?path=$path")
+      val contentLength = response.headers["Content-Length"]?.toLongOrNull()
+
+      // 使用流式下载
+      fileDownloader.downloadFile(downloadUrl, filename, response.bodyAsChannel(), contentLength)
+    } catch (e: Exception) {
+      ErrorHandler.handleException(e)
+    }
   }
 }
