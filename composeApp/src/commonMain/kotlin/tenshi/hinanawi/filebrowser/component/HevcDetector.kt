@@ -67,7 +67,7 @@ fun HevcDetector(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
           .fillMaxWidth()
-          .padding(16.dp)
+          .padding(4.dp)
       ) {
         if (supportHevc == null) {
           CircularProgressIndicator(
@@ -94,12 +94,12 @@ fun HevcDetector(
               overflow = TextOverflow.Ellipsis,
               modifier = Modifier.weight(1f)
             )
-          }
-          IconButton(onClick = { expanded = !expanded }) {
-            Icon(
-              imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-              contentDescription = if (expanded) "收起" else "HEVC检测详情"
-            )
+            IconButton(onClick = { expanded = !expanded }) {
+              Icon(
+                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = if (expanded) "收起" else "HEVC检测详情"
+              )
+            }
           }
         }
       }
@@ -112,7 +112,7 @@ fun HevcDetector(
             .padding(bottom = 16.dp)
         ) {
           Text(
-            text = "详细信息 ${hevcSupportDetector.detail}",
+            text = "详细信息: ${hevcSupportDetector.detail}",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(bottom = 8.dp)
           )
