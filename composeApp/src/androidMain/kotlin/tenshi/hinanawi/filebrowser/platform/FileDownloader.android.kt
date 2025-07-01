@@ -1,8 +1,10 @@
 package tenshi.hinanawi.filebrowser.platform
 
+import android.content.ContentValues
 import android.content.Context
 import android.os.Environment
 import android.provider.MediaStore
+import android.widget.Toast
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -39,7 +41,7 @@ class AndroidFileDownloader(private val context: Context) : FileDownloader {
         }
 
         // 添加文件到下载数据库系统
-        val contentValues = android.content.ContentValues().apply {
+        val contentValues = ContentValues().apply {
           put(MediaStore.Downloads.DISPLAY_NAME, filename)
           put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
           put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
@@ -59,7 +61,13 @@ class AndroidFileDownloader(private val context: Context) : FileDownloader {
           contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
           resolver.update(it, contentValues, null, null)
         }
+        withContext(Dispatchers.Main) {
+          Toast.makeText(context, "下载成功, 文件存储到${file.path}", Toast.LENGTH_LONG).show()
+        }
       } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+          Toast.makeText(context, "下载失败: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
         throw Exception("流式下载失败: ${e.message}")
       }
     }
