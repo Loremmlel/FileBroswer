@@ -87,6 +87,16 @@ class RandomPlayViewModel(
     }
     return null
   }
+
+  fun pathChange() {
+    viewModelScope.launch {
+      _uiState.update {
+        it.copy(
+          videoFiles = emptyList()
+        )
+      }
+    }
+  }
 }
 
 data class UiState(

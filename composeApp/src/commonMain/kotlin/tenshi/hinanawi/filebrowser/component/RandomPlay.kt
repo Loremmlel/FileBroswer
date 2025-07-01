@@ -20,6 +20,10 @@ fun RandomPlay(
 ) {
   val state by viewModel.uiState.collectAsState()
 
+  LaunchedEffect(currentPath) {
+    viewModel.pathChange()
+  }
+
   Button(
     onClick = {
       if (state.videoFiles.isEmpty() && !state.loading) {
