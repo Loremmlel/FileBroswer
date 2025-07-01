@@ -1,5 +1,7 @@
 package tenshi.hinanawi.filebrowser.component
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
 import tenshi.hinanawi.filebrowser.model.ROOT_DIR_NAME
+import tenshi.hinanawi.filebrowser.util.truncate
 
 
 @Composable
@@ -24,9 +27,9 @@ fun BreadCrumb(
   navigator: BreadCrumbNavigator,
   modifier: Modifier = Modifier
 ) {
-  Row(
+  FlowRow(
     modifier = modifier,
-    verticalAlignment = Alignment.CenterVertically
+    itemVerticalAlignment = Alignment.CenterVertically
   ) {
     val paths = buildList {
       add(BreadCrumbItem(ROOT_DIR_NAME))
@@ -39,7 +42,7 @@ fun BreadCrumb(
           contentDescription = "分隔符",
           modifier = Modifier
             .size(24.dp)
-            .padding(horizontal = 4.dp),
+            .padding(horizontal = 2.dp),
           tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
       }
@@ -48,10 +51,10 @@ fun BreadCrumb(
       TextButton(
         onClick = { navigator.popTo(path.dirName, false) },
         modifier = Modifier.padding(0.dp),
-        contentPadding = PaddingValues(4.dp)
+        contentPadding = PaddingValues(2.dp)
       ) {
         Text(
-          text = path.dirName,
+          text = path.dirName.truncate(20),
           style = MaterialTheme.typography.bodyMedium,
           color = if (index == paths.size - 1) MaterialTheme.colorScheme.onSurface
           else MaterialTheme.colorScheme.primary

@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tenshi.hinanawi.filebrowser.data.online.OnlineImageRepository
@@ -63,10 +64,14 @@ fun ImageViewer(
       contentAlignment = Alignment.TopCenter
     ) {
       Text(
+        modifier = Modifier
+          .align(Alignment.Center)
+          .fillMaxWidth(0.5f),
         text = file.name,
         color = Color.White,
         fontSize = 20.sp,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center
       )
     }
 
