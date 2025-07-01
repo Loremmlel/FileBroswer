@@ -62,11 +62,11 @@ class AndroidFileDownloader(private val context: Context) : FileDownloader {
           resolver.update(it, contentValues, null, null)
         }
         withContext(Dispatchers.Main) {
-          Toast.makeText(context, "下载成功, 文件存储到${file.path}", Toast.LENGTH_LONG).show()
+          Toast.makeText(context.applicationContext, "下载成功, 文件存储到${file.path}", Toast.LENGTH_LONG).show()
         }
       } catch (e: Exception) {
         withContext(Dispatchers.Main) {
-          Toast.makeText(context, "下载失败: ${e.message}", Toast.LENGTH_SHORT).show()
+          Toast.makeText(context.applicationContext, "下载失败: ${e.message}", Toast.LENGTH_SHORT).show()
         }
         throw Exception("流式下载失败: ${e.message}")
       }
