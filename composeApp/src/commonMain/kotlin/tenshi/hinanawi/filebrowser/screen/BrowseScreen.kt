@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.BreadCrumb
 import tenshi.hinanawi.filebrowser.component.FileItem
+import tenshi.hinanawi.filebrowser.component.HevcDetector
 import tenshi.hinanawi.filebrowser.component.ImageViewer
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.FileType
@@ -41,6 +42,7 @@ fun BrowseScreen(
       navigator = viewModel.navigator,
       modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(horizontal = 16.dp, vertical = 8.dp)
     )
+    HevcDetector()
     Box(
       modifier = Modifier.weight(1f).fillMaxWidth()
     ) {
