@@ -2,6 +2,7 @@ package tenshi.hinanawi.filebrowser.platform
 
 import android.media.MediaCodecList
 import android.os.Build
+import tenshi.hinanawi.filebrowser.util.printlnException
 
 class AndroidHevcSupportDetector : HevcSupportDetector {
   override suspend fun isHevcSupported(): Boolean = try {
@@ -20,7 +21,8 @@ class AndroidHevcSupportDetector : HevcSupportDetector {
       }
     }
     false
-  } catch (_: Exception) {
+  } catch (e: Exception) {
+    printlnException(e)
     false
   }
 }

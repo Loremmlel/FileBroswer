@@ -1,5 +1,7 @@
 package tenshi.hinanawi.filebrowser.platform
 
+import tenshi.hinanawi.filebrowser.util.printlnException
+
 class DesktopHevcSupportDetector : HevcSupportDetector {
   override suspend fun isHevcSupported(): Boolean {
     val osName = System.getProperty("os.name").lowercase()
@@ -17,7 +19,7 @@ class DesktopHevcSupportDetector : HevcSupportDetector {
       val version = osVersion.split(".")[0].toInt()
       version >= 10
     } catch (e: Exception) {
-      println("$e; ${e.message}")
+      printlnException(e)
       false
     }
   }
@@ -31,6 +33,7 @@ class DesktopHevcSupportDetector : HevcSupportDetector {
 
       major > 10 || (major == 10 && minor >= 13)
     } catch (e: Exception) {
+      printlnException(e)
       false
     }
   }
@@ -40,6 +43,7 @@ class DesktopHevcSupportDetector : HevcSupportDetector {
     val output = process.inputStream.bufferedReader().readText()
     output.contains("hevc") || output.contains("h265")
   } catch (e: Exception) {
+    printlnException(e)
     false
   }
 }

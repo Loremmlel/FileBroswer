@@ -6,7 +6,7 @@ import org.w3c.dom.HTMLVideoElement
 import org.w3c.dom.MAYBE
 import org.w3c.dom.PROBABLY
 import org.w3c.dom.mediasource.MediaSource
-import tenshi.hinanawi.filebrowser.util.printException
+import tenshi.hinanawi.filebrowser.util.printlnException
 
 class WasmJsHevcSupportDetector : HevcSupportDetector {
   private val hevcTypes = listOf(
@@ -19,7 +19,7 @@ class WasmJsHevcSupportDetector : HevcSupportDetector {
   override suspend fun isHevcSupported(): Boolean = try {
     checkVideoElementSupport() || checkMediaSourceSupport()
   } catch (e : Exception) {
-    printException(e)
+    printlnException(e)
     false
   }
 
@@ -37,7 +37,7 @@ class WasmJsHevcSupportDetector : HevcSupportDetector {
       MediaSource.isTypeSupported(it)
     }
   } catch (e: Exception) {
-    printException(e)
+    printlnException(e)
     false
   }
 }
