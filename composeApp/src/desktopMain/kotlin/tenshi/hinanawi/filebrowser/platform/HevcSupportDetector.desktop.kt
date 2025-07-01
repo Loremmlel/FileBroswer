@@ -3,7 +3,7 @@ package tenshi.hinanawi.filebrowser.platform
 import tenshi.hinanawi.filebrowser.util.printlnException
 
 class DesktopHevcSupportDetector : HevcSupportDetector {
-  override suspend fun isHevcSupported(): Boolean {
+  override fun isHevcSupported(): Boolean {
     val osName = System.getProperty("os.name").lowercase()
     return when {
       osName.contains("windows") -> checkWindowsHevcSupport()

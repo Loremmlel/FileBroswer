@@ -16,7 +16,7 @@ class WasmJsHevcSupportDetector : HevcSupportDetector {
     "video/mp4; codecs=\"hvc1\""
   )
 
-  override suspend fun isHevcSupported(): Boolean = try {
+  override fun isHevcSupported(): Boolean = try {
     checkVideoElementSupport() || checkMediaSourceSupport()
   } catch (e : Exception) {
     printlnException(e)

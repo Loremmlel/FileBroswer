@@ -1,11 +1,10 @@
 package tenshi.hinanawi.filebrowser.platform
 
 import android.media.MediaCodecList
-import android.os.Build
 import tenshi.hinanawi.filebrowser.util.printlnException
 
 class AndroidHevcSupportDetector : HevcSupportDetector {
-  override suspend fun isHevcSupported(): Boolean = try {
+  override fun isHevcSupported(): Boolean = try {
     val codecList = MediaCodecList(MediaCodecList.REGULAR_CODECS)
     val codecs = codecList.codecInfos
 
