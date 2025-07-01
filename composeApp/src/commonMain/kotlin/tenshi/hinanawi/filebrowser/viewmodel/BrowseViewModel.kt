@@ -2,6 +2,7 @@ package tenshi.hinanawi.filebrowser.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
@@ -12,6 +13,7 @@ import tenshi.hinanawi.filebrowser.util.ErrorHandler
 import tenshi.hinanawi.filebrowser.util.firstAfter
 import tenshi.hinanawi.filebrowser.util.firstBefore
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class BrowseViewModel(
   private val filesRepository: FilesRepository
 ) : ViewModel() {
@@ -19,6 +21,8 @@ class BrowseViewModel(
 
   private val _uiState = MutableStateFlow(BrowserUiState())
   val uiState = _uiState.asStateFlow()
+
+  private val _refreshTrigger = MutableStateFlow(Unit)
 
   private val _firstImage
     get() = _uiState.value.files.firstOrNull {
@@ -30,25 +34,22 @@ class BrowseViewModel(
       it.type == FileType.Image
     }
 
-  fun getData() {
-    closeImagePreview()
-    loadFiles()
-  }
-
-  private fun loadFiles() {
+  init {
     viewModelScope.launch {
-      filesRepository.getFiles(navigator.requestPath)
-        .onStart {
-          _uiState.update {
-            it.copy(fileLoading = true)
+      _refreshTrigger.flatMapLatest {
+        filesRepository.getFiles(navigator.requestPath)
+          .onStart {
+            _uiState.update {
+              it.copy(fileLoading = true)
+            }
           }
-        }
-        .catch { exception ->
-          ErrorHandler.handleException(exception)
-          _uiState.update {
-            it.copy(fileLoading = false)
+          .catch { exception ->
+            ErrorHandler.handleException(exception)
+            _uiState.update {
+              it.copy(fileLoading = false)
+            }
           }
-        }
+      }
         .collect { files ->
           _uiState.update {
             it.copy(
@@ -58,6 +59,11 @@ class BrowseViewModel(
           }
         }
     }
+  }
+
+  fun getData() {
+    closeImagePreview()
+    _refreshTrigger.value = Unit
   }
 
   fun deleteFile(file: FileInfo) {
