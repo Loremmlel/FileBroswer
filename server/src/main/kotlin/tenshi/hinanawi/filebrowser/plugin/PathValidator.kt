@@ -51,7 +51,7 @@ internal val PathValidator = createRouteScopedPlugin("PathValidator") {
         HttpStatusCode.InternalServerError,
         Response(500, Message.InternalServerError, null)
       )
-      call.application.log.error(e.message)
+      call.logBusinessOperation("PathValidator", "PathValidationFailed: $e ${e.message}")
       return@on
     }
   }

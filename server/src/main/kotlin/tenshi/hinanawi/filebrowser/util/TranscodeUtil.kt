@@ -5,6 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.slf4j.LoggerFactory
 import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.TranscodeQuality
 import tenshi.hinanawi.filebrowser.model.TranscodeRequest
@@ -24,6 +25,8 @@ class TranscodeManager {
   val activeTasks: StateFlow<Int> = _activeTasks
 
   private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+  private val logger = LoggerFactory.getLogger("BusinessLogger")
 
   init {
     File(AppConfig.cachePath).mkdirs()
@@ -191,7 +194,8 @@ class TranscodeManager {
             task.updateStatus {
               it.copy(progress = progress)
             }
-          } catch (_: Exception) {
+          } catch (e: Exception) {
+            logger.warn("Transcode Util: Error parsing time: $line; $e; ${e.message}")
           }
         }
 
@@ -203,8 +207,9 @@ class TranscodeManager {
           break
         }
       }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
       // 进度监控出错，但不影响转码任务
+      logger.warn("Transcode Util: Error monitoring progress: $e; ${e.message}")
     }
   }
 

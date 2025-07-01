@@ -45,7 +45,6 @@ suspend inline fun ApplicationCall.safeExecute(
     block()
   } catch (e: Exception) {
     logger.error("Route execution failed: ${request.httpMethod.value} ${request.uri}", e)
-
     if (!response.isCommitted) {
       respond(
         HttpStatusCode.InternalServerError,

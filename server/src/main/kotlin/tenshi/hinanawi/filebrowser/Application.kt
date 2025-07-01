@@ -16,16 +16,24 @@ import tenshi.hinanawi.filebrowser.util.TranscodeManager
 
 fun main() {
   System.setProperty("io.ktor.development", "true")
+  val transcodeManager = TranscodeManager()
   embeddedServer(
     Netty,
     port = SERVER_PORT,
     host = "0.0.0.0",
-    module = Application::module
+    module = {
+      module(transcodeManager)
+    }
   )
     .start(wait = true)
+    .monitor.subscribe(ApplicationStopping) {
+      transcodeManager.shutdown()
+    }
 }
 
-fun Application.module() {
+fun Application.module(
+  transcodeManager: TranscodeManager
+) {
   install(RequestLogging)
   install(ResponseBodyLogging)
   install(GlobalExceptionHandler)
@@ -50,7 +58,7 @@ fun Application.module() {
     files()
     random()
     image()
-    transcode(TranscodeManager())
+    transcode(transcodeManager)
     video()
   }
 }
