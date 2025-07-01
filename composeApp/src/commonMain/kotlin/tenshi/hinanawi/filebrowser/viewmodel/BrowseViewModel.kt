@@ -131,10 +131,15 @@ class BrowseViewModel(
       openImagePreview(_lastImage)
     }
   }
+
+  fun playVideo(video: FileInfo) {
+
+  }
 }
 
 data class BrowserUiState(
   val files: List<FileInfo> = emptyList(),
   val fileLoading: Boolean = false,
-  val previewItem: FileInfo? = null
+  val previewItem: FileInfo? = null,
+  val playingVideo: FileInfo? = null
 )
