@@ -22,7 +22,7 @@ class BrowseViewModel(
   private val _uiState = MutableStateFlow(BrowserUiState())
   val uiState = _uiState.asStateFlow()
 
-  private val _refreshTrigger = MutableStateFlow(Unit)
+  private val _currentPath = MutableStateFlow(navigator.requestPath)
 
   private val _firstImage
     get() = _uiState.value.files.firstOrNull {
@@ -36,7 +36,8 @@ class BrowseViewModel(
 
   init {
     viewModelScope.launch {
-      _refreshTrigger.flatMapLatest {
+      _currentPath
+        .flatMapLatest {
         filesRepository.getFiles(navigator.requestPath)
           .onStart {
             _uiState.update {
@@ -63,7 +64,7 @@ class BrowseViewModel(
 
   fun getData() {
     closeImagePreview()
-    _refreshTrigger.value = Unit
+    _currentPath.value = navigator.requestPath
   }
 
   fun deleteFile(file: FileInfo) {
