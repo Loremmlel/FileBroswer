@@ -114,7 +114,7 @@
         <appender-ref ref="ASYNC_REQUEST_FILE"/>
     </logger>
 
-    <logger name="BusinessLogger" level="INFO" additivity="false">
+    <logger name="BusinessLogger" level="WARN" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC_BUSINESS_FILE"/>
     </logger>
