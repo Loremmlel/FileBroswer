@@ -36,7 +36,7 @@ val ResponseBodyLogging = createApplicationPlugin("ResponseBodyLogging") {
 
         // 限制日志长度，避免过大的响应体
         val logBody = if (bodyString.length > 1000) {
-          bodyString.take(1000) + "... (truncated)"
+          bodyString.take(1000) + "...${bodyString.length - 1000}(truncated)"
         } else {
           bodyString
         }
