@@ -34,7 +34,7 @@ fun RemoteImage(
       is ImageLoadState.Loading ->
         CircularProgressIndicator(
           modifier = modifier
-            .size(60.dp)
+            .size(40.dp)
             .align(Alignment.Center)
         )
 
