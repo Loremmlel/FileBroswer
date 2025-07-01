@@ -8,15 +8,17 @@ import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
+import tenshi.hinanawi.filebrowser.plugin.PathValidator
+import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.plugin.safeExecute
 import tenshi.hinanawi.filebrowser.util.getContentType
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
 
 fun Route.video() {
-  route("/video") {
+  route("/video/{taskId}/{...}") {
     install(PartialContent)
-    get("/{taskId}/{...}") {
+    get {
       call.safeExecute {
         val taskId = parameters["taskId"] ?: run {
           respond(
@@ -68,7 +70,29 @@ fun Route.video() {
           }
         }
         val contentType = file.getContentType()
-        response.header("Content-Type", contentType)
+        response.header(HttpHeaders.ContentType, contentType)
+        respondFile(file)
+      }
+    }
+  }
+  // 如果客户端支持HEVC原生播放，那么就不用转码了
+  route("/video") {
+    install(PartialContent)
+    install(PathValidator)
+    get {
+      call.safeExecute {
+        val file = attributes[ValidatedFileKey]
+        if (file.getFileType() != FileType.Video) {
+          respond(
+            HttpStatusCode.BadRequest,
+            Response(400, Message.VideoIsNotVideo, null)
+          )
+          return@safeExecute
+        }
+        val contentType = file.getContentType()
+        response.header(HttpHeaders.CacheControl, "public, max-age=3600")
+        response.header(HttpHeaders.ETag, "\"${file.lastModified()}-${file.length()}\"")
+        response.header(HttpHeaders.ContentType, contentType)
         respondFile(file)
       }
     }
