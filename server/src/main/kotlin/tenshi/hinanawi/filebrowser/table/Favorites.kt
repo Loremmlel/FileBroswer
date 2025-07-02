@@ -13,7 +13,6 @@ object Favorites : LongIdTable("favorites") {
     onUpdate = ReferenceOption.CASCADE
   ).nullable()
   val name = varchar("name", 255)
-  val isFolder = bool("is_folder").default(false)
   val createdAt = timestamp("created_at").default(Clock.System.now())
   val updatedAt = timestamp("updated_at").default(Clock.System.now())
   val sortOrder = integer("sort_order").default(0)
