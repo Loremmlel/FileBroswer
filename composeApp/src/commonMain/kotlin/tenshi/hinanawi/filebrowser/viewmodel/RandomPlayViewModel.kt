@@ -80,12 +80,7 @@ class RandomPlayViewModel(
 
   fun getRandomVideo(): FileInfo? {
     val videoFiles = uiState.value.videoFiles
-    if (videoFiles.isNotEmpty()) {
-      val randomIndex = (0 until videoFiles.size).random()
-      val randomVideo = videoFiles[randomIndex]
-      return randomVideo
-    }
-    return null
+    return videoFiles.randomOrNull()
   }
 
   fun pathChange() {
