@@ -1,0 +1,20 @@
+package tenshi.hinanawi.filebrowser.table
+
+import kotlinx.datetime.Clock
+import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+
+object Favorites : LongIdTable("favorites") {
+  val parentId = reference(
+    "parent_id",
+    Favorites,
+    onDelete = ReferenceOption.CASCADE,
+    onUpdate = ReferenceOption.CASCADE
+  ).nullable()
+  val name = varchar("name", 255)
+  val isFolder = bool("is_folder").default(false)
+  val createdAt = timestamp("created_at").default(Clock.System.now())
+  val updatedAt = timestamp("updated_at").default(Clock.System.now())
+  val sortOrder = integer("sort_order").default(0)
+}

@@ -1,0 +1,16 @@
+package tenshi.hinanawi.filebrowser.model
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class FavoriteFileDto(
+  val id: Long,
+  val favoriteId: Long,
+  val filename: String,
+  val fileSize: Long,
+  val fileType: FileType,
+  val filePath: String,
+  val lastModified: Long,
+  val isDirectory: Boolean,
+  val createdAt: Long
+)

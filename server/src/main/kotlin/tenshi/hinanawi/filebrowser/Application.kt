@@ -8,6 +8,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
+import tenshi.hinanawi.filebrowser.config.DatabaseFactory
 import tenshi.hinanawi.filebrowser.plugin.GlobalExceptionHandler
 import tenshi.hinanawi.filebrowser.plugin.RequestLogging
 import tenshi.hinanawi.filebrowser.plugin.ResponseBodyLogging
@@ -34,6 +35,7 @@ fun main() {
 fun Application.module(
   transcodeManager: TranscodeManager
 ) {
+  DatabaseFactory.init()
   install(RequestLogging)
   install(ResponseBodyLogging)
   install(GlobalExceptionHandler)
