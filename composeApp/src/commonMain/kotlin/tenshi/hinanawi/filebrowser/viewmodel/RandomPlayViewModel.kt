@@ -28,9 +28,9 @@ class RandomPlayViewModel(
     viewModelScope.launch {
       _requestPath
         .flatMapLatest<String, List<FileInfo>> { path ->
-          val currentTime = currentTimeMillis()
+          val requestTime = currentTimeMillis()
           val lastRequestTime = _requestTimeMap[path] ?: 0
-          if (currentTime - lastRequestTime < cacheDuration && _cacheMap.containsKey(path)) {
+          if (requestTime - lastRequestTime < cacheDuration && _cacheMap.containsKey(path)) {
             flowOf(_cacheMap[path]!!)
               .onStart {
                 _uiState.update {
@@ -47,11 +47,14 @@ class RandomPlayViewModel(
               .catch { exception ->
                 ErrorHandler.handleException(exception)
                 _uiState.update {
-                  it.copy(loading = false)
+                  it.copy(
+                    loading = false,
+                    videoFiles = emptyList()
+                  )
                 }
               }
               .onEach { videoFiles ->
-                _requestTimeMap[path] = currentTime
+                _requestTimeMap[path] = requestTime
                 _cacheMap[path] = videoFiles
               }
           }
