@@ -39,7 +39,7 @@ fun RandomPlay(
       .wrapContentHeight()
   ) {
     Text(
-      text = when  {
+      text = when {
         state.loading -> "加载中..."
         state.videoFiles.isEmpty() -> "无视频文件, 点击加载"
         else -> "随机播放"

@@ -11,7 +11,7 @@ enum class ServiceMessage(val message: String) {
 
   FavoriteFileNotFound("收藏文件不存在");
 
-  fun toClientMessage(): Message = when(this) {
+  fun toClientMessage(): Message = when (this) {
     FavoriteParentNotFound -> Message.FavoriteParentNotFound
     FavoriteNotFound -> Message.FavoriteNotFound
     FavoriteContainsSub -> Message.FavoriteContainsSub

@@ -8,23 +8,14 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import tenshi.hinanawi.filebrowser.component.BreadCrumb
-import tenshi.hinanawi.filebrowser.component.FileItem
-import tenshi.hinanawi.filebrowser.component.HevcDetector
-import tenshi.hinanawi.filebrowser.component.ImageViewer
-import tenshi.hinanawi.filebrowser.component.RandomPlay
+import tenshi.hinanawi.filebrowser.component.*
 import tenshi.hinanawi.filebrowser.data.online.OnlineRandomRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.FileType
-import tenshi.hinanawi.filebrowser.util.currentTimeMillis
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
 import tenshi.hinanawi.filebrowser.viewmodel.RandomPlayViewModel
 

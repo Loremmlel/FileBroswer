@@ -172,7 +172,8 @@ class FavoriteService {
    * @throws ServiceException 收藏文件不存在
    */
   fun removeFavoriteFile(favoriteFileId: Long): Boolean = transaction {
-    val favoriteFile = FavoriteFile.findById(favoriteFileId) ?: throw ServiceException(ServiceMessage.FavoriteFileNotFound)
+    val favoriteFile =
+      FavoriteFile.findById(favoriteFileId) ?: throw ServiceException(ServiceMessage.FavoriteFileNotFound)
     favoriteFile.delete()
     true
   }

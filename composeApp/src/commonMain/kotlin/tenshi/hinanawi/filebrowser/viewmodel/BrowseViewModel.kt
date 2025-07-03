@@ -38,19 +38,19 @@ class BrowseViewModel(
     viewModelScope.launch {
       _currentPath
         .flatMapLatest {
-        filesRepository.getFiles(navigator.requestPath)
-          .onStart {
-            _uiState.update {
-              it.copy(fileLoading = true)
+          filesRepository.getFiles(navigator.requestPath)
+            .onStart {
+              _uiState.update {
+                it.copy(fileLoading = true)
+              }
             }
-          }
-          .catch { exception ->
-            ErrorHandler.handleException(exception)
-            _uiState.update {
-              it.copy(fileLoading = false)
+            .catch { exception ->
+              ErrorHandler.handleException(exception)
+              _uiState.update {
+                it.copy(fileLoading = false)
+              }
             }
-          }
-      }
+        }
         .collect { files ->
           _uiState.update {
             it.copy(
