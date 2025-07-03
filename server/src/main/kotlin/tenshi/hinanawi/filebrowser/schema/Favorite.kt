@@ -76,7 +76,7 @@ class FavoriteService {
   }
 
   /**
-   * 获得收藏夹树
+   * 获得收藏夹树，只包含收藏夹结构不包含文件内容
    *
    * @param parentId 父收藏夹ID，默认为null表示获取顶级收藏夹
    * @return 收藏夹树 [List]&[FavoriteDto]
@@ -87,8 +87,7 @@ class FavoriteService {
       .orderBy(FavoriteTable.sortOrder to SortOrder.ASC)
     favorites.map { favorite ->
       favorite.toDto().copy(
-        children = getFavoriteTree(favorite.id.value),
-        files = favorite.files.map { it.toDto() }
+        children = getFavoriteTree(favorite.id.value)
       )
     }
   }
