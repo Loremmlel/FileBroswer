@@ -32,10 +32,6 @@ fun BrowseScreen(
   val state by viewModel.uiState.collectAsState()
   val randomPlayViewModel = remember { RandomPlayViewModel(OnlineRandomRepository()) }
 
-  LaunchedEffect(Unit) {
-    viewModel.getData()
-  }
-
   Column(
     modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
   ) {
