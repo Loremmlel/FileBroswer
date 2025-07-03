@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.component
+package tenshi.hinanawi.filebrowser.component.browse
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

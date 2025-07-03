@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.component
+package tenshi.hinanawi.filebrowser.component.browse
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize

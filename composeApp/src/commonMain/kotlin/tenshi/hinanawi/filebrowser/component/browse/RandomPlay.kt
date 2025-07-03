@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.component
+package tenshi.hinanawi.filebrowser.component.browse
 
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
