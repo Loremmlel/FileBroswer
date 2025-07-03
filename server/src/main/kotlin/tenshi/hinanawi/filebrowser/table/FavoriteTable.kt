@@ -5,10 +5,10 @@ import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
-object Favorites : LongIdTable("favorites") {
+object FavoriteTable : LongIdTable("favorites") {
   val parentId = reference(
     "parent_id",
-    Favorites,
+    FavoriteTable,
     onDelete = ReferenceOption.RESTRICT,
     onUpdate = ReferenceOption.CASCADE
   ).nullable()

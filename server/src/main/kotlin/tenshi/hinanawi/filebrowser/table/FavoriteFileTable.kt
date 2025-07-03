@@ -6,10 +6,10 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import tenshi.hinanawi.filebrowser.model.FileType
 
-object FavoriteFiles : LongIdTable("favorite_files") {
+object FavoriteFileTable : LongIdTable("favorite_files") {
   val favoriteId = reference(
     "favorite_id",
-    Favorites,
+    FavoriteTable,
     onDelete = ReferenceOption.CASCADE
   )
   val filename = varchar("filename", 255)

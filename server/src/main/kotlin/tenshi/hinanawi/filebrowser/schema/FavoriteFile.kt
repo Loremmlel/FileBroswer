@@ -5,22 +5,22 @@ import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import tenshi.hinanawi.filebrowser.model.FavoriteFileDto
-import tenshi.hinanawi.filebrowser.table.FavoriteFiles
+import tenshi.hinanawi.filebrowser.table.FavoriteFileTable
 
 class FavoriteFile(id: EntityID<Long>) : LongEntity(id) {
-  companion object : LongEntityClass<FavoriteFile>(FavoriteFiles)
+  companion object : LongEntityClass<FavoriteFile>(FavoriteFileTable)
 
-  var favoriteId by FavoriteFiles.favoriteId
-  var filename by FavoriteFiles.filename
-  var fileSize by FavoriteFiles.fileSize
-  var fileType by FavoriteFiles.fileType
-  var filePath by FavoriteFiles.filePath
-  var lastModified by FavoriteFiles.lastModified
-  var isDirectory by FavoriteFiles.isDirectory
-  var createdAt by FavoriteFiles.createdAt
+  var favoriteId by FavoriteFileTable.favoriteId
+  var filename by FavoriteFileTable.filename
+  var fileSize by FavoriteFileTable.fileSize
+  var fileType by FavoriteFileTable.fileType
+  var filePath by FavoriteFileTable.filePath
+  var lastModified by FavoriteFileTable.lastModified
+  var isDirectory by FavoriteFileTable.isDirectory
+  var createdAt by FavoriteFileTable.createdAt
 
   // 关联的收藏夹
-  val favorite by Favorite referrersOn FavoriteFiles.favoriteId
+  val favorite by Favorite referrersOn FavoriteFileTable.favoriteId
 }
 
 fun FavoriteFile.toDto(): FavoriteFileDto = FavoriteFileDto(

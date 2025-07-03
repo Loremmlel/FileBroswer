@@ -6,32 +6,31 @@ import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
-import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import tenshi.hinanawi.filebrowser.exception.ServiceException
 import tenshi.hinanawi.filebrowser.model.FavoriteDto
 import tenshi.hinanawi.filebrowser.model.FavoriteFileDto
-import tenshi.hinanawi.filebrowser.table.FavoriteFiles
-import tenshi.hinanawi.filebrowser.table.Favorites
+import tenshi.hinanawi.filebrowser.table.FavoriteFileTable
+import tenshi.hinanawi.filebrowser.table.FavoriteTable
 
 class Favorite(id: EntityID<Long>) : LongEntity(id) {
-  companion object : LongEntityClass<Favorite>(Favorites)
+  companion object : LongEntityClass<Favorite>(FavoriteTable)
 
-  var parentId by Favorites.parentId
-  var name by Favorites.name
-  var createdAt by Favorites.createdAt
-  var updatedAt by Favorites.updatedAt
-  var sortOrder by Favorites.sortOrder
+  var parentId by FavoriteTable.parentId
+  var name by FavoriteTable.name
+  var createdAt by FavoriteTable.createdAt
+  var updatedAt by FavoriteTable.updatedAt
+  var sortOrder by FavoriteTable.sortOrder
 
   // 父收藏夹
-  val parent by Favorite optionalReferencedOn Favorites.parentId
+  val parent by Favorite optionalReferencedOn FavoriteTable.parentId
 
   // 子收藏夹
-  val children by Favorite optionalReferrersOn Favorites.parentId
+  val children by Favorite optionalReferrersOn FavoriteTable.parentId
 
   // 收藏夹下的文件
-  val files by FavoriteFile referrersOn FavoriteFiles.favoriteId
+  val files by FavoriteFile referrersOn FavoriteFileTable.favoriteId
 }
 
 class FavoriteService {
@@ -49,7 +48,7 @@ class FavoriteService {
       Favorite.findById(parentId) ?: throw ServiceException(ServiceMessage.FavoriteParentNotFound)
     }
     val favorite = Favorite.new {
-      this.parentId = parentId?.let { EntityID(it, Favorites) }
+      this.parentId = parentId?.let { EntityID(it, FavoriteTable) }
       this.name = name
       this.sortOrder = sortOrder
       this.updatedAt = Clock.System.now()
@@ -84,8 +83,8 @@ class FavoriteService {
    */
   fun getFavoriteTree(parentId: Long? = null): List<FavoriteDto> = transaction {
     val favorites = Favorite
-      .find { Favorites.parentId eq parentId }
-      .orderBy(Favorites.sortOrder to SortOrder.ASC)
+      .find { FavoriteTable.parentId eq parentId }
+      .orderBy(FavoriteTable.sortOrder to SortOrder.ASC)
     favorites.map { favorite ->
       favorite.toDto().copy(
         children = getFavoriteTree(favorite.id.value),
@@ -104,8 +103,8 @@ class FavoriteService {
   fun getFavoriteDetail(favoriteId: Long): FavoriteDto = transaction {
     val favorite = Favorite.findById(favoriteId) ?: throw ServiceException(ServiceMessage.FavoriteNotFound)
     favorite.toDto().copy(
-      children = favorite.children.orderBy(Favorites.sortOrder to SortOrder.ASC).map { it.toDto() },
-      files = favorite.files.orderBy(FavoriteFiles.createdAt to SortOrder.DESC).map { it.toDto() }
+      children = favorite.children.orderBy(FavoriteTable.sortOrder to SortOrder.ASC).map { it.toDto() },
+      files = favorite.files.orderBy(FavoriteFileTable.createdAt to SortOrder.DESC).map { it.toDto() }
     )
   }
 
@@ -137,7 +136,7 @@ class FavoriteService {
   fun addFileToFavorite(favoriteId: Long, file: FavoriteFileDto): FavoriteFileDto = transaction {
     Favorite.findById(favoriteId) ?: throw ServiceException(ServiceMessage.FavoriteNotFound)
     val favoriteFile = FavoriteFile.new {
-      this.favoriteId = EntityID(favoriteId, Favorites)
+      this.favoriteId = EntityID(favoriteId, FavoriteTable)
       this.filename = file.filename
       this.fileSize = file.fileSize
       this.fileType = file.fileType
@@ -185,8 +184,8 @@ class FavoriteService {
    * @return 删除的数量 [Int]
    */
   fun removeFavoriteFiles(favoriteFileIds: List<Long>): Int = transaction {
-    val deleteCount = FavoriteFile.find { FavoriteFiles.id inList favoriteFileIds }.count()
-    FavoriteFiles.deleteWhere { FavoriteFiles.id inList favoriteFileIds }
+    val deleteCount = FavoriteFile.find { FavoriteFileTable.id inList favoriteFileIds }.count()
+    FavoriteFileTable.deleteWhere { FavoriteFileTable.id inList favoriteFileIds }
     deleteCount.toInt()
   }
 
@@ -206,7 +205,7 @@ class FavoriteService {
         throw ServiceException(ServiceMessage.FavoriteCanNotMoveSelf)
       }
     }
-    favorite.parentId = newParentId?.let { EntityID(it, Favorites) }
+    favorite.parentId = newParentId?.let { EntityID(it, FavoriteTable) }
     favorite.updatedAt = Clock.System.now()
     favorite.toDto()
   }
