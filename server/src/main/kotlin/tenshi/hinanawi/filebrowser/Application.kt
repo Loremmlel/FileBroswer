@@ -62,5 +62,6 @@ fun Application.module(
     image()
     transcode(transcodeManager)
     video()
+    favorite()
   }
 }

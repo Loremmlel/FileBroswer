@@ -6,6 +6,7 @@ import io.ktor.server.application.hooks.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import org.slf4j.LoggerFactory
+import tenshi.hinanawi.filebrowser.exception.ServiceException
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
 
@@ -43,6 +44,14 @@ suspend inline fun ApplicationCall.safeExecute(
   val logger = LoggerFactory.getLogger("RouteHandler")
   try {
     block()
+  } catch (e: ServiceException) {
+    logger.warn("ServiceException occurred: ${request.httpMethod.value} ${request.uri}", e)
+    if (!response.isCommitted) {
+      respond(
+        HttpStatusCode.BadRequest,
+        Response(400, e.serviceMessage.toClientMessage(), null)
+      )
+    }
   } catch (e: Exception) {
     logger.error("Route execution failed: ${request.httpMethod.value} ${request.uri}", e)
     if (!response.isCommitted) {
