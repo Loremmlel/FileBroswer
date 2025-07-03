@@ -9,11 +9,15 @@ object Favorites : LongIdTable("favorites") {
   val parentId = reference(
     "parent_id",
     Favorites,
-    onDelete = ReferenceOption.CASCADE,
+    onDelete = ReferenceOption.RESTRICT,
     onUpdate = ReferenceOption.CASCADE
   ).nullable()
   val name = varchar("name", 255)
   val createdAt = timestamp("created_at").default(Clock.System.now())
   val updatedAt = timestamp("updated_at").default(Clock.System.now())
   val sortOrder = integer("sort_order").default(0)
+
+  init {
+    uniqueIndex(parentId, name)
+  }
 }
