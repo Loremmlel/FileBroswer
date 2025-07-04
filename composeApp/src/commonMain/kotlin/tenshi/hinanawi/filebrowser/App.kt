@@ -16,9 +16,12 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import tenshi.hinanawi.filebrowser.component.BottomNav
 import tenshi.hinanawi.filebrowser.component.ErrorOverlay
 import tenshi.hinanawi.filebrowser.contant.Route
+import tenshi.hinanawi.filebrowser.data.online.OnlineFavoriteRepository
 import tenshi.hinanawi.filebrowser.data.online.OnlineFileRepository
 import tenshi.hinanawi.filebrowser.screen.BrowseScreen
+import tenshi.hinanawi.filebrowser.screen.FavoriteScreen
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
+import tenshi.hinanawi.filebrowser.viewmodel.FavoriteViewModel
 
 @Composable
 @Preview
@@ -34,6 +37,7 @@ fun App(
   // 只好采用土法了
   // uiState的异常也和这个有关。原本我是在函数参数的默认值构造viewModel的，可能在重新组合的时候造成一些问题
   val browseViewModel = remember { BrowseViewModel(OnlineFileRepository()) }
+  val favoriteViewModel = remember { FavoriteViewModel(OnlineFavoriteRepository()) }
   MaterialTheme {
     Box(modifier = Modifier.fillMaxSize()) {
       Column(
@@ -51,7 +55,7 @@ fun App(
             BrowseScreen(viewModel = browseViewModel)
           }
           composable(route = Route.FavoriteScreen.stringRoute) {
-            Text("我是收藏")
+            FavoriteScreen(viewModel = favoriteViewModel)
           }
         }
         BottomNav(
