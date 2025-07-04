@@ -129,7 +129,7 @@ class ImageEndpointTest : BaseEndpointTest() {
     assertEquals(testFile.length().toString(), contentLength)
 
     // 验证响应内容
-    val responseBytes = response.readBytes()
+    val responseBytes = response.readRawBytes()
     assertTrue(jpegData.contentEquals(responseBytes))
   }
 
@@ -153,7 +153,7 @@ class ImageEndpointTest : BaseEndpointTest() {
     assertEquals("image/gif", contentType)
 
     // 验证响应内容
-    val responseBytes = response.readBytes()
+    val responseBytes = response.readRawBytes()
     assertTrue(gifData.contentEquals(responseBytes))
   }
 
@@ -295,7 +295,7 @@ class ImageEndpointTest : BaseEndpointTest() {
     assertEquals("image/svg+xml", contentType)
 
     // 验证响应内容
-    val responseBytes = response.readBytes()
+    val responseBytes = response.readRawBytes()
     assertTrue(svgData.contentEquals(responseBytes))
   }
 
