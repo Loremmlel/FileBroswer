@@ -32,6 +32,9 @@ class FilesEndpointTest : BaseEndpointTest() {
   }
 
 
+  // ======================
+  // ----- 获取文件测试 -----
+  // =====================
   @Test
   fun `test non directory path`() = fileTestApplication {
     val file = File(baseDir, "test file.txt").apply {
@@ -102,7 +105,7 @@ class FilesEndpointTest : BaseEndpointTest() {
     File(dir, ".file1.txt").apply {
       createNewFile()
       if (isWindows) {
-        Runtime.getRuntime().exec("attrib +H \"${this.absolutePath}\"")
+        Runtime.getRuntime().exec(arrayOf("attrib", "+H", "\"${this.absolutePath}\""))
         skipTest("我真是操了，单独跑测试可以，一旦用gradle任务跑所有测试，这里就会失败。日了狗了，直接跳过！")
       }
     }
@@ -138,6 +141,9 @@ class FilesEndpointTest : BaseEndpointTest() {
     assertNull(parsed.data)
   }
 
+  // ======================
+  // ----- 删除文件测试 -----
+  // =====================
   @Test
   fun `test delete - successful file deletion`() = fileTestApplication {
     val fileToDelete = File(baseDir, "file-to-delete.txt").apply { createNewFile() }
@@ -206,5 +212,116 @@ class FilesEndpointTest : BaseEndpointTest() {
     val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
     assertEquals(500, parsed.code)
     assertEquals(Message.InternalServerError, parsed.message)
+  }
+
+  // ======================
+  // ----- 下载文件测试 -----
+  // =====================
+  @Test
+  fun `test download - successful file download`() = fileTestApplication {
+    val testContent = "This is test file content for download"
+    val testFile = File(baseDir, "download-test.txt").apply {
+      createNewFile()
+      writeText(testContent)
+    }
+
+    val response = client.get("/files/download?path=/${testFile.name}")
+
+    assertEquals(HttpStatusCode.OK, response.status)
+    assertEquals(testContent, response.bodyAsText())
+
+    // 验证Content-Disposition头
+    val contentDisposition = response.headers[HttpHeaders.ContentDisposition]
+    assertNotNull(contentDisposition)
+    assertTrue(contentDisposition.contains("attachment"))
+    assertTrue(contentDisposition.contains(testFile.name))
+
+    // 验证Content-Type头
+    val contentType = response.headers[HttpHeaders.ContentType]
+    assertNotNull(contentType)
+    assertTrue(contentType.contains("text/plain"))
+  }
+
+  @Test
+  fun `test download - binary file download`() = fileTestApplication {
+    val testData = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A) // PNG 文件头
+    val testFile = File(baseDir, "test-image.png").apply {
+      createNewFile()
+      writeBytes(testData)
+    }
+
+    val response = client.get("/files/download?path=/${testFile.name}")
+
+    assertEquals(HttpStatusCode.OK, response.status)
+    val responseBytes = response.readBytes()
+    assertTrue(testData.contentEquals(responseBytes))
+
+    // 验证Content-Type头
+    val contentType = response.headers[HttpHeaders.ContentType]
+    assertNotNull(contentType)
+    assertTrue(contentType.contains("image/png"))
+  }
+
+  @Test
+  fun `test download - attempt to download directory`() = fileTestApplication {
+    val testDir = File(baseDir, "test-directory").apply { mkdir() }
+
+    val response = client.get("/files/download?path=/${testDir.name}")
+
+    assertEquals(HttpStatusCode.BadRequest, response.status)
+    val body = response.bodyAsText()
+    val parsed = Json.decodeFromString<Response<Unit>>(body)
+    assertEquals(400, parsed.code)
+    assertEquals(Message.FilesCannotDownloadDirectory, parsed.message)
+    assertNull(parsed.data)
+  }
+
+  @Test
+  fun `test download - large file download`() = fileTestApplication {
+    val largeContent = "A".repeat(10000) // 10KB
+    val testFile = File(baseDir, "large-file.txt").apply {
+      createNewFile()
+      writeText(largeContent)
+    }
+
+    val response = client.get("/files/download?path=/${testFile.name}")
+
+    assertEquals(HttpStatusCode.OK, response.status)
+    assertEquals(largeContent, response.bodyAsText())
+    assertEquals(largeContent.length.toLong(), testFile.length())
+  }
+
+  @Test
+  fun `test download - file with special characters in name`() = fileTestApplication {
+    val specialFileName = "测试文件 (1) [copy].txt"
+    val testContent = "Content with special filename"
+    File(baseDir, specialFileName).apply {
+      createNewFile()
+      writeText(testContent)
+    }
+
+    val response = client.get("/files/download?path=/${specialFileName}")
+
+    assertEquals(HttpStatusCode.OK, response.status)
+    assertEquals(testContent, response.bodyAsText())
+
+    // 验证Content-Disposition头包含正确的文件名
+    val contentDisposition = response.headers[HttpHeaders.ContentDisposition]
+    assertNotNull(contentDisposition)
+    assertTrue(contentDisposition.contains("attachment"))
+    assertTrue(contentDisposition.contains(specialFileName))
+  }
+
+  @Test
+  fun `test download - empty file download`() = fileTestApplication {
+    val testFile = File(baseDir, "empty-file.txt").apply {
+      createNewFile()
+    }
+
+    val response = client.get("/files/download?path=/${testFile.name}")
+
+    assertEquals(HttpStatusCode.OK, response.status)
+    assertEquals("", response.bodyAsText())
+    assertEquals(0L, testFile.length())
   }
 }

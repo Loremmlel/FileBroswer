@@ -6,6 +6,37 @@ import java.io.File
 internal val IMAGE_SUFFIX = setOf("png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "ico")
 internal val VIDEO_SUFFIX = setOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "3gp", "ts", "m3u8")
 
+internal val TEXT_SUFFIX = setOf(
+  "txt",
+  "md",
+  "log",
+  "json",
+  "xml",
+  "html",
+  "css",
+  "js",
+  "java",
+  "kt",
+  "py",
+  "c",
+  "cpp",
+  "h",
+  "hpp",
+  "cs",
+  "go",
+  "rb",
+  "php",
+  "sql",
+  "ts",
+  "tsx",
+  "jsx",
+  "vue",
+  "sh",
+  "bat",
+  "ps1",
+  "psm1"
+)
+
 internal fun File.getFileType(): FileType = when {
   isDirectory -> FileType.Folder
   // bugfix
@@ -34,5 +65,6 @@ internal fun File.getContentType(): String = when (this.extension.lowercase()) {
   "3gp" -> "video/3gpp"
   "ts" -> "video/mp2t"
   "m3u8" -> "application/vnd.apple.mpegurl"
+  in TEXT_SUFFIX -> "text/plain"
   else -> "application/octet-stream"
 }

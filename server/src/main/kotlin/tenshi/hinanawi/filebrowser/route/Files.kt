@@ -108,17 +108,6 @@ internal fun Route.files() {
           file.getContentType()
         )
         respondFile(file)
-        respondOutputStream {
-          FileInputStream(file).use { inputStream ->
-            val buffer = ByteArray(8192)
-            var bytes = inputStream.read(buffer)
-            while (bytes > 0) {
-              write(buffer)
-              flush()
-              bytes = inputStream.read(buffer)
-            }
-          }
-        }
       }
     }
   }
