@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.test
+package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -13,7 +13,6 @@ import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
-import tenshi.hinanawi.filebrowser.route.random
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals

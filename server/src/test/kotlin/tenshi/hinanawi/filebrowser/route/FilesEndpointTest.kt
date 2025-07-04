@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.test
+package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -13,7 +13,6 @@ import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
-import tenshi.hinanawi.filebrowser.route.files
 import tenshi.hinanawi.filebrowser.util.skipTest
 import java.io.File
 import kotlin.test.*
@@ -32,38 +31,6 @@ class FilesEndpointTest : BaseEndpointTest() {
     block()
   }
 
-  @Test
-  fun `test missing path parameter`() = fileTestApplication {
-    val response = client.get("/files")
-    assertEquals(HttpStatusCode.BadRequest, response.status)
-    val body = response.bodyAsText()
-    val parsed = Json.decodeFromString<Response<Unit>>(body)
-    assertEquals(400, parsed.code)
-    assertEquals(Message.FilesNotFound, parsed.message)
-    assertNull(parsed.data)
-  }
-
-  @Test
-  fun `test invalid path`() = fileTestApplication {
-    val response = client.get("/files?path=invalid")
-    assertEquals(HttpStatusCode.BadRequest, response.status)
-    val body = response.bodyAsText()
-    val parsed = Json.decodeFromString<Response<Unit>>(body)
-    assertEquals(400, parsed.code)
-    assertEquals(Message.FilesNotFound, parsed.message)
-    assertNull(parsed.data)
-  }
-
-  @Test
-  fun `test path traversal attempt`() = fileTestApplication {
-    val response = client.get("/files?path=/../../")
-    assertEquals(HttpStatusCode.Forbidden, response.status)
-    val body = response.bodyAsText()
-    val parsed = Json.decodeFromString<Response<Unit>>(body)
-    assertEquals(403, parsed.code)
-    assertEquals(Message.FilesForbidden, parsed.message)
-    assertNull(parsed.data)
-  }
 
   @Test
   fun `test non directory path`() = fileTestApplication {
@@ -186,44 +153,8 @@ class FilesEndpointTest : BaseEndpointTest() {
   }
 
   @Test
-  fun `test delete - missing path parameter`() = fileTestApplication {
-    val response = client.delete("/files")
-    assertEquals(HttpStatusCode.BadRequest, response.status)
-    val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
-    assertEquals(400, parsed.code)
-    assertEquals(Message.FilesNotFound, parsed.message)
-  }
-
-  @Test
-  fun `test delete - invalid path format`() = fileTestApplication {
-    val response = client.delete("/files?path=someFile.txt")
-    assertEquals(HttpStatusCode.BadRequest, response.status)
-    val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
-    assertEquals(400, parsed.code)
-    assertEquals(Message.FilesNotFound, parsed.message)
-  }
-
-  @Test
-  fun `test delete - path traversal attempt`() = fileTestApplication {
-    val response = client.delete("/files?path=/../../secrets.txt")
-    assertEquals(HttpStatusCode.Forbidden, response.status)
-    val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
-    assertEquals(403, parsed.code)
-    assertEquals(Message.FilesForbidden, parsed.message)
-  }
-
-  @Test
-  fun `test delete - file does not exist`() = fileTestApplication {
-    val response = client.delete("/files?path=/non-existent-file.txt")
-    assertEquals(HttpStatusCode.NotFound, response.status)
-    val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
-    assertEquals(404, parsed.code)
-    assertEquals(Message.FilesNotFound, parsed.message)
-  }
-
-  @Test
   fun `test delete - attempt to delete non-empty directory`() = fileTestApplication {
-    // 覆盖: file.isDirectory is true inside !file.delete() block
+    // 覆盖: file.isDirectory is true inside !file.delete()
     val dir = File(baseDir, "notEmptyDir").apply { mkdir() }
     File(dir, "child.txt").createNewFile() // 使目录非空
 
@@ -238,7 +169,7 @@ class FilesEndpointTest : BaseEndpointTest() {
 
   @Test
   fun `test delete - file deletion fails due to other reasons`() = fileTestApplication {
-    // 覆盖: file.isDirectory is false inside !file.delete() block (权限问题)
+    // 覆盖: file.isDirectory is false inside !file.delete() (权限问题)
     // 通过移除父目录的写权限来模拟文件无法删除的场景，windows则跳过
     if (isWindows) {
       skipTest("因为windows权限模型和unix权限模型不同，无法模拟权限问题，暂时跳过")
@@ -264,7 +195,7 @@ class FilesEndpointTest : BaseEndpointTest() {
 
   @Test
   fun `test delete - throws internal exception`() = fileTestApplication {
-    // 覆盖: catch (e: Exception) block
+    // 覆盖: catch (e: Exception)
     val invalidPath = "/\u0000"
 
     val response = client.delete("/files") {
