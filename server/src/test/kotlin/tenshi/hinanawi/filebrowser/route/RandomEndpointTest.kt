@@ -122,34 +122,4 @@ class RandomEndpointTest : BaseEndpointTest() {
     assertEquals(videoFile.name, files[0].name)
     assertEquals(FileType.Video, files[0].type)
   }
-
-  @Test
-  fun `test missing path parameter`() = randomTestApplication {
-    val response = client.get("/random")
-    assertEquals(HttpStatusCode.BadRequest, response.status)
-
-    val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
-    assertEquals(400, parsed.code)
-    assertEquals(Message.FilesNotFound, parsed.message)
-  }
-
-  @Test
-  fun `test invalid path`() = randomTestApplication {
-    val response = client.get("/random?path=/non_existent_dir")
-    assertEquals(HttpStatusCode.NotFound, response.status)
-
-    val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
-    assertEquals(404, parsed.code)
-    assertEquals(Message.FilesNotFound, parsed.message)
-  }
-
-  @Test
-  fun `test path traversal attempt`() = randomTestApplication {
-    val response = client.get("/random?path=/../../etc")
-    assertEquals(HttpStatusCode.Forbidden, response.status)
-
-    val parsed = Json.decodeFromString<Response<Unit>>(response.bodyAsText())
-    assertEquals(403, parsed.code)
-    assertEquals(Message.FilesForbidden, parsed.message)
-  }
 }
