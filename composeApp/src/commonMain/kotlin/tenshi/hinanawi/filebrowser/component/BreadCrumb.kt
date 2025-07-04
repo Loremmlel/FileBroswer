@@ -47,7 +47,7 @@ fun BreadCrumb(
 
       // 路径项
       TextButton(
-        onClick = { navigator.popTo(path.dirName, false) },
+        onClick = { navigator.popTo(path.id, false) },
         modifier = Modifier.padding(0.dp),
         contentPadding = PaddingValues(2.dp)
       ) {

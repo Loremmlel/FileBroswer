@@ -76,7 +76,7 @@ fun BrowseScreen(
                 file = file,
                 onClick = {
                   when {
-                    file.isDirectory -> viewModel.navigator.navigateTo(BreadCrumbItem(it.name))
+                    file.isDirectory -> viewModel.navigator.navigateTo(BreadCrumbItem(it.name, it.name))
                     file.type == FileType.Image -> viewModel.openImagePreview(it)
                   }
                 },

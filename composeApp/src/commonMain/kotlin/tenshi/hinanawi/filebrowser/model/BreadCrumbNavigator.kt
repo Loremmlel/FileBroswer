@@ -1,13 +1,13 @@
 package tenshi.hinanawi.filebrowser.model
 
 import androidx.compose.runtime.toMutableStateList
-import kotlin.jvm.JvmInline
 
 internal const val ROOT_DIR_NAME = "/"
+internal val ROOT_ID: String? = null
 
-@JvmInline
-value class BreadCrumbItem(
-  val dirName: String
+class BreadCrumbItem(
+  val dirName: String,
+  val id: String? = null
 )
 
 class BreadCrumbNavigator(
@@ -18,26 +18,26 @@ class BreadCrumbNavigator(
 
   val path: List<BreadCrumbItem> get() = _path
 
-  val currentDirName get() = _path.last().dirName
+  val currentId get() = _path.lastOrNull()?.id
 
   val requestPath get() = "/" + _path.joinToString("/") { it.dirName }
 
   fun navigateTo(item: BreadCrumbItem, mergeDuplicates: Boolean = true) {
     if (mergeDuplicates) {
-      val existingIndex = _path.indexOfFirst { it.dirName == item.dirName }
+      val existingIndex = _path.indexOfFirst { it.id == item.id }
       if (existingIndex != -1) {
-        _path.removeAll { it.dirName == item.dirName }
+        _path.removeAll { it.id == item.id }
       }
     }
     _path.add(item)
     onPathChanged()
   }
 
-  fun popTo(targetDirName: String, inclusive: Boolean = true) {
-    if (targetDirName == ROOT_DIR_NAME) {
+  fun popTo(targetId: String?, inclusive: Boolean = true) {
+    if (targetId == ROOT_ID) {
       resetToRoot()
     }
-    val targetIndex = _path.indexOfFirst { it.dirName == targetDirName }
+    val targetIndex = _path.indexOfFirst { it.id == targetId }
     if (targetIndex != -1) {
       val removeFrom = if (inclusive) targetIndex else targetIndex + 1
       _path.removeAll { _path.indexOf(it) >= removeFrom }
