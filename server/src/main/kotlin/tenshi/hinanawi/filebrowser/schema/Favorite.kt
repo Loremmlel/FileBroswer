@@ -218,6 +218,9 @@ class FavoriteService {
    * @return 是否为子孙收藏夹 [Boolean]
    */
   private fun isDescendant(ancestorId: Long, descendantId: Long): Boolean = transaction {
+    // bugfix: 修复收藏夹ID相同时能移动的问题。
+    // 还得是单元测试
+    if (ancestorId == descendantId) return@transaction true
     val descendant = Favorite.findById(descendantId) ?: return@transaction false
     var current = descendant.parent
     while (current != null) {

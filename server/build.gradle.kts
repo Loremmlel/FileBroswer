@@ -30,6 +30,7 @@ dependencies {
   implementation(libs.hikari)
   testImplementation(libs.ktor.serverTestHost)
   testImplementation(libs.kotlin.testJunit)
+  testImplementation(libs.h2)
 }
 
 // 自定义测试任务
