@@ -8,8 +8,20 @@ import tenshi.hinanawi.filebrowser.route.RandomEndpointTest
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
-  FilesEndpointTest::class,
-  RandomEndpointTest::class,
-  PathValidatorTest::class
+  RouteTest::class,
+  PluginTest::class
 )
 class ApplicationTest
+
+@RunWith(Suite::class)
+@Suite.SuiteClasses(
+  FilesEndpointTest::class,
+  RandomEndpointTest::class
+)
+class RouteTest
+
+@RunWith(Suite::class)
+@Suite.SuiteClasses(
+  PathValidatorTest::class
+)
+class PluginTest
