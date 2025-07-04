@@ -48,13 +48,7 @@ fun Route.favorite() {
   get("/{id}") {
     call.safeExecute {
       contentTypeJson()
-      val favoriteId = call.parameters["id"]?.toLongOrNull() ?: run {
-        respond(
-          HttpStatusCode.BadRequest,
-          Response<Unit>(400, Message.FavoriteIdUndefined, null)
-        )
-        return@safeExecute
-      }
+      val favoriteId = call.parameters["id"]?.toLongOrNull()
 
       val favorite = favoriteService.getFavoriteDetail(favoriteId)
       respond(

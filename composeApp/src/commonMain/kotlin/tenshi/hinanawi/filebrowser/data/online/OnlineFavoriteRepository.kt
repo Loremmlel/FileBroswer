@@ -2,6 +2,8 @@ package tenshi.hinanawi.filebrowser.data.online
 
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -17,11 +19,13 @@ class OnlineFavoriteRepository: FavoriteRepository, BaseOnlineRepository() {
   }
 
   override suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto {
-    TODO("Not yet implemented")
+    return client.post("/favorites") {
+      setBody(request)
+    }.body<Response<FavoriteDto>>().data ?: throw Exception("Failed to create favorite")
   }
 
   override fun getFavorite(id: Long?): Flow<FavoriteDto> = flow {
-    val favorite = client.get("/favorite/$id").body<Response<FavoriteDto>>()
+    val favorite = client.get("/favorites/$id").body<Response<FavoriteDto>>()
     favorite.data?.let { emit(it) }
   }
 }

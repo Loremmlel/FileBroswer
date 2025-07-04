@@ -99,7 +99,17 @@ class FavoriteService {
    * @return 收藏夹详情 [FavoriteDto]
    * @throws ServiceException 收藏夹不存在
    */
-  fun getFavoriteDetail(favoriteId: Long): FavoriteDto = transaction {
+  fun getFavoriteDetail(favoriteId: Long?): FavoriteDto = transaction {
+    if (favoriteId == null) {
+      val rootFavorites = Favorite.find { FavoriteTable.parentId eq null }
+      return@transaction FavoriteDto(
+        id = -1L,
+        name = "收藏夹",
+        children = rootFavorites.map { it.toDto() },
+        createdAt = Clock.System.now().toEpochMilliseconds(),
+        updatedAt = Clock.System.now().toEpochMilliseconds()
+      )
+    }
     val favorite = Favorite.findById(favoriteId) ?: throw ServiceException(ServiceMessage.FavoriteNotFound)
     favorite.toDto().copy(
       children = favorite.children.orderBy(FavoriteTable.sortOrder to SortOrder.ASC).map { it.toDto() },
