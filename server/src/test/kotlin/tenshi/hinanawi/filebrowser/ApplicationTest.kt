@@ -4,6 +4,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Suite
 import tenshi.hinanawi.filebrowser.plugin.PathValidatorTest
 import tenshi.hinanawi.filebrowser.route.FilesEndpointTest
+import tenshi.hinanawi.filebrowser.route.ImageEndpointTest
 import tenshi.hinanawi.filebrowser.route.RandomEndpointTest
 
 @RunWith(Suite::class)
@@ -16,7 +17,8 @@ class ApplicationTest
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
   FilesEndpointTest::class,
-  RandomEndpointTest::class
+  RandomEndpointTest::class,
+  ImageEndpointTest::class
 )
 class RouteTest
 
