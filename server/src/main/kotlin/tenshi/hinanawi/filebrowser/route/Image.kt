@@ -1,6 +1,7 @@
 package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
+import io.ktor.server.plugins.partialcontent.PartialContent
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.model.FileType
@@ -16,6 +17,7 @@ import tenshi.hinanawi.filebrowser.util.getFileType
 internal fun Route.image() {
   route("/image") {
     install(PathValidator)
+    install(PartialContent)
     get {
       call.safeExecute {
         val file = attributes[ValidatedFileKey]
@@ -33,9 +35,7 @@ internal fun Route.image() {
         response.header(HttpHeaders.ContentType, contentType)
         response.header(HttpHeaders.ContentLength, file.length())
 
-        file.inputStream().use { inputStream ->
-          respond(inputStream)
-        }
+        respondFile(file)
       }
     }
   }
