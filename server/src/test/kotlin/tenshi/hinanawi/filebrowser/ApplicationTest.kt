@@ -6,11 +6,13 @@ import tenshi.hinanawi.filebrowser.plugin.PathValidatorTest
 import tenshi.hinanawi.filebrowser.route.FilesEndpointTest
 import tenshi.hinanawi.filebrowser.route.ImageEndpointTest
 import tenshi.hinanawi.filebrowser.route.RandomEndpointTest
+import tenshi.hinanawi.filebrowser.service.FavoriteServiceTest
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
   RouteTest::class,
-  PluginTest::class
+  PluginTest::class,
+  ServiceTest::class
 )
 class ApplicationTest
 
@@ -27,3 +29,9 @@ class RouteTest
   PathValidatorTest::class
 )
 class PluginTest
+
+@RunWith(Suite::class)
+@Suite.SuiteClasses(
+  FavoriteServiceTest::class
+)
+class ServiceTest
