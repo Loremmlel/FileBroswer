@@ -133,7 +133,7 @@ class FavoriteService {
    * @throws ServiceException 收藏夹不存在
    */
   fun addFileToFavorite(favoriteId: Long, file: FavoriteFileDto): FavoriteFileDto = transaction {
-    val favorite = Favorite.findById(favoriteId) ?: throw ServiceException(ServiceMessage.FavoriteNotFound)
+    Favorite.findById(favoriteId) ?: throw ServiceException(ServiceMessage.FavoriteNotFound)
     val favoriteFile = FavoriteFile.new {
       this.favoriteId = EntityID(favoriteId, FavoriteFileTable)
       this.filename = file.filename
