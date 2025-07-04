@@ -18,9 +18,6 @@ class FavoriteFile(id: EntityID<Long>) : LongEntity(id) {
   var lastModified by FavoriteFileTable.lastModified
   var isDirectory by FavoriteFileTable.isDirectory
   var createdAt by FavoriteFileTable.createdAt
-
-  // 关联的收藏夹
-  val favorite by Favorite referrersOn FavoriteFileTable.favoriteId
 }
 
 fun FavoriteFile.toDto(): FavoriteFileDto = FavoriteFileDto(

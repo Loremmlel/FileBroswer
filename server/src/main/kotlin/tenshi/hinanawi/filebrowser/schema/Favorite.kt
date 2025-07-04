@@ -133,15 +133,16 @@ class FavoriteService {
    * @throws ServiceException 收藏夹不存在
    */
   fun addFileToFavorite(favoriteId: Long, file: FavoriteFileDto): FavoriteFileDto = transaction {
-    Favorite.findById(favoriteId) ?: throw ServiceException(ServiceMessage.FavoriteNotFound)
+    val favorite = Favorite.findById(favoriteId) ?: throw ServiceException(ServiceMessage.FavoriteNotFound)
     val favoriteFile = FavoriteFile.new {
-      this.favoriteId = EntityID(favoriteId, FavoriteTable)
+      this.favoriteId = EntityID(favoriteId, FavoriteFileTable)
       this.filename = file.filename
       this.fileSize = file.fileSize
       this.fileType = file.fileType
       this.filePath = file.filePath
       this.lastModified = file.lastModified
       this.isDirectory = file.isDirectory
+      this.createdAt = Clock.System.now() // bugfix: 单元测试发现错误：显然应该用服务器实际创建的时间戳，而不是DTO给的！
     }
     favoriteFile.toDto()
   }
