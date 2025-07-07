@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
 import tenshi.hinanawi.filebrowser.model.CreateFavoriteRequest
@@ -58,27 +59,22 @@ class FavoriteViewModel(
     _currentFavoriteId.value = navigator.currentId
   }
 
-  fun onAddClick() {
-
-  }
-
-  fun createFavorite(name: String, sortOrder: Int = 0) {
-    viewModelScope.launch {
-      val newFavorite = favoriteRepository.createFavorite(
-        CreateFavoriteRequest(
-          parentId = _currentFavoriteId.value?.toLongOrNull(),
-          name = name,
-          sortOrder = sortOrder
+  fun createFavorite(name: String, sortOrder: Int = 0) = viewModelScope.launch {
+    val newFavorite = favoriteRepository.createFavorite(
+      CreateFavoriteRequest(
+        parentId = _currentFavoriteId.value?.toLongOrNull(),
+        name = name,
+        sortOrder = sortOrder
+      )
+    )
+    _uiState.update {
+      it.copy(
+        currentFavorite = it.currentFavorite?.copy(
+          children = it.currentFavorite.children.plus(newFavorite)
         )
       )
-      _uiState.update {
-        it.copy(
-          currentFavorite = it.currentFavorite?.copy(
-            children = it.currentFavorite.children.plus(newFavorite)
-          )
-        )
-      }
     }
+    Toast.makeText("收藏夹创建成功").show()
   }
 }
 
