@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import tenshi.hinanawi.filebrowser.component.yuzu.BottomNav
 import tenshi.hinanawi.filebrowser.component.yuzu.ErrorOverlay
+import tenshi.hinanawi.filebrowser.component.yuzu.ToastContainer
 import tenshi.hinanawi.filebrowser.contant.Route
 import tenshi.hinanawi.filebrowser.data.online.OnlineFavoriteRepository
 import tenshi.hinanawi.filebrowser.data.online.OnlineFileRepository
@@ -38,31 +39,33 @@ fun App(
   val browseViewModel = remember { BrowseViewModel(OnlineFileRepository()) }
   val favoriteViewModel = remember { FavoriteViewModel(OnlineFavoriteRepository()) }
   MaterialTheme {
-    Box(modifier = Modifier.fillMaxSize()) {
-      Column(
-        modifier = Modifier
-          .fillMaxSize()
-          .safeContentPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally
-      ) {
-        NavHost(
-          modifier = Modifier.fillMaxHeight(mainScreenRatio),
-          navController = navController,
-          startDestination = Route.MainScreen.stringRoute
+    ToastContainer {
+      Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+          modifier = Modifier
+            .fillMaxSize()
+            .safeContentPadding(),
+          horizontalAlignment = Alignment.CenterHorizontally
         ) {
-          composable(route = Route.MainScreen.stringRoute) {
-            BrowseScreen(viewModel = browseViewModel)
+          NavHost(
+            modifier = Modifier.fillMaxHeight(mainScreenRatio),
+            navController = navController,
+            startDestination = Route.MainScreen.stringRoute
+          ) {
+            composable(route = Route.MainScreen.stringRoute) {
+              BrowseScreen(viewModel = browseViewModel)
+            }
+            composable(route = Route.FavoriteScreen.stringRoute) {
+              FavoriteScreen(viewModel = favoriteViewModel)
+            }
           }
-          composable(route = Route.FavoriteScreen.stringRoute) {
-            FavoriteScreen(viewModel = favoriteViewModel)
-          }
+          BottomNav(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            navController
+          )
         }
-        BottomNav(
-          modifier = Modifier.fillMaxWidth().weight(1f),
-          navController
-        )
+        ErrorOverlay(modifier = Modifier.fillMaxSize())
       }
-      ErrorOverlay(modifier = Modifier.fillMaxSize())
     }
   }
 }
