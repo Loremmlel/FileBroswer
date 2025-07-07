@@ -58,6 +58,10 @@ class FavoriteViewModel(
     _currentFavoriteId.value = navigator.currentId
   }
 
+  fun onAddClick() {
+
+  }
+
   fun createFavorite(name: String, sortOrder: Int = 0) {
     viewModelScope.launch {
       val newFavorite = favoriteRepository.createFavorite(
