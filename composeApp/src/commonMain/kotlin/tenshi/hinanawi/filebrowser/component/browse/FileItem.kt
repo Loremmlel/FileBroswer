@@ -182,18 +182,17 @@ internal fun FileItem(
               containerColor = MaterialTheme.colorScheme.errorContainer
             )
           ) {
-            Text("删除")
+            Text(
+              text = "删除",
+              color = MaterialTheme.colorScheme.error
+            )
           }
         },
         dismissButton = {
           TextButton(onClick = { showConfirm = false }) {
             Text("取消")
           }
-        },
-        modifier = Modifier.background(
-          MaterialTheme.colorScheme.surface,
-          RoundedCornerShape(12.dp)
-        )
+        }
       )
     }
   }
