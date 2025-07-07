@@ -12,8 +12,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import tenshi.hinanawi.filebrowser.component.BreadCrumb
-import tenshi.hinanawi.filebrowser.component.ImageViewer
+import tenshi.hinanawi.filebrowser.component.yuzu.BreadCrumb
+import tenshi.hinanawi.filebrowser.component.yuzu.ImageViewer
 import tenshi.hinanawi.filebrowser.component.browse.FileItem
 import tenshi.hinanawi.filebrowser.component.browse.HevcDetector
 import tenshi.hinanawi.filebrowser.component.browse.RandomPlay

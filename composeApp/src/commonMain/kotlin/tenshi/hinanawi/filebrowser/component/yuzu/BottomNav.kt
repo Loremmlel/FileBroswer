@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.component
+package tenshi.hinanawi.filebrowser.component.yuzu
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star

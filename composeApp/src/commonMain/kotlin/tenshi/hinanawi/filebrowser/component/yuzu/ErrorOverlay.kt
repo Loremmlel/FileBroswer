@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.component
+package tenshi.hinanawi.filebrowser.component.yuzu
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background

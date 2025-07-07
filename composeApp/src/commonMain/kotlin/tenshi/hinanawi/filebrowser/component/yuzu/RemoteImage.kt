@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.component
+package tenshi.hinanawi.filebrowser.component.yuzu
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

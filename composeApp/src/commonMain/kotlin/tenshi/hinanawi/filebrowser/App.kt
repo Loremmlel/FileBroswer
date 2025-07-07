@@ -2,7 +2,6 @@ package tenshi.hinanawi.filebrowser
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -13,8 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import tenshi.hinanawi.filebrowser.component.BottomNav
-import tenshi.hinanawi.filebrowser.component.ErrorOverlay
+import tenshi.hinanawi.filebrowser.component.yuzu.BottomNav
+import tenshi.hinanawi.filebrowser.component.yuzu.ErrorOverlay
 import tenshi.hinanawi.filebrowser.contant.Route
 import tenshi.hinanawi.filebrowser.data.online.OnlineFavoriteRepository
 import tenshi.hinanawi.filebrowser.data.online.OnlineFileRepository
