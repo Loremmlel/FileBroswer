@@ -27,7 +27,7 @@ internal fun FileItem(
   onDelete: ((FileInfo) -> Unit)? = null,
   onDownload: ((FileInfo) -> Unit)? = null,
   isFavorite: Boolean = false,
-  onFavoriteToggle: (Boolean) -> Unit = {},
+  onFavoriteToggle: ((Boolean) -> Unit)? = null,
 ) {
   val iconButtonSize = 24.dp
   val iconButtonPadding = 4.dp
@@ -47,24 +47,27 @@ internal fun FileItem(
       modifier = Modifier.align(Alignment.TopEnd),
       horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-      IconButton(
-        onClick = { onFavoriteToggle(isFavorite) },
-        modifier = Modifier
-          .background(
-            color = if (isFavorite) MaterialTheme.colorScheme.secondaryContainer
-            else MaterialTheme.colorScheme.surfaceVariant,
-            shape = CircleShape
-          ).size(iconButtonSize)
-          .padding(iconButtonPadding)
-      ) {
-        Icon(
-          imageVector = if (isFavorite) Icons.Default.Favorite
-          else Icons.Default.FavoriteBorder,
-          contentDescription = if (isFavorite) "取消收藏"
-          else "收藏",
-          tint = if (isFavorite) MaterialTheme.colorScheme.primary
-          else MaterialTheme.colorScheme.onSurfaceVariant
-        )
+      // 收藏按钮
+      if (onFavoriteToggle != null) {
+        IconButton(
+          onClick = { onFavoriteToggle(isFavorite) },
+          modifier = Modifier
+            .background(
+              color = if (isFavorite) MaterialTheme.colorScheme.secondaryContainer
+              else MaterialTheme.colorScheme.surfaceVariant,
+              shape = CircleShape
+            ).size(iconButtonSize)
+            .padding(iconButtonPadding)
+        ) {
+          Icon(
+            imageVector = if (isFavorite) Icons.Default.Favorite
+            else Icons.Default.FavoriteBorder,
+            contentDescription = if (isFavorite) "取消收藏"
+            else "收藏",
+            tint = if (isFavorite) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant
+          )
+        }
       }
 
       // 下载按钮

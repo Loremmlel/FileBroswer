@@ -4,10 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import tenshi.hinanawi.filebrowser.component.browse.FileItem
 import tenshi.hinanawi.filebrowser.model.FavoriteDto
 import tenshi.hinanawi.filebrowser.util.nullIndicatorClickable
 
@@ -66,6 +69,26 @@ fun FavoriteItem(
           modifier = Modifier.size(16.dp),
           imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
           contentDescription = "进入收藏夹${favorite.name}"
+        )
+      }
+    }
+    FlowRow(
+      modifier = Modifier.fillMaxWidth().height(60.dp),
+      horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+      verticalArrangement = Arrangement.Center,
+      itemVerticalAlignment = Alignment.CenterVertically,
+      maxLines = 1
+    ) {
+      if (favorite.files.isEmpty()) {
+        Text(
+          text = "收藏夹为空",
+          style = MaterialTheme.typography.bodyLarge
+        )
+      }
+      favorite.files.forEach {
+        FileItem(
+          file = it.toFileInfo(),
+          onClick = {}
         )
       }
     }
