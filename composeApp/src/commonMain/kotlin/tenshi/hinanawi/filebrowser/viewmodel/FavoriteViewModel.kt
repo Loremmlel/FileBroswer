@@ -66,7 +66,7 @@ class FavoriteViewModel(
         name = name,
         sortOrder = sortOrder
       )
-    )
+    ) ?: return@launch
     _uiState.update {
       it.copy(
         currentFavorite = it.currentFavorite?.copy(
@@ -74,7 +74,7 @@ class FavoriteViewModel(
         )
       )
     }
-    Toast.makeText("收藏夹创建成功").show()
+    Toast.makeText("收藏夹创建成功", Toast.LENGTH_LONG).show()
   }
 }
 

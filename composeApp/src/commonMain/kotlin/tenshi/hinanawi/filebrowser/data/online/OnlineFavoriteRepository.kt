@@ -18,10 +18,13 @@ class OnlineFavoriteRepository: FavoriteRepository, BaseOnlineRepository() {
 
   }
 
-  override suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto {
-    return client.post("/favorites") {
+  override suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto? = try {
+    client.post("/favorites") {
       setBody(request)
     }.body<Response<FavoriteDto>>().data ?: throw Exception("Failed to create favorite")
+  } catch (e: Exception) {
+    ErrorHandler.handleException(e)
+    null
   }
 
   override fun getFavorite(id: Long?): Flow<FavoriteDto> = flow {

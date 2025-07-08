@@ -7,7 +7,7 @@ import tenshi.hinanawi.filebrowser.model.FavoriteDto
 interface FavoriteRepository {
   fun getFavoriteTree(parentId: Long? = null): Flow<List<FavoriteDto>>
 
-  suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto
+  suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto?
 
   fun getFavorite(id: Long? = null): Flow<FavoriteDto>
 }

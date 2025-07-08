@@ -32,14 +32,14 @@ object Toast {
 data class ToastState(
   val message: String = "",
   val visible: Boolean = false,
-  val duration: Long = 3000L
+  val duration: Long = Toast.LENGTH_SHORT
 )
 
 object ToastManager {
   private val _state = mutableStateOf(ToastState())
   val state: State<ToastState> = _state
 
-  fun makeText(message: String, duration: Long = 3000L) {
+  fun makeText(message: String, duration: Long = Toast.LENGTH_SHORT) {
     _state.value = ToastState(
       message = message,
       duration = duration
