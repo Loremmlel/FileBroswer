@@ -2,16 +2,16 @@ package tenshi.hinanawi.filebrowser.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.favorite.CreateFavoriteDialog
 import tenshi.hinanawi.filebrowser.component.favorite.FavoriteHeader
-import tenshi.hinanawi.filebrowser.component.yuzu.BreadCrumb
+import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.viewmodel.FavoriteViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -20,7 +20,18 @@ fun FavoriteScreen(
   modifier: Modifier = Modifier,
   viewModel: FavoriteViewModel
 ) {
-  val state by viewModel.uiState.collectAsState()
+  val uiState by viewModel.uiState.collectAsState()
+
+  LaunchedEffect(Unit) {
+    viewModel.events.collect {
+      when (it) {
+        is FavoriteViewModel.Event.CreateSuccess -> {
+          Toast.makeText("收藏夹创建成功", Toast.LENGTH_LONG).show()
+        }
+      }
+    }
+  }
+
   var createDialogVisible by remember { mutableStateOf(false) }
 
   fun onCreateClick() {
@@ -41,13 +52,15 @@ fun FavoriteScreen(
         onAddClick = ::onCreateClick,
         onDeleteClick = {}
       )
-      BreadCrumb(
-        navigator = viewModel.navigator,
-        modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(horizontal = 16.dp, vertical = 8.dp)
-      )
+    }
+    if (uiState.loading) {
+      CircularProgressIndicator(Modifier.align(Alignment.Center).size(48.dp))
+    } else {
+
     }
     if (createDialogVisible) {
       CreateFavoriteDialog(
+        modifier = Modifier.align(Alignment.Center),
         onDismiss = ::onCreateDialogDismiss,
         onConfirm = { name, sortOrder ->
           onCreateDialogDismiss()

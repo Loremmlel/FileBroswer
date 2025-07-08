@@ -12,7 +12,7 @@ import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
-  override fun getFavoriteTree(parentId: Long?): Flow<List<FavoriteDto>> = flow<List<FavoriteDto>> {
+  override fun getFavorites(): Flow<List<FavoriteDto>> = flow<List<FavoriteDto>> {
     client.get("/favorites").body<Response<List<FavoriteDto>>>().data ?: emptyList<FavoriteDto>()
   }.catch { e ->
     ErrorHandler.handleException(e)
@@ -22,14 +22,17 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
   override suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto? = try {
     client.post("/favorites") {
       setBody(request)
-    }.body<Response<FavoriteDto>>().data ?: throw Exception("Failed to create favorite")
+    }.body<Response<FavoriteDto>>().data
   } catch (e: Exception) {
     ErrorHandler.handleException(e)
     null
   }
 
-  override fun getFavorite(id: Long?): Flow<FavoriteDto> = flow {
+  override fun getFavoriteDetail(id: Long): Flow<FavoriteDto?> = flow<FavoriteDto?> {
     val favorite = client.get("/favorites/$id").body<Response<FavoriteDto>>()
     favorite.data?.let { emit(it) }
+  }.catch { e ->
+    ErrorHandler.handleException(e)
+    emit(null)
   }
 }
