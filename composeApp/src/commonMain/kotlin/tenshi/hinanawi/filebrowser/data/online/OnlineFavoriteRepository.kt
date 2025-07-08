@@ -12,8 +12,10 @@ import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
-  override fun getFavorites(): Flow<List<FavoriteDto>> = flow<List<FavoriteDto>> {
-    client.get("/favorites").body<Response<List<FavoriteDto>>>().data ?: emptyList<FavoriteDto>()
+  override fun getFavorites(): Flow<List<FavoriteDto>> = flow {
+    val data = client.get("/favorites").body<Response<List<FavoriteDto>>>().data
+    // flow里一定要记得emit
+    emit(data ?: emptyList())
   }.catch { e ->
     ErrorHandler.handleException(e)
     emit(emptyList())
@@ -28,9 +30,9 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
     null
   }
 
-  override fun getFavoriteDetail(id: Long): Flow<FavoriteDto?> = flow<FavoriteDto?> {
-    val favorite = client.get("/favorites/$id").body<Response<FavoriteDto>>()
-    favorite.data?.let { emit(it) }
+  override fun getFavoriteDetail(id: Long): Flow<FavoriteDto?> = flow {
+    val response = client.get("/favorites/$id").body<Response<FavoriteDto>>()
+    emit(response.data)
   }.catch { e ->
     ErrorHandler.handleException(e)
     emit(null)
