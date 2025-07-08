@@ -19,8 +19,6 @@ class OnlineFileRepository : BaseOnlineRepository(), FilesRepository {
   override fun getFiles(path: String) = flow {
     val response = client.get("/files?path=$path").body<Response<List<FileInfo>>>()
     emit(response.data ?: emptyList())
-  }.catch {
-    ErrorHandler.handleException(it)
   }
 
   override suspend fun deleteFile(path: String) = try {

@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
 import tenshi.hinanawi.filebrowser.model.CreateFavoriteRequest
 import tenshi.hinanawi.filebrowser.model.FavoriteDto
+import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FavoriteViewModel(
@@ -26,11 +27,16 @@ class FavoriteViewModel(
   private val _event = MutableSharedFlow<Event>()
   val event = _event.asSharedFlow()
 
-  private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1)
+  private val _refreshTrigger = MutableSharedFlow<Unit>()
   private val _favoritesFlow = _refreshTrigger
     .onStart { emit(Unit) }
     .flatMapLatest {
-      favoriteRepository.getFavorites()
+      favoriteRepository
+        .getFavorites()
+        .catch { e ->
+          ErrorHandler.handleException(e)
+          emit(emptyList())
+        }
     }
     .stateIn(
       scope = viewModelScope,
@@ -42,7 +48,12 @@ class FavoriteViewModel(
   private val _currentFavoriteFlow = _currentFavoriteId
     .filterNotNull()
     .flatMapLatest {
-      favoriteRepository.getFavoriteDetail(it)
+      favoriteRepository
+        .getFavoriteDetail(it)
+        .catch { e ->
+          ErrorHandler.handleException(e)
+          emit(null)
+        }
     }
     .stateIn(
       scope = viewModelScope,
@@ -61,13 +72,16 @@ class FavoriteViewModel(
       loading = currentFavoriteId != null && currentFavorite == null
     )
   }
+    .catch { e ->
+      ErrorHandler.handleException(e)
+    }
     .stateIn(
       scope = viewModelScope,
       started = SharingStarted.WhileSubscribed(5000),
       initialValue = FavoriteUiState()
     )
 
-  fun refresh() {
+  fun refreshFavorites() {
     _refreshTrigger.tryEmit(Unit)
   }
 
@@ -75,7 +89,7 @@ class FavoriteViewModel(
     val newFavorite = favoriteRepository.createFavorite(CreateFavoriteRequest(name, sortOrder))
     if (newFavorite != null) {
       _event.emit(Event.CreateSuccess)
-      refresh()
+      refreshFavorites()
     }
   }
 }

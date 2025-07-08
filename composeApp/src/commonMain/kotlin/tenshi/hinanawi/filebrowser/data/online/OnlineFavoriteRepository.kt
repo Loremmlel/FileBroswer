@@ -16,9 +16,6 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
     val data = client.get("/favorites").body<Response<List<FavoriteDto>>>().data
     // flow里一定要记得emit
     emit(data ?: emptyList())
-  }.catch { e ->
-    ErrorHandler.handleException(e)
-    emit(emptyList())
   }
 
   override suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto? = try {
@@ -33,8 +30,5 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
   override fun getFavoriteDetail(id: Long): Flow<FavoriteDto?> = flow {
     val response = client.get("/favorites/$id").body<Response<FavoriteDto>>()
     emit(response.data)
-  }.catch { e ->
-    ErrorHandler.handleException(e)
-    emit(null)
   }
 }

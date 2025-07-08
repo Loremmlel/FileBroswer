@@ -62,8 +62,5 @@ class OnlineImageRepository : BaseOnlineRepository(), ImageRepository {
     val painter = BitmapPainter(imageBitmap)
     trySend(ImageLoadState.Success(painter))
     close()
-  }.catch { throwable ->
-    ErrorHandler.handleException(throwable)
-    emit(ImageLoadState.Error("加载图片失败"))
   }
 }

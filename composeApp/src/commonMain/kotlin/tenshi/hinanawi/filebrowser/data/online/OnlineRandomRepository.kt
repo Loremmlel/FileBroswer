@@ -14,7 +14,5 @@ class OnlineRandomRepository : RandomRepository, BaseOnlineRepository() {
   override fun getAllVideo(path: String): Flow<List<FileInfo>> = flow {
     val response = client.get("/random?path=$path").body<Response<List<FileInfo>>>()
     emit(response.data ?: emptyList())
-  }.catch {
-    ErrorHandler.handleException(it)
   }
 }

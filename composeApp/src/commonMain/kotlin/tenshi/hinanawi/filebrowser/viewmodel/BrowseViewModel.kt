@@ -44,8 +44,8 @@ class BrowseViewModel(
                 it.copy(fileLoading = true)
               }
             }
-            .catch { exception ->
-              ErrorHandler.handleException(exception)
+            .catch { e ->
+              ErrorHandler.handleException(e)
               _uiState.update {
                 it.copy(fileLoading = false)
               }
@@ -67,23 +67,17 @@ class BrowseViewModel(
     _currentPath.value = navigator.requestPath
   }
 
-  fun deleteFile(file: FileInfo) {
-    viewModelScope.launch {
-      filesRepository.deleteFile("${navigator.requestPath}/${file.name}")
-      getData()
-    }
+  fun deleteFile(file: FileInfo) = viewModelScope.launch {
+    filesRepository.deleteFile("${navigator.requestPath}/${file.name}")
+    getData()
   }
 
-  fun downloadFile(file: FileInfo) {
-    viewModelScope.launch {
-      try {
-        val filePath = "${navigator.requestPath}/${file.name}"
-        filesRepository.downloadFile(filePath, file.name)
-      } catch (e: Exception) {
-        ErrorHandler.handleException(e)
-      }
-    }
+
+  fun downloadFile(file: FileInfo) = viewModelScope.launch {
+    val filePath = "${navigator.requestPath}/${file.name}"
+    filesRepository.downloadFile(filePath, file.name)
   }
+
 
   fun openImagePreview(image: FileInfo?) {
     _uiState.update {
