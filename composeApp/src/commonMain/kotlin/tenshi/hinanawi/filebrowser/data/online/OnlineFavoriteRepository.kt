@@ -1,9 +1,7 @@
 package tenshi.hinanawi.filebrowser.data.online
 
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -13,9 +11,12 @@ import tenshi.hinanawi.filebrowser.model.FavoriteDto
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
-class OnlineFavoriteRepository: FavoriteRepository, BaseOnlineRepository() {
-  override fun getFavoriteTree(parentId: Long?): Flow<List<FavoriteDto>> = flow {
-
+class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
+  override fun getFavoriteTree(parentId: Long?): Flow<List<FavoriteDto>> = flow<List<FavoriteDto>> {
+    client.get("/favorites").body<Response<List<FavoriteDto>>>().data ?: emptyList<FavoriteDto>()
+  }.catch { e ->
+    ErrorHandler.handleException(e)
+    emit(emptyList())
   }
 
   override suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto? = try {

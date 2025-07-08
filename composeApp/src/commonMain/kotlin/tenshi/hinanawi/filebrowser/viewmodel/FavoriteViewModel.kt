@@ -20,8 +20,11 @@ class FavoriteViewModel(
 
   private val _uiState = MutableStateFlow(FavoriteUiState())
   val uiState = _uiState.asStateFlow()
-
   private val _currentFavoriteId = MutableStateFlow(navigator.currentId)
+
+  private val _favoriteTree = MutableStateFlow<List<FavoriteDto>>(emptyList())
+  val favoriteTree = _favoriteTree.asStateFlow()
+  private val _treeDirty = MutableStateFlow(0)
 
   init {
     viewModelScope.launch {
@@ -53,6 +56,13 @@ class FavoriteViewModel(
           }
         }
     }
+    viewModelScope.launch {
+      _treeDirty.flatMapLatest { isDirty ->
+        favoriteRepository.getFavoriteTree(null)
+      }.collect { tree ->
+        _favoriteTree.value = tree
+      }
+    }
   }
 
   fun getData() {
@@ -74,13 +84,15 @@ class FavoriteViewModel(
         )
       )
     }
+    _treeDirty.update {
+      it + 1
+    }
     Toast.makeText("收藏夹创建成功", Toast.LENGTH_LONG).show()
   }
 }
 
 
 data class FavoriteUiState(
-  val tree: List<FavoriteDto> = emptyList(),
   val currentFavorite: FavoriteDto? = null,
   val loading: Boolean = true
 )
