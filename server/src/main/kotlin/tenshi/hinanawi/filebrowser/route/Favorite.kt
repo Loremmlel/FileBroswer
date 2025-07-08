@@ -13,12 +13,11 @@ fun Route.favorite() {
   val favoriteService = FavoriteService()
 
   route("/favorites") {
-    // 获取收藏夹树
+    // 获取收藏夹
     get {
       call.safeExecute {
         contentTypeJson()
-        val parentId = call.queryParameters["parentId"]?.toLongOrNull()
-        val favorites = favoriteService.getFavoriteTree(parentId)
+        val favorites = favoriteService.getFavorites()
         respond(
           HttpStatusCode.OK,
           Response(200, Message.Success, favorites)
@@ -32,7 +31,6 @@ fun Route.favorite() {
         contentTypeJson()
         val request = receive<CreateFavoriteRequest>()
         val favorite = favoriteService.createFavorite(
-          parentId = request.parentId,
           name = request.name,
           sortOrder = request.sortOrder
         )
@@ -47,8 +45,13 @@ fun Route.favorite() {
     get("/{id}") {
       call.safeExecute {
         contentTypeJson()
-        val favoriteId = call.pathParameters["id"]?.toLongOrNull()
-
+        val favoriteId = call.pathParameters["id"]?.toLongOrNull() ?: run {
+          respond(
+            HttpStatusCode.BadRequest,
+            Response<Unit>(400, Message.FavoriteIdUndefined, null)
+          )
+          return@safeExecute
+        }
         val favorite = favoriteService.getFavoriteDetail(favoriteId)
         respond(
           HttpStatusCode.OK,
@@ -98,27 +101,6 @@ fun Route.favorite() {
         respond(
           HttpStatusCode.OK,
           Response(200, Message.Success, success)
-        )
-      }
-    }
-
-    // 移动收藏夹
-    patch("/{id}/move") {
-      call.safeExecute {
-        contentTypeJson()
-        val favoriteId = call.pathParameters["id"]?.toLongOrNull() ?: run {
-          respond(
-            HttpStatusCode.BadRequest,
-            Response<Unit>(400, Message.FavoriteIdUndefined, null)
-          )
-          return@safeExecute
-        }
-
-        val request = receive<MoveFavoriteRequest>()
-        val favorite = favoriteService.moveFavorite(favoriteId, request.newParentId)
-        respond(
-          HttpStatusCode.OK,
-          Response(200, Message.Success, favorite)
         )
       }
     }

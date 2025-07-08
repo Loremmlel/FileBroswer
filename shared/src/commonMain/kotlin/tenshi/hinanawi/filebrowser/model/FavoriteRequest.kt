@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateFavoriteRequest(
-  val parentId: Long? = null,
   val name: String,
   val sortOrder: Int = 0
 )
@@ -13,11 +12,6 @@ data class CreateFavoriteRequest(
 data class UpdateFavoriteRequest(
   val name: String? = null,
   val sortOrder: Int? = null
-)
-
-@Serializable
-data class MoveFavoriteRequest(
-  val newParentId: Long? = null
 )
 
 @Serializable
