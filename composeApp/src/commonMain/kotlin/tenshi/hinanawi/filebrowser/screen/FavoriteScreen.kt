@@ -2,6 +2,7 @@ package tenshi.hinanawi.filebrowser.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +24,7 @@ fun FavoriteScreen(
   val uiState by viewModel.uiState.collectAsState()
 
   LaunchedEffect(Unit) {
-    viewModel.events.collect {
+    viewModel.event.collect {
       when (it) {
         is FavoriteViewModel.Event.CreateSuccess -> {
           Toast.makeText("收藏夹创建成功", Toast.LENGTH_LONG).show()
@@ -56,7 +57,15 @@ fun FavoriteScreen(
     if (uiState.loading) {
       CircularProgressIndicator(Modifier.align(Alignment.Center).size(48.dp))
     } else {
+      LazyColumn(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+      ) {
 
+      }
     }
     if (createDialogVisible) {
       CreateFavoriteDialog(
