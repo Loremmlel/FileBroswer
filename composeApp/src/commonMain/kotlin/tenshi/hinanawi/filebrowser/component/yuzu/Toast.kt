@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -88,21 +89,22 @@ fun ToastContainer(
 private fun ToastContent(
   message: String
 ) {
-  Box(
+  Column(
     modifier = Modifier
-      .fillMaxWidth(0.5f)
-      .wrapContentHeight()
-      .padding(8.dp)
       .background(
-        color = Color.Black.copy(alpha = 0.8f),
+        color = Color.Black.copy(alpha = 0.5f),
         shape = RoundedCornerShape(16.dp)
       )
+      .padding(vertical = 8.dp, horizontal = 24.dp),
+    verticalArrangement = Arrangement.Center,
+    horizontalAlignment = Alignment.CenterHorizontally
   ) {
     Text(
       text = message,
       overflow = TextOverflow.Ellipsis,
       style = MaterialTheme.typography.bodyLarge,
-      modifier = Modifier.align(Alignment.Center)
+      modifier = Modifier,
+      color = Color.White
     )
   }
 }
