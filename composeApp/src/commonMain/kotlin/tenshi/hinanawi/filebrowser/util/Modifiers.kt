@@ -6,10 +6,10 @@ import androidx.compose.ui.Modifier
 
 fun Modifier.nullIndicatorClickable(
   enabled: Boolean = true,
-  onclick: () -> Unit
+  onClick: () -> Unit
 ) = Modifier.clickable(
   interactionSource = MutableInteractionSource(),
   indication = null,
   enabled = enabled,
-  onClick = onclick
+  onClick = onClick
 )

@@ -3,6 +3,7 @@ package tenshi.hinanawi.filebrowser.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.favorite.CreateFavoriteDialog
 import tenshi.hinanawi.filebrowser.component.favorite.FavoriteHeader
+import tenshi.hinanawi.filebrowser.component.favorite.FavoriteItem
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.viewmodel.FavoriteViewModel
 
@@ -53,19 +55,27 @@ fun FavoriteScreen(
         onAddClick = ::onCreateClick,
         onDeleteClick = {}
       )
+      if (!uiState.loading) {
+        LazyColumn(
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+          horizontalAlignment = Alignment.CenterHorizontally,
+          verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+          items(items = uiState.favorites, key = { it.id }) { favorite ->
+            FavoriteItem(
+              modifier = Modifier
+                .fillMaxWidth(),
+              favorite = favorite,
+              onClick = {}
+            )
+          }
+        }
+      }
     }
     if (uiState.loading) {
       CircularProgressIndicator(Modifier.align(Alignment.Center).size(48.dp))
-    } else {
-      LazyColumn(
-        modifier = Modifier
-          .fillMaxSize()
-          .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-      ) {
-
-      }
     }
     if (createDialogVisible) {
       CreateFavoriteDialog(

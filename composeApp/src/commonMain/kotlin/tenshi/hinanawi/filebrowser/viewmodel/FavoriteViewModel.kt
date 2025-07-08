@@ -14,13 +14,13 @@ class FavoriteViewModel(
   private val favoriteRepository: FavoriteRepository
 ) : ViewModel() {
   data class FavoriteUiState(
-    val favorites: List<FavoriteDto>? = null,
+    val favorites: List<FavoriteDto> = emptyList(),
     val currentFavorite: FavoriteDto? = null,
     val loading: Boolean = true
   )
 
   sealed class Event {
-    object CreateSuccess: Event()
+    object CreateSuccess : Event()
   }
 
   private val _event = MutableSharedFlow<Event>()
