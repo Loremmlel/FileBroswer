@@ -20,6 +20,7 @@ import tenshi.hinanawi.filebrowser.data.online.OnlineFavoriteRepository
 import tenshi.hinanawi.filebrowser.data.online.OnlineFileRepository
 import tenshi.hinanawi.filebrowser.screen.BrowseScreen
 import tenshi.hinanawi.filebrowser.screen.FavoriteScreen
+import tenshi.hinanawi.filebrowser.util.slideComposable
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
 import tenshi.hinanawi.filebrowser.viewmodel.FavoriteViewModel
 
@@ -52,10 +53,14 @@ fun App(
             navController = navController,
             startDestination = Route.MainScreen.stringRoute
           ) {
-            composable(route = Route.MainScreen.stringRoute) {
+            slideComposable(
+              route = Route.MainScreen
+            ) {
               BrowseScreen(viewModel = browseViewModel)
             }
-            composable(route = Route.FavoriteScreen.stringRoute) {
+            slideComposable(
+              route = Route.FavoriteScreen
+            ) {
               FavoriteScreen(viewModel = favoriteViewModel)
             }
           }
