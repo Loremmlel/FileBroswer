@@ -39,10 +39,14 @@ class RandomPlayViewModel(
             .catch { e ->
               ErrorHandler.handleException(e)
               emit(emptyList())
+              _loading.value = false
             }
             .onEach { videoFiles ->
               _requestTimeMap[path] = requestTime
               _cacheMap[path] = videoFiles
+            }
+            .onCompletion {
+              _loading.value = false
             }
         }
       },
@@ -77,7 +81,6 @@ class RandomPlayViewModel(
   fun getAllVideos(path: String) = viewModelScope.launch {
     _loading.value = true
     _requestPath.emit(path)
-    _loading.value = false
   }
 
   fun getRandomVideo(): FileInfo? {
