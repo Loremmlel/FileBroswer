@@ -1,9 +1,6 @@
 package tenshi.hinanawi.filebrowser.model
 
 import androidx.compose.runtime.toMutableStateList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 internal const val ROOT_DIR_NAME = "/"
 internal val ROOT_ID: String? = null

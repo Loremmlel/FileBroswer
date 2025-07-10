@@ -32,7 +32,7 @@ class BrowseViewModel(
     object NoImagePreview : Event()
     object IsLastImage : Event()
     object IsFirstImage : Event()
-    object TryingPreviewNull: Event()
+    object TryingPreviewNull : Event()
   }
 
   val navigator = BreadCrumbNavigator(onPathChanged = ::refreshFiles)
