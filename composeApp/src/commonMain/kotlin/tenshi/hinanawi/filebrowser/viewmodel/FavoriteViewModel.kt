@@ -3,6 +3,7 @@ package tenshi.hinanawi.filebrowser.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
@@ -81,14 +82,15 @@ class FavoriteViewModel(
       initialValue = FavoriteUiState()
     )
 
-  fun refreshFavorites() {
-    _refreshTrigger.tryEmit(Unit)
+  suspend fun refreshFavorites() {
+    _refreshTrigger.emit(Unit)
   }
 
   fun createFavorite(name: String, sortOrder: Int = 0) = viewModelScope.launch {
     val newFavorite = favoriteRepository.createFavorite(CreateFavoriteRequest(name, sortOrder))
     if (newFavorite != null) {
       _event.emit(Event.CreateSuccess)
+      delay(1000)
       refreshFavorites()
     }
   }

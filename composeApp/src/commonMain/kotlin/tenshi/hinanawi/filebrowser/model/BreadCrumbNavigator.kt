@@ -1,6 +1,9 @@
 package tenshi.hinanawi.filebrowser.model
 
 import androidx.compose.runtime.toMutableStateList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 internal const val ROOT_DIR_NAME = "/"
 internal val ROOT_ID: String? = null
@@ -12,7 +15,7 @@ class BreadCrumbItem(
 
 class BreadCrumbNavigator(
   initialPath: List<BreadCrumbItem> = emptyList(),
-  private val onPathChanged: () -> Unit = {}
+  private val onPathChanged: suspend () -> Unit = {}
 ) {
   private val _path = initialPath.toMutableStateList()
 
@@ -30,7 +33,9 @@ class BreadCrumbNavigator(
       }
     }
     _path.add(item)
-    onPathChanged()
+    CoroutineScope(Dispatchers.Default).launch {
+      onPathChanged()
+    }
   }
 
   fun popTo(targetId: String?, inclusive: Boolean = true) {
@@ -41,19 +46,25 @@ class BreadCrumbNavigator(
     if (targetIndex != -1) {
       val removeFrom = if (inclusive) targetIndex else targetIndex + 1
       _path.removeAll { _path.indexOf(it) >= removeFrom }
-      onPathChanged()
+      CoroutineScope(Dispatchers.Default).launch {
+        onPathChanged()
+      }
     }
   }
 
   fun popBack() {
     if (_path.isNotEmpty()) {
       _path.removeLast()
-      onPathChanged()
+      CoroutineScope(Dispatchers.Default).launch {
+        onPathChanged()
+      }
     }
   }
 
   fun resetToRoot() {
     _path.clear()
-    onPathChanged()
+    CoroutineScope(Dispatchers.Default).launch {
+      onPathChanged()
+    }
   }
 }

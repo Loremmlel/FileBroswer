@@ -92,16 +92,16 @@ class BrowseViewModel(
       it.type == FileType.Image
     }
 
-  fun refreshFiles() {
+  suspend fun refreshFiles() {
     closeImagePreview()
     _currentPath.value = navigator.requestPath
-    _refreshTrigger.tryEmit(Unit)
+    _refreshTrigger.emit(Unit)
   }
 
   fun addFavorite(file: FileInfo, favoriteId: Long) = viewModelScope.launch {
     val result = favoriteRepository.addFileToFavorite(file.toAddFileToFavoriteRequest(), favoriteId)
     if (result) {
-      _event.tryEmit(Event.AddFavoriteSuccess)
+      _event.emit(Event.AddFavoriteSuccess)
     }
   }
 
@@ -125,37 +125,37 @@ class BrowseViewModel(
     _previewItem.value = null
   }
 
-  fun nextImagePreview() {
+  fun nextImagePreview() = viewModelScope.launch {
     val currentImageIndex = uiState.value.files.indexOfFirst {
       it.name == uiState.value.previewItem?.name
     }
     if (currentImageIndex == -1) {
-      _event.tryEmit(Event.NoImagePreview)
-      return
+      _event.emit(Event.NoImagePreview)
+      return@launch
     }
     // 写反了，耻辱
     val nextImage = uiState.value.files.firstAfter(currentImageIndex) { it.type == FileType.Image }
     if (nextImage != null) {
       openImagePreview(nextImage)
     } else {
-      _event.tryEmit(Event.IsLastImage)
+      _event.emit(Event.IsLastImage)
       openImagePreview(_firstImage)
     }
   }
 
-  fun previousImagePreview() {
+  fun previousImagePreview() = viewModelScope.launch {
     val currentImageIndex = uiState.value.files.indexOfFirst {
       it.name == uiState.value.previewItem?.name
     }
     if (currentImageIndex == -1) {
-      _event.tryEmit(Event.NoImagePreview)
-      return
+      _event.emit(Event.NoImagePreview)
+      return@launch
     }
     val previousImage = uiState.value.files.firstBefore(currentImageIndex) { it.type == FileType.Image }
     if (previousImage != null) {
       openImagePreview(previousImage)
     } else {
-      _event.tryEmit(Event.IsFirstImage)
+      _event.emit(Event.IsFirstImage)
       openImagePreview(_lastImage)
     }
   }
