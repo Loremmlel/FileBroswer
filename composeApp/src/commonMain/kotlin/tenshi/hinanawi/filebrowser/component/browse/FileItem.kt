@@ -22,6 +22,7 @@ import tenshi.hinanawi.filebrowser.util.formatFileSize
 
 @Composable
 internal fun FileItem(
+  modifier: Modifier = Modifier,
   file: FileInfo,
   onClick: (FileInfo) -> Unit,
   onDelete: ((FileInfo) -> Unit)? = null,
@@ -35,7 +36,7 @@ internal fun FileItem(
   var showConfirm by remember { mutableStateOf(false) }
 
   Box(
-    modifier = Modifier
+    modifier = modifier
       .fillMaxWidth()
       .clip(RoundedCornerShape(16.dp))
       .background(MaterialTheme.colorScheme.primaryContainer)

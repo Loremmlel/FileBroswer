@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
@@ -73,22 +76,24 @@ fun FavoriteItem(
         )
       }
     }
-    FlowRow(
+    LazyRow(
       modifier = Modifier.fillMaxWidth().height(60.dp),
-      horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-      verticalArrangement = Arrangement.Center,
-      itemVerticalAlignment = Alignment.CenterVertically,
-      maxLines = 1
+      horizontalArrangement = Arrangement.Center,
+      verticalAlignment = Alignment.CenterVertically,
+      contentPadding = PaddingValues(4.dp)
     ) {
       if (favorite.files.isEmpty()) {
-        Text(
-          text = "收藏夹为空",
-          style = MaterialTheme.typography.bodyLarge
-        )
+        item {
+          Text(
+            text = "收藏夹为空",
+            style = MaterialTheme.typography.bodyLarge
+          )
+        }
+        return@LazyRow
       }
-      favorite.files.forEach {
+      items(favorite.files) { file ->
         FileItem(
-          file = it.toFileInfo(),
+          file = file.toFileInfo(),
           onClick = {}
         )
       }
