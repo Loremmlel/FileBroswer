@@ -15,7 +15,7 @@ class BreadCrumbItem(
 
 class BreadCrumbNavigator(
   initialPath: List<BreadCrumbItem> = emptyList(),
-  private val onPathChanged: suspend () -> Unit = {}
+  private val onPathChanged: () -> Unit = {}
 ) {
   private val _path = initialPath.toMutableStateList()
 
@@ -33,9 +33,7 @@ class BreadCrumbNavigator(
       }
     }
     _path.add(item)
-    CoroutineScope(Dispatchers.Default).launch {
-      onPathChanged()
-    }
+    onPathChanged()
   }
 
   fun popTo(targetId: String?, inclusive: Boolean = true) {
@@ -46,25 +44,19 @@ class BreadCrumbNavigator(
     if (targetIndex != -1) {
       val removeFrom = if (inclusive) targetIndex else targetIndex + 1
       _path.removeAll { _path.indexOf(it) >= removeFrom }
-      CoroutineScope(Dispatchers.Default).launch {
-        onPathChanged()
-      }
+      onPathChanged()
     }
   }
 
   fun popBack() {
     if (_path.isNotEmpty()) {
       _path.removeLast()
-      CoroutineScope(Dispatchers.Default).launch {
-        onPathChanged()
-      }
+      onPathChanged()
     }
   }
 
   fun resetToRoot() {
     _path.clear()
-    CoroutineScope(Dispatchers.Default).launch {
-      onPathChanged()
-    }
+    onPathChanged()
   }
 }

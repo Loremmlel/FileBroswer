@@ -73,6 +73,7 @@ class BrowseViewModel(
       previewItem = preview
     )
   }
+    .distinctUntilChanged()
     .catch { e ->
       ErrorHandler.handleException(e)
     }
@@ -97,7 +98,7 @@ class BrowseViewModel(
       it.name == uiState.value.previewItem?.name
     }
 
-  suspend fun refreshFiles() {
+  fun refreshFiles() = viewModelScope.launch {
     closeImagePreview()
     _currentPath.value = navigator.requestPath
     _refreshTrigger.emit(Unit)
