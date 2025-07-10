@@ -66,8 +66,8 @@ class BrowseViewModel(
   val uiState = combine(
     _filesFlow,
     _fileLoading,
-    _playingVideo,
-    _previewItem
+    _previewItem,
+    _playingVideo
   ) { files, loading, preview, playing ->
     BrowserUiState(
       files = files,

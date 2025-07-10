@@ -30,7 +30,7 @@ fun BrowseScreen(
   modifier: Modifier = Modifier,
   viewModel: BrowseViewModel
 ) {
-  val state by viewModel.uiState.collectAsState()
+  val uiState by viewModel.uiState.collectAsState()
   val randomPlayViewModel = remember { RandomPlayViewModel(OnlineRandomRepository()) }
 
   var addToFavoriteModalVisible by remember { mutableStateOf(false) }
@@ -73,7 +73,7 @@ fun BrowseScreen(
       modifier = Modifier.weight(1f).fillMaxWidth()
     ) {
       when {
-        state.fileLoading -> {
+        uiState.fileLoading -> {
           Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -85,7 +85,7 @@ fun BrowseScreen(
           }
         }
 
-        state.files.isEmpty() -> {
+        uiState.files.isEmpty() -> {
           Box(
             modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
           ) {
@@ -100,7 +100,7 @@ fun BrowseScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
           ) {
-            items(state.files, key = { file -> file.name }) { file ->
+            items(uiState.files, key = { file -> file.name }) { file ->
               FileItem(
                 file = file,
                 onClick = {
@@ -130,7 +130,7 @@ fun BrowseScreen(
         onVideoPlay = viewModel::playVideo
       )
     }
-    state.previewItem?.let { previewItem ->
+    uiState.previewItem?.let { previewItem ->
       ImageViewer(
         file = previewItem,
         onDismiss = viewModel::closeImagePreview,
