@@ -164,6 +164,10 @@ class FavoriteService {
     FavoriteFileTable.deleteWhere { FavoriteFileTable.id inList favoriteFileIds }
     deleteCount.toInt()
   }
+
+  fun getAllFavoriteFiles(): List<FavoriteFileDto> = transaction {
+    FavoriteFile.all().map { it.toDto() }
+  }
 }
 
 fun Favorite.toDto(): FavoriteDto = FavoriteDto(

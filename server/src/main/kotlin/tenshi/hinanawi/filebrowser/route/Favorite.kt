@@ -191,6 +191,18 @@ fun Route.favorite() {
       }
     }
 
+    // 获取所有已收藏的文件
+    get("/files") {
+      call.safeExecute {
+        contentTypeJson()
+        val files = favoriteService.getAllFavoriteFiles()
+        respond(
+          HttpStatusCode.OK,
+          Response(200, Message.Success, files)
+        )
+      }
+    }
+
     // 批量删除收藏文件
     delete("/files") {
       call.safeExecute {

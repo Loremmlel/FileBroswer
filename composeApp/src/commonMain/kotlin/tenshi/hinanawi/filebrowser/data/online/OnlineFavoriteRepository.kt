@@ -40,4 +40,9 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
     ErrorHandler.handleException(e)
     false
   }
+
+  override fun getAllFavoriteFiles(): Flow<List<FavoriteFileDto>> = flow {
+    val data = client.get("/favorites/files").body<Response<List<FavoriteFileDto>>>().data
+    emit(data ?: emptyList())
+  }
 }
