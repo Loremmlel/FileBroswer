@@ -32,6 +32,7 @@ class BrowseViewModel(
     object NoImagePreview : Event()
     object IsLastImage : Event()
     object IsFirstImage : Event()
+    object TryingPreviewNull: Event()
   }
 
   val navigator = BreadCrumbNavigator(onPathChanged = ::refreshFiles)
@@ -121,7 +122,11 @@ class BrowseViewModel(
   }
 
 
-  fun openImagePreview(image: FileInfo?) {
+  fun openImagePreview(image: FileInfo?) = viewModelScope.launch {
+    if (image == null) {
+      _event.emit(Event.TryingPreviewNull)
+      return@launch
+    }
     _previewItem.value = image
   }
 
