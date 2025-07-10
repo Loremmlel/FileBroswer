@@ -32,8 +32,12 @@ class RandomPlayViewModel(
       .flatMapLatest { path ->
         val requestTime = currentTimeMillis()
         val lastRequestTime = _requestTimeMap[path] ?: 0
-        if (requestTime - lastRequestTime <= cacheDuration && _cacheMap.containsKey(path)) {
-          flowOf(_cacheMap[path]!!)
+        val cacheVideoFiles = _cacheMap[path]
+        if (requestTime - lastRequestTime <= cacheDuration && cacheVideoFiles != null) {
+          flowOf(cacheVideoFiles)
+            .onCompletion {
+              _loading.value = false
+            }
         } else {
           randomRepository.getAllVideo(path)
             .catch { e ->
