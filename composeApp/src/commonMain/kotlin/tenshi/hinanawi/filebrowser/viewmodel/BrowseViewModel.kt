@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
@@ -92,6 +91,11 @@ class BrowseViewModel(
       it.type == FileType.Image
     }
 
+  private val _currentImageIndex
+    get() = uiState.value.files.indexOfFirst {
+      it.name == uiState.value.previewItem?.name
+    }
+
   suspend fun refreshFiles() {
     closeImagePreview()
     _currentPath.value = navigator.requestPath
@@ -126,15 +130,12 @@ class BrowseViewModel(
   }
 
   fun nextImagePreview() = viewModelScope.launch {
-    val currentImageIndex = uiState.value.files.indexOfFirst {
-      it.name == uiState.value.previewItem?.name
-    }
-    if (currentImageIndex == -1) {
+    if (_currentImageIndex == -1) {
       _event.emit(Event.NoImagePreview)
       return@launch
     }
     // 写反了，耻辱
-    val nextImage = uiState.value.files.firstAfter(currentImageIndex) { it.type == FileType.Image }
+    val nextImage = uiState.value.files.firstAfter(_currentImageIndex) { it.type == FileType.Image }
     if (nextImage != null) {
       openImagePreview(nextImage)
     } else {
@@ -144,14 +145,11 @@ class BrowseViewModel(
   }
 
   fun previousImagePreview() = viewModelScope.launch {
-    val currentImageIndex = uiState.value.files.indexOfFirst {
-      it.name == uiState.value.previewItem?.name
-    }
-    if (currentImageIndex == -1) {
+    if (_currentImageIndex == -1) {
       _event.emit(Event.NoImagePreview)
       return@launch
     }
-    val previousImage = uiState.value.files.firstBefore(currentImageIndex) { it.type == FileType.Image }
+    val previousImage = uiState.value.files.firstBefore(_currentImageIndex) { it.type == FileType.Image }
     if (previousImage != null) {
       openImagePreview(previousImage)
     } else {
