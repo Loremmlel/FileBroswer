@@ -12,11 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import tenshi.hinanawi.filebrowser.component.yuzu.BreadCrumb
-import tenshi.hinanawi.filebrowser.component.yuzu.ImageViewer
 import tenshi.hinanawi.filebrowser.component.browse.FileItem
 import tenshi.hinanawi.filebrowser.component.browse.HevcDetector
 import tenshi.hinanawi.filebrowser.component.browse.RandomPlay
+import tenshi.hinanawi.filebrowser.component.yuzu.BreadCrumb
+import tenshi.hinanawi.filebrowser.component.yuzu.ImageViewer
+import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.data.online.OnlineRandomRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.FileType
@@ -31,6 +32,34 @@ fun BrowseScreen(
 ) {
   val state by viewModel.uiState.collectAsState()
   val randomPlayViewModel = remember { RandomPlayViewModel(OnlineRandomRepository()) }
+
+  var addToFavoriteModalVisible by remember { mutableStateOf(false) }
+
+  LaunchedEffect(Unit) {
+    viewModel.event.collect {
+      when (it) {
+        is BrowseViewModel.Event.NoImagePreview -> Toast.makeText(
+          "没有图片正在预览",
+          Toast.SHORT
+        ).show()
+
+        is BrowseViewModel.Event.IsLastImage -> Toast.makeText(
+          "已经是最后一张图片了, 预览第一张图片",
+          Toast.VERY_SHORT
+        ).show()
+
+        is BrowseViewModel.Event.IsFirstImage -> Toast.makeText(
+          "已经是第一张图片了, 预览最后一张图片",
+          Toast.VERY_SHORT
+        ).show()
+
+        is BrowseViewModel.Event.AddFavoriteSuccess -> Toast.makeText(
+          "添加收藏夹成功",
+          Toast.SHORT
+        ).show()
+      }
+    }
+  }
 
   Column(
     modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
@@ -109,6 +138,10 @@ fun BrowseScreen(
         onPrev = viewModel::previousImagePreview,
         onDownload = viewModel::downloadFile
       )
+    }
+
+    if (addToFavoriteModalVisible) {
+
     }
   }
 }

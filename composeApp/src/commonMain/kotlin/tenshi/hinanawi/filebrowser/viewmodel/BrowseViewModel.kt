@@ -21,68 +21,96 @@ class BrowseViewModel(
   private val filesRepository: FilesRepository,
   private val favoriteRepository: FavoriteRepository
 ) : ViewModel() {
-  val navigator = BreadCrumbNavigator(onPathChanged = ::getData)
+  data class BrowserUiState(
+    val files: List<FileInfo> = emptyList(),
+    val fileLoading: Boolean = false,
+    val previewItem: FileInfo? = null,
+    val playingVideo: FileInfo? = null
+  )
 
-  private val _uiState = MutableStateFlow(BrowserUiState())
-  val uiState = _uiState.asStateFlow()
+  sealed class Event {
+    object AddFavoriteSuccess : Event()
+    object NoImagePreview : Event()
+    object IsLastImage : Event()
+    object IsFirstImage : Event()
+  }
 
+  val navigator = BreadCrumbNavigator(onPathChanged = ::refreshFiles)
+
+  private val _event = MutableSharedFlow<Event>()
+  val event = _event.asSharedFlow()
+
+  private val _refreshTrigger = MutableSharedFlow<Unit>()
   private val _currentPath = MutableStateFlow(navigator.requestPath)
 
+  private val _filesFlow = combine(_refreshTrigger.onStart { emit(Unit) }, _currentPath) { _, path ->
+    path
+  }
+    .flatMapLatest { path ->
+      filesRepository.getFiles(path)
+        .catch { e ->
+          ErrorHandler.handleException(e)
+          emit(emptyList())
+        }
+    }
+    .stateIn(
+      scope = viewModelScope,
+      started = SharingStarted.WhileSubscribed(5000),
+      initialValue = emptyList()
+    )
+
+  private val _previewItem = MutableStateFlow<FileInfo?>(null)
+  private val _playingVideo = MutableStateFlow<FileInfo?>(null)
+  private val _fileLoading = MutableStateFlow(false)
+
+  val uiState = combine(
+    _filesFlow,
+    _fileLoading,
+    _playingVideo,
+    _previewItem
+  ) { files, loading, preview, playing ->
+    BrowserUiState(
+      files = files,
+      fileLoading = loading,
+      previewItem = preview,
+      playingVideo = playing
+    )
+  }
+    .catch { e ->
+      ErrorHandler.handleException(e)
+    }
+    .stateIn(
+      scope = viewModelScope,
+      started = SharingStarted.WhileSubscribed(5000),
+      initialValue = BrowserUiState()
+    )
+
   private val _firstImage
-    get() = _uiState.value.files.firstOrNull {
+    get() = uiState.value.files.firstOrNull {
       it.type == FileType.Image
     }
 
   private val _lastImage
-    get() = _uiState.value.files.lastOrNull {
+    get() = uiState.value.files.lastOrNull {
       it.type == FileType.Image
     }
 
-  init {
-    viewModelScope.launch {
-      _currentPath
-        .flatMapLatest {
-          filesRepository.getFiles(navigator.requestPath)
-            .onStart {
-              _uiState.update {
-                it.copy(fileLoading = true)
-              }
-            }
-            .catch { e ->
-              ErrorHandler.handleException(e)
-              _uiState.update {
-                it.copy(fileLoading = false)
-              }
-            }
-        }
-        .collect { files ->
-          _uiState.update {
-            it.copy(
-              files = files,
-              fileLoading = false
-            )
-          }
-        }
-    }
-  }
-
-  fun getData() {
+  fun refreshFiles() {
     closeImagePreview()
     _currentPath.value = navigator.requestPath
+    _refreshTrigger.tryEmit(Unit)
   }
 
   fun addFavorite(file: FileInfo, favoriteId: Long) = viewModelScope.launch {
     val result = favoriteRepository.addFileToFavorite(file.toAddFileToFavoriteRequest(), favoriteId)
     if (result) {
-      Toast.makeText("添加收藏成功", Toast.SHORT).show()
-    } else {
-      Toast.makeText("添加收藏失败", Toast.SHORT).show()
+      _event.tryEmit(Event.AddFavoriteSuccess)
     }
   }
 
   fun deleteFile(file: FileInfo) = viewModelScope.launch {
     filesRepository.deleteFile("${navigator.requestPath}/${file.name}")
-    getData()
+    refreshFiles()
   }
 
 
@@ -93,52 +121,44 @@ class BrowseViewModel(
 
 
   fun openImagePreview(image: FileInfo?) {
-    _uiState.update {
-      it.copy(
-        previewItem = image
-      )
-    }
+    _previewItem.value = image
   }
 
   fun closeImagePreview() {
-    _uiState.update {
-      it.copy(
-        previewItem = null
-      )
-    }
+    _previewItem.value = null
   }
 
   fun nextImagePreview() {
-    val currentImageIndex = _uiState.value.files.indexOfFirst {
-      it.name == _uiState.value.previewItem?.name
+    val currentImageIndex = uiState.value.files.indexOfFirst {
+      it.name == uiState.value.previewItem?.name
     }
     if (currentImageIndex == -1) {
-      Toast.makeText("没有图片正在预览", Toast.VERY_SHORT).show()
+      _event.tryEmit(Event.NoImagePreview)
       return
     }
     // 写反了，耻辱
-    val nextImage = _uiState.value.files.firstAfter(currentImageIndex) { it.type == FileType.Image }
+    val nextImage = uiState.value.files.firstAfter(currentImageIndex) { it.type == FileType.Image }
     if (nextImage != null) {
       openImagePreview(nextImage)
     } else {
-      Toast.makeText("没有下一张图片了, 显示第一张", Toast.VERY_SHORT).show()
+      _event.tryEmit(Event.IsLastImage)
       openImagePreview(_firstImage)
     }
   }
 
   fun previousImagePreview() {
-    val currentImageIndex = _uiState.value.files.indexOfFirst {
-      it.name == _uiState.value.previewItem?.name
+    val currentImageIndex = uiState.value.files.indexOfFirst {
+      it.name == uiState.value.previewItem?.name
     }
     if (currentImageIndex == -1) {
-      Toast.makeText("没有图片正在预览", Toast.VERY_SHORT).show()
+      _event.tryEmit(Event.NoImagePreview)
       return
     }
-    val previousImage = _uiState.value.files.firstBefore(currentImageIndex) { it.type == FileType.Image }
+    val previousImage = uiState.value.files.firstBefore(currentImageIndex) { it.type == FileType.Image }
     if (previousImage != null) {
       openImagePreview(previousImage)
     } else {
-      Toast.makeText("没有上一张图片了, 显示最后一张", Toast.VERY_SHORT).show()
+      _event.tryEmit(Event.IsFirstImage)
       openImagePreview(_lastImage)
     }
   }
@@ -147,10 +167,3 @@ class BrowseViewModel(
 
   }
 }
-
-data class BrowserUiState(
-  val files: List<FileInfo> = emptyList(),
-  val fileLoading: Boolean = false,
-  val previewItem: FileInfo? = null,
-  val playingVideo: FileInfo? = null
-)
