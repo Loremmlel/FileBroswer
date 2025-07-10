@@ -13,13 +13,13 @@ data class FavoriteFileDto(
   val lastModified: Long,
   val isDirectory: Boolean,
   val createdAt: Long
-) {
-  fun toFileInfo(): FileInfo = FileInfo(
-    name = filename,
-    size = fileSize,
-    isDirectory = isDirectory,
-    type = fileType,
-    path = filePath,
-    lastModified = lastModified
-  )
-}
+)
+
+fun FavoriteFileDto.toFileInfo(): FileInfo = FileInfo(
+  name = filename,
+  size = fileSize,
+  isDirectory = isDirectory,
+  type = fileType,
+  path = filePath,
+  lastModified = lastModified
+)

@@ -11,3 +11,12 @@ data class FileInfo(
   val lastModified: Long,
   val path: String
 )
+
+fun FileInfo.toAddFileToFavoriteRequest() = AddFileToFavoriteRequest(
+  filename = name,
+  filePath = path,
+  isDirectory = isDirectory,
+  fileType = type,
+  lastModified = lastModified,
+  fileSize = size
+)

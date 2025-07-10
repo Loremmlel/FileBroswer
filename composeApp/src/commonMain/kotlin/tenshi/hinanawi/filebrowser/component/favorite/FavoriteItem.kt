@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.browse.FileItem
 import tenshi.hinanawi.filebrowser.model.FavoriteDto
+import tenshi.hinanawi.filebrowser.model.toFileInfo
 import tenshi.hinanawi.filebrowser.util.nullIndicatorClickable
 
 @Composable
