@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import tenshi.hinanawi.filebrowser.component.yuzu.BottomNav
@@ -37,7 +36,12 @@ fun App(
   // 不知道为什么cmp不支持viewModel函数，然后传入factory参数来构造viewModel
   // 只好采用土法了
   // uiState的异常也和这个有关。原本我是在函数参数的默认值构造viewModel的，可能在重新组合的时候造成一些问题
-  val browseViewModel = remember { BrowseViewModel(OnlineFileRepository()) }
+  val browseViewModel = remember {
+    BrowseViewModel(
+      filesRepository = OnlineFileRepository(),
+      favoriteRepository = OnlineFavoriteRepository()
+    )
+  }
   val favoriteViewModel = remember { FavoriteViewModel(OnlineFavoriteRepository()) }
   MaterialTheme {
     ToastContainer {

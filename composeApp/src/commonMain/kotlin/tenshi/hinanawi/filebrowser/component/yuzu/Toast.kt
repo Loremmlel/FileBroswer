@@ -17,6 +17,7 @@ import kotlinx.coroutines.delay
 
 
 object Toast {
+  const val LENGTH_VERY_SHORT = 1000L
   const val LENGTH_SHORT = 2000L
   const val LENGTH_LONG = 4000L
 

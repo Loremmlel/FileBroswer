@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import tenshi.hinanawi.filebrowser.component.yuzu.Toast
+import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
 import tenshi.hinanawi.filebrowser.model.FileInfo
@@ -15,7 +17,8 @@ import tenshi.hinanawi.filebrowser.util.firstBefore
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BrowseViewModel(
-  private val filesRepository: FilesRepository
+  private val filesRepository: FilesRepository,
+  private val favoriteRepository: FavoriteRepository
 ) : ViewModel() {
   val navigator = BreadCrumbNavigator(onPathChanged = ::getData)
 
@@ -100,6 +103,7 @@ class BrowseViewModel(
       it.name == _uiState.value.previewItem?.name
     }
     if (currentImageIndex == -1) {
+      Toast.makeText("没有图片正在预览", Toast.LENGTH_VERY_SHORT).show()
       return
     }
     // 写反了，耻辱
@@ -107,6 +111,7 @@ class BrowseViewModel(
     if (nextImage != null) {
       openImagePreview(nextImage)
     } else {
+      Toast.makeText("没有下一张图片了, 显示第一张", Toast.LENGTH_VERY_SHORT).show()
       openImagePreview(_firstImage)
     }
   }
@@ -116,12 +121,14 @@ class BrowseViewModel(
       it.name == _uiState.value.previewItem?.name
     }
     if (currentImageIndex == -1) {
+      Toast.makeText("没有图片正在预览", Toast.LENGTH_VERY_SHORT).show()
       return
     }
     val previousImage = _uiState.value.files.firstBefore(currentImageIndex) { it.type == FileType.Image }
     if (previousImage != null) {
       openImagePreview(previousImage)
     } else {
+      Toast.makeText("没有上一张图片了, 显示最后一张", Toast.LENGTH_VERY_SHORT).show()
       openImagePreview(_lastImage)
     }
   }
