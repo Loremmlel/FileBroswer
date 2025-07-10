@@ -6,8 +6,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
+import tenshi.hinanawi.filebrowser.model.AddFileToFavoriteRequest
 import tenshi.hinanawi.filebrowser.model.CreateFavoriteRequest
 import tenshi.hinanawi.filebrowser.model.FavoriteDto
+import tenshi.hinanawi.filebrowser.model.FavoriteFileDto
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
@@ -30,5 +32,12 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
   override fun getFavoriteDetail(id: Long): Flow<FavoriteDto?> = flow {
     val response = client.get("/favorites/$id").body<Response<FavoriteDto>>()
     emit(response.data)
+  }
+
+  override suspend fun addFileToFavorite(request: AddFileToFavoriteRequest, favoriteId: Long): Boolean = try {
+    client.post("/favorites${favoriteId}/files").body<Response<FavoriteFileDto>>().data != null
+  } catch (e: Exception) {
+    ErrorHandler.handleException(e)
+    false
   }
 }

@@ -11,6 +11,7 @@ import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.toAddFileToFavoriteRequest
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 import tenshi.hinanawi.filebrowser.util.firstAfter
 import tenshi.hinanawi.filebrowser.util.firstBefore
@@ -68,6 +69,15 @@ class BrowseViewModel(
   fun getData() {
     closeImagePreview()
     _currentPath.value = navigator.requestPath
+  }
+
+  fun addFavorite(file: FileInfo, favoriteId: Long) = viewModelScope.launch {
+    val result = favoriteRepository.addFileToFavorite(file.toAddFileToFavoriteRequest(), favoriteId)
+    if (result) {
+      Toast.makeText("添加收藏成功", Toast.SHORT).show()
+    } else {
+      Toast.makeText("添加收藏失败", Toast.SHORT).show()
+    }
   }
 
   fun deleteFile(file: FileInfo) = viewModelScope.launch {
