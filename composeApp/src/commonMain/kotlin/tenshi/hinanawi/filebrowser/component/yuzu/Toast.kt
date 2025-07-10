@@ -9,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -17,11 +16,11 @@ import kotlinx.coroutines.delay
 
 
 object Toast {
-  const val LENGTH_VERY_SHORT = 1000L
-  const val LENGTH_SHORT = 2000L
-  const val LENGTH_LONG = 4000L
+  const val VERY_SHORT = 1000L
+  const val SHORT = 2000L
+  const val LONG = 4000L
 
-  fun makeText(message: String, duration: Long = LENGTH_SHORT): Toast {
+  fun makeText(message: String, duration: Long = SHORT): Toast {
     ToastManager.makeText(message, duration)
     return this
   }
@@ -34,14 +33,14 @@ object Toast {
 data class ToastState(
   val message: String = "",
   val visible: Boolean = false,
-  val duration: Long = Toast.LENGTH_SHORT
+  val duration: Long = Toast.SHORT
 )
 
 object ToastManager {
   private val _state = mutableStateOf(ToastState())
   val state: State<ToastState> = _state
 
-  fun makeText(message: String, duration: Long = Toast.LENGTH_SHORT) {
+  fun makeText(message: String, duration: Long = Toast.SHORT) {
     _state.value = ToastState(
       message = message,
       duration = duration

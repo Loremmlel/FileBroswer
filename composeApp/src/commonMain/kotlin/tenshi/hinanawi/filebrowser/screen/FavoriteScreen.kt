@@ -29,7 +29,7 @@ fun FavoriteScreen(
     viewModel.event.collect {
       when (it) {
         is FavoriteViewModel.Event.CreateSuccess -> {
-          Toast.makeText("收藏夹创建成功", Toast.LENGTH_LONG).show()
+          Toast.makeText("收藏夹创建成功", Toast.LONG).show()
         }
       }
     }
