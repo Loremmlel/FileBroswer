@@ -60,20 +60,17 @@ class BrowseViewModel(
     )
 
   private val _previewItem = MutableStateFlow<FileInfo?>(null)
-  private val _playingVideo = MutableStateFlow<FileInfo?>(null)
   private val _fileLoading = MutableStateFlow(false)
 
   val uiState = combine(
     _filesFlow,
     _fileLoading,
-    _previewItem,
-    _playingVideo
-  ) { files, loading, preview, playing ->
+    _previewItem
+  ) { files, loading, preview ->
     BrowserUiState(
       files = files,
       fileLoading = loading,
-      previewItem = preview,
-      playingVideo = playing
+      previewItem = preview
     )
   }
     .catch { e ->

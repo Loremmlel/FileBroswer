@@ -131,13 +131,17 @@ fun BrowseScreen(
       )
     }
     uiState.previewItem?.let { previewItem ->
-      ImageViewer(
-        file = previewItem,
-        onDismiss = viewModel::closeImagePreview,
-        onNext = viewModel::nextImagePreview,
-        onPrev = viewModel::previousImagePreview,
-        onDownload = viewModel::downloadFile
-      )
+      when(previewItem.type) {
+        FileType.Image -> {
+          ImageViewer(
+            file = previewItem,
+            onDismiss = viewModel::closeImagePreview,
+            onNext = viewModel::nextImagePreview,
+            onPrev = viewModel::previousImagePreview,
+            onDownload = viewModel::downloadFile)
+        }
+        else -> {}
+      }
     }
 
     if (addToFavoriteModalVisible) {
