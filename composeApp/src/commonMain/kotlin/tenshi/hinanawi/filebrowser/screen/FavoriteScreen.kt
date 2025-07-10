@@ -11,7 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import tenshi.hinanawi.filebrowser.component.favorite.CreateFavoriteDialog
+import tenshi.hinanawi.filebrowser.component.favorite.CreateFavoriteModal
 import tenshi.hinanawi.filebrowser.component.favorite.FavoriteHeader
 import tenshi.hinanawi.filebrowser.component.favorite.FavoriteItem
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
@@ -78,7 +78,7 @@ fun FavoriteScreen(
       CircularProgressIndicator(Modifier.align(Alignment.Center).size(48.dp))
     }
     if (createDialogVisible) {
-      CreateFavoriteDialog(
+      CreateFavoriteModal(
         modifier = Modifier.align(Alignment.Center),
         onDismiss = ::onCreateDialogDismiss,
         onConfirm = { name, sortOrder ->
