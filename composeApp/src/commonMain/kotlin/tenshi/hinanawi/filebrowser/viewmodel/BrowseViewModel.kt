@@ -26,8 +26,8 @@ class BrowseViewModel(
   )
 
   sealed class Event {
-    object AddFavoriteSuccess : Event()
-    object DeleteFavoriteSuccess : Event()
+    object AddFileToFavoriteSuccess : Event()
+    object CancelFavoriteFileSuccess : Event()
     object NoImagePreview : Event()
     object IsLastImage : Event()
     object IsFirstImage : Event()
@@ -151,20 +151,20 @@ class BrowseViewModel(
     _currentFavoriteFile.value = file
   }
 
-  fun addFavorite(favoriteId: Long) = viewModelScope.launch {
+  fun addFileToFavorite(favoriteId: Long) = viewModelScope.launch {
     val file = _currentFavoriteFile.value ?: return@launch
     val result = favoriteRepository.addFileToFavorite(file.toAddFileToFavoriteRequest(), favoriteId)
     if (result) {
       _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_FILES_MAP)
-      _event.emit(Event.AddFavoriteSuccess)
+      _event.emit(Event.AddFileToFavoriteSuccess)
     }
   }
 
-  fun deleteFavoriteFile(favoriteFileId: Long) = viewModelScope.launch {
+  fun cancelFavoriteFile(favoriteFileId: Long) = viewModelScope.launch {
     val result = favoriteRepository.deleteFavoriteFile(favoriteFileId)
     if (result) {
       _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_FILES_MAP)
-      _event.emit(Event.DeleteFavoriteSuccess)
+      _event.emit(Event.CancelFavoriteFileSuccess)
     }
   }
 

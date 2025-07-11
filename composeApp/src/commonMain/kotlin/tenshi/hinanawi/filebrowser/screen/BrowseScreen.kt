@@ -54,7 +54,7 @@ fun BrowseScreen(
           Toast.VERY_SHORT
         ).show()
 
-        is BrowseViewModel.Event.AddFavoriteSuccess -> Toast.makeText(
+        is BrowseViewModel.Event.AddFileToFavoriteSuccess -> Toast.makeText(
           "添加收藏夹成功",
           Toast.SHORT
         ).show()
@@ -63,8 +63,8 @@ fun BrowseScreen(
           "尝试预览空文件",
           Toast.SHORT
         ).show()
-        is BrowseViewModel.Event.DeleteFavoriteSuccess -> Toast.makeText(
-          "删除收藏夹成功",
+        is BrowseViewModel.Event.CancelFavoriteFileSuccess -> Toast.makeText(
+          "取消收藏该文件成功",
           Toast.SHORT
         ).show()
       }
@@ -154,7 +154,7 @@ fun BrowseScreen(
             addToFavoriteModalVisible = false
           },
           onAdd = {
-            viewModel.addFavorite(it)
+            viewModel.addFileToFavorite(it)
             addToFavoriteModalVisible = false
           }
         )
