@@ -128,7 +128,9 @@ fun BrowseScreen(
                 isFavorite = uiState.favoriteFilesMap.containsKey(file.path),
                 onFavoriteToggle = { isFavorite ->
                   if (isFavorite) {
-
+                    uiState.favoriteFilesMap[file.path]?.let {
+                      viewModel.cancelFavoriteFile(it)
+                    }
                   } else {
                     viewModel.setCurrentFavoriteFile(file)
                     addToFavoriteModalVisible = true
