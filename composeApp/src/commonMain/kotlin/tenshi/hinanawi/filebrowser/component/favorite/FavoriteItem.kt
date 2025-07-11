@@ -52,7 +52,8 @@ fun FavoriteItem(
       modifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(16.dp))
-        .clickable { onClick() },
+        .clickable { onClick() }
+        .padding(horizontal = 8.dp),
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.CenterVertically
     ) {
