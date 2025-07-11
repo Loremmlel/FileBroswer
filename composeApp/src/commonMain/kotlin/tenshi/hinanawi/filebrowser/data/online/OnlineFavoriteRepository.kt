@@ -35,7 +35,9 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
   }
 
   override suspend fun addFileToFavorite(request: AddFileToFavoriteRequest, favoriteId: Long): Boolean = try {
-    client.post("/favorites${favoriteId}/files").body<Response<FavoriteFileDto>>().data != null
+    client.post("/favorites/${favoriteId}/files"){
+      setBody(request)
+    }.body<Response<FavoriteFileDto>>().data != null
   } catch (e: Exception) {
     ErrorHandler.handleException(e)
     false
