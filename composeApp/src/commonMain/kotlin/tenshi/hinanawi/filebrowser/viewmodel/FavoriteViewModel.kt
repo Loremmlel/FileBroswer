@@ -82,6 +82,17 @@ class FavoriteViewModel(
       initialValue = FavoriteUiState()
     )
 
+  init {
+    viewModelScope.launch {
+      EventBus.event.collect {
+        when (it) {
+          is EventBus.Event.NotifyFavoriteFileAdd,
+          EventBus.Event.NotifyFavoriteFileRemove -> refreshFavorites()
+        }
+      }
+    }
+  }
+
   suspend fun refreshFavorites() {
     _refreshTrigger.emit(Unit)
   }

@@ -157,6 +157,7 @@ class BrowseViewModel(
     if (result) {
       _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_FILES_MAP)
       _event.emit(Event.AddFileToFavoriteSuccess)
+      EventBus.emit(EventBus.Event.NotifyFavoriteFileAdd)
     }
   }
 
@@ -165,6 +166,7 @@ class BrowseViewModel(
     if (result) {
       _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_FILES_MAP)
       _event.emit(Event.CancelFavoriteFileSuccess)
+      EventBus.emit(EventBus.Event.NotifyFavoriteFileRemove)
     }
   }
 
