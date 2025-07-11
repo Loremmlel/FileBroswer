@@ -175,5 +175,7 @@ fun Favorite.toDto(): FavoriteDto = FavoriteDto(
   name = name,
   createdAt = createdAt.toEpochMilliseconds(),
   updatedAt = updatedAt.toEpochMilliseconds(),
-  sortOrder = sortOrder
+  sortOrder = sortOrder,
+  // 忘了加files导致一直为空...
+  files = files.toList().map { it.toDto() }
 )
