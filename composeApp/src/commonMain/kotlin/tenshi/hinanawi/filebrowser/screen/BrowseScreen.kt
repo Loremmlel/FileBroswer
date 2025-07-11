@@ -149,7 +149,10 @@ fun BrowseScreen(
             viewModel.setCurrentFavoriteFile(null)
             addToFavoriteModalVisible = false
           },
-          onAdd = viewModel::addFavorite
+          onAdd = {
+            viewModel.addFavorite(it)
+            addToFavoriteModalVisible = false
+          }
         )
       }
     }
