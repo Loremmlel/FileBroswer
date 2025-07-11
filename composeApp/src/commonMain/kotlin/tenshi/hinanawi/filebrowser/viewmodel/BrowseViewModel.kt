@@ -35,7 +35,9 @@ class BrowseViewModel(
     object TryingPreviewNull : Event()
   }
 
-  val navigator = BreadCrumbNavigator(onPathChanged = ::refreshFiles)
+  // kotlin编译器的类型检查有bug啊，还说进入了死循环，需要手动声明类型
+  // 编译构建倒是不会出问题，但是IDE划红线太烦了
+  val navigator: BreadCrumbNavigator = BreadCrumbNavigator(onPathChanged = ::refreshFiles)
 
   private val _event = MutableSharedFlow<Event>()
   val event = _event.asSharedFlow()
