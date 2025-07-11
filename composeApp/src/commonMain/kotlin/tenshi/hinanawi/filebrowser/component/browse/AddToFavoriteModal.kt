@@ -1,23 +1,13 @@
 package tenshi.hinanawi.filebrowser.component.browse
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FolderSpecial
-import androidx.compose.material.icons.outlined.FolderSpecial
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.model.FavoriteDto
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddToFavoritesModal(
   modifier: Modifier = Modifier,
@@ -25,32 +15,46 @@ fun AddToFavoritesModal(
   onDismiss: () -> Unit,
   onAdd: (Long) -> Unit
 ) {
-  var selectedFavoriteId by remember { mutableStateOf<Long?>(null) }
+  var expanded by remember { mutableStateOf(false) }
+  var selectedFavorite by remember { mutableStateOf<FavoriteDto?>(null) }
   AlertDialog(
     modifier = modifier,
     onDismissRequest = onDismiss,
     text = {
-      LazyColumn(
-        modifier = Modifier
-          .fillMaxSize()
-          .padding(16.dp),
-        contentPadding = PaddingValues(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+      ExposedDropdownMenuBox(
+        modifier = Modifier,
+        expanded = expanded,
+        onExpandedChange = { expanded = it }
       ) {
-        items(favorites) { favorite ->
-          FavoriteCard(
-            favorite = favorite,
-            selected = selectedFavoriteId == favorite.id,
-            onClick = { selectedFavoriteId = favorite.id }
-          )
+        TextField(
+          modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryNotEditable),
+          readOnly = true,
+          value = selectedFavorite?.name ?: "选择收藏夹",
+          onValueChange = { },
+          trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) }
+        )
+
+        ExposedDropdownMenu(
+          expanded = expanded,
+          onDismissRequest = { expanded = false }
+        ) {
+          favorites.forEach { favorite ->
+            DropdownMenuItem(
+              text = { Text(text = favorite.name) },
+              onClick = {
+                selectedFavorite = favorite
+                expanded = false
+              }
+            )
+          }
         }
       }
     },
     confirmButton = {
       TextButton(
-        enabled = selectedFavoriteId != null,
+        enabled = selectedFavorite != null,
         onClick = {
-          selectedFavoriteId?.let { onAdd(it) } ?: Toast.makeText("喵喵BUG，这可能出现吗?", Toast.LONG).show()
+          selectedFavorite?.let { onAdd(it.id) } ?: Toast.makeText("喵喵BUG，这可能出现吗?", Toast.LONG).show()
         }
       ) {
         Text(text = "添加")
@@ -62,36 +66,4 @@ fun AddToFavoritesModal(
       }
     }
   )
-}
-
-@Composable
-private fun FavoriteCard(
-  favorite: FavoriteDto,
-  selected: Boolean,
-  onClick: () -> Unit
-) {
-  Box(
-    modifier = Modifier
-      .fillMaxWidth()
-      .background(
-        color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
-        shape = RoundedCornerShape(16.dp)
-      )
-      .clickable { onClick() }
-      .clip(RoundedCornerShape(16.dp))
-      .padding(8.dp)
-  ) {
-    Icon(
-      modifier = Modifier.align(Alignment.Center),
-      imageVector = if (selected) Icons.Filled.FolderSpecial else Icons.Outlined.FolderSpecial,
-      contentDescription = "收藏夹${favorite.name}",
-      tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
-    )
-    Text(
-      text = favorite.name,
-      modifier = Modifier
-        .align(Alignment.BottomCenter)
-        .padding(start = 8.dp)
-    )
-  }
 }

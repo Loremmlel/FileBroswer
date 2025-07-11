@@ -1,6 +1,5 @@
 package tenshi.hinanawi.filebrowser.screen
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -144,8 +143,7 @@ fun BrowseScreen(
       if (addToFavoriteModalVisible) {
         AddToFavoritesModal(
           modifier = Modifier
-            .align(Alignment.Center)
-            .fillMaxSize(0.5f),
+            .align(Alignment.Center),
           favorites = uiState.favorites,
           onDismiss = {
             viewModel.setCurrentFavoriteFile(null)
