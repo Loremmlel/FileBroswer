@@ -2,6 +2,8 @@ package tenshi.hinanawi.filebrowser.data.online
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -23,6 +25,7 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
   override suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto? = try {
     client.post("/favorites") {
       setBody(request)
+      contentType(ContentType.Application.Json)
     }.body<Response<FavoriteDto>>().data
   } catch (e: Exception) {
     ErrorHandler.handleException(e)
@@ -37,6 +40,7 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
   override suspend fun addFileToFavorite(request: AddFileToFavoriteRequest, favoriteId: Long): Boolean = try {
     client.post("/favorites/${favoriteId}/files"){
       setBody(request)
+      contentType(ContentType.Application.Json)
     }.body<Response<FavoriteFileDto>>().data != null
   } catch (e: Exception) {
     ErrorHandler.handleException(e)

@@ -43,13 +43,19 @@ fun Application.module(
     json()
   }
   install(CORS) {
+    allowMethod(HttpMethod.Get)
+    allowMethod(HttpMethod.Post)
     allowMethod(HttpMethod.Options)
     allowMethod(HttpMethod.Put)
     allowMethod(HttpMethod.Delete)
     allowMethod(HttpMethod.Patch)
 
-    allowHeader(HttpHeaders.Authorization)
-    allowHeader(HttpHeaders.Range)
+    allowHeaders {
+      true
+    }
+    allowOrigins {
+      true
+    }
 
     anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
 
