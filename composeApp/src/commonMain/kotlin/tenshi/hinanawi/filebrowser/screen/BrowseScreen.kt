@@ -1,5 +1,6 @@
 package tenshi.hinanawi.filebrowser.screen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import tenshi.hinanawi.filebrowser.component.browse.AddToFavoritesModal
 import tenshi.hinanawi.filebrowser.component.browse.FileItem
 import tenshi.hinanawi.filebrowser.component.browse.HevcDetector
 import tenshi.hinanawi.filebrowser.component.browse.RandomPlay
@@ -125,6 +127,7 @@ fun BrowseScreen(
                   if (isFavorite) {
 
                   } else {
+                    viewModel.setCurrentFavoriteFile(file)
                     addToFavoriteModalVisible = true
                   }
                 })
@@ -138,6 +141,19 @@ fun BrowseScreen(
         currentPath = viewModel.navigator.requestPath,
         onVideoPlay = viewModel::playVideo
       )
+      if (addToFavoriteModalVisible) {
+        AddToFavoritesModal(
+          modifier = Modifier
+            .align(Alignment.Center)
+            .fillMaxSize(0.5f),
+          favorites = uiState.favorites,
+          onDismiss = {
+            viewModel.setCurrentFavoriteFile(null)
+            addToFavoriteModalVisible = false
+          },
+          onAdd = viewModel::addFavorite
+        )
+      }
     }
     uiState.previewItem?.let { previewItem ->
       when (previewItem.type) {
@@ -153,10 +169,6 @@ fun BrowseScreen(
 
         else -> {}
       }
-    }
-
-    if (addToFavoriteModalVisible) {
-
     }
   }
 }

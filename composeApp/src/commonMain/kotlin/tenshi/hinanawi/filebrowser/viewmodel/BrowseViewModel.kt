@@ -7,10 +7,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
-import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
-import tenshi.hinanawi.filebrowser.model.FileInfo
-import tenshi.hinanawi.filebrowser.model.FileType
-import tenshi.hinanawi.filebrowser.model.toAddFileToFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.*
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 import tenshi.hinanawi.filebrowser.util.firstAfter
 import tenshi.hinanawi.filebrowser.util.firstBefore
@@ -23,9 +20,9 @@ class BrowseViewModel(
   data class BrowserUiState(
     val files: List<FileInfo> = emptyList(),
     val favoriteExistSet: Set<String> = emptySet(),
+    val favorites: List<FavoriteDto> = emptyList(),
     val fileLoading: Boolean = false,
-    val previewItem: FileInfo? = null,
-    val playingVideo: FileInfo? = null
+    val previewItem: FileInfo? = null
   )
 
   sealed class Event {
@@ -43,52 +40,62 @@ class BrowseViewModel(
   private val _event = MutableSharedFlow<Event>()
   val event = _event.asSharedFlow()
 
-  private val _refreshTrigger = MutableSharedFlow<Unit>()
+  private val _refreshTrigger = MutableStateFlow(Unit)
   private val _currentPath = MutableStateFlow(navigator.requestPath)
 
   private val _filesFlow = _currentPath
     .flatMapLatest { path ->
-      filesRepository.getFiles(path)
-        .catch { e ->
-          ErrorHandler.handleException(e)
+      filesRepository
+        .getFiles(path)
+        .onStart {
+          _fileLoading.value = true
+        }
+        .onCompletion {
+          _fileLoading.value = false
+        }
+        .catch {
+          ErrorHandler.handleException(it)
           emit(emptyList())
         }
     }
-    .stateIn(
-      scope = viewModelScope,
-      started = SharingStarted.WhileSubscribed(5000),
-      initialValue = emptyList()
-    )
 
-  private val _favoriteExistSet = _refreshTrigger
+  private val _favoriteExistSetFlow = _refreshTrigger
     .flatMapLatest {
       favoriteRepository
         .getAllFavoriteFiles()
         .map { favoriteFileDtos ->
-          favoriteFileDtos.mapTo(HashSet()) { it. filePath }
+          favoriteFileDtos.mapTo(HashSet()) { it.filePath } as Set<String>
         }
-        .catch { e ->
-          ErrorHandler.handleException(e)
+        .catch {
+          ErrorHandler.handleException(it)
+          emit(emptySet())
         }
     }
-    .stateIn(
-      scope = viewModelScope,
-      started = SharingStarted.WhileSubscribed(5000),
-      initialValue = emptySet()
-    )
+
+  private val _favoritesFlow = _refreshTrigger
+    .flatMapLatest {
+      favoriteRepository
+        .getFavorites()
+        .catch {
+          ErrorHandler.handleException(it)
+          emit(emptyList())
+        }
+    }
 
   private val _previewItem = MutableStateFlow<FileInfo?>(null)
   private val _fileLoading = MutableStateFlow(false)
 
   val uiState = combine(
     _filesFlow,
-    _favoriteExistSet,
+    _favoriteExistSetFlow,
+    _favoritesFlow,
     _fileLoading,
     _previewItem,
-  ) { files, favoriteExistSet, loading, preview ->
+  ) { files, favoriteExistSet, favorites, loading, preview ->
     BrowserUiState(
       files = files,
       favoriteExistSet = favoriteExistSet,
+      favorites = favorites,
       fileLoading = loading,
       previewItem = preview
     )
@@ -102,6 +109,8 @@ class BrowseViewModel(
       started = SharingStarted.WhileSubscribed(5000),
       initialValue = BrowserUiState()
     )
+
+  private val _currentFavoriteFile = MutableStateFlow<FileInfo?>(null)
 
   private val _firstImage
     get() = uiState.value.files.firstOrNull {
@@ -123,7 +132,12 @@ class BrowseViewModel(
     _currentPath.value = navigator.requestPath
   }
 
-  fun addFavorite(file: FileInfo, favoriteId: Long) = viewModelScope.launch {
+  fun setCurrentFavoriteFile(file: FileInfo?) {
+    _currentFavoriteFile.value = file
+  }
+
+  fun addFavorite(favoriteId: Long) = viewModelScope.launch {
+    val file = _currentFavoriteFile.value ?: return@launch
     val result = favoriteRepository.addFileToFavorite(file.toAddFileToFavoriteRequest(), favoriteId)
     if (result) {
       _refreshTrigger.emit(Unit)
