@@ -19,7 +19,7 @@ class BrowseViewModel(
 ) : ViewModel() {
   data class BrowserUiState(
     val files: List<FileInfo> = emptyList(),
-    val favoriteExistSet: Set<String> = emptySet(),
+    val favoriteFilesMap: Map<String, Long> = emptyMap(),
     val favorites: List<FavoriteDto> = emptyList(),
     val fileLoading: Boolean = false,
     val previewItem: FileInfo? = null
@@ -33,6 +33,12 @@ class BrowseViewModel(
     object TryingPreviewNull : Event()
   }
 
+  private enum class RefreshTarget {
+    BOTH,
+    FAVORITE_EXIST_SET,
+    FAVORITES
+  }
+
   // kotlin编译器的类型检查有bug啊，还说进入了死循环，需要手动声明类型
   // 编译构建倒是不会出问题，但是IDE划红线太烦了
   val navigator: BreadCrumbNavigator = BreadCrumbNavigator(onPathChanged = ::refreshFiles)
@@ -40,7 +46,7 @@ class BrowseViewModel(
   private val _event = MutableSharedFlow<Event>()
   val event = _event.asSharedFlow()
 
-  private val _refreshTrigger = MutableStateFlow(Unit)
+  private val _refreshTrigger = MutableStateFlow(0 to RefreshTarget.BOTH)
   private val _currentPath = MutableStateFlow(navigator.requestPath)
 
   private val _filesFlow = _currentPath
@@ -59,20 +65,28 @@ class BrowseViewModel(
         }
     }
 
-  private val _favoriteExistSetFlow = _refreshTrigger
+  private val _favoriteFilesMapFlow = _refreshTrigger
+    .filter { (_, target) ->
+      target == RefreshTarget.BOTH || target == RefreshTarget.FAVORITE_EXIST_SET
+    }
     .flatMapLatest {
       favoriteRepository
         .getAllFavoriteFiles()
         .map { favoriteFileDtos ->
-          favoriteFileDtos.mapTo(HashSet()) { it.filePath } as Set<String>
+          favoriteFileDtos.associate {
+            it.filePath to it.id
+          }
         }
         .catch {
           ErrorHandler.handleException(it)
-          emit(emptySet())
+          emit(emptyMap())
         }
     }
 
   private val _favoritesFlow = _refreshTrigger
+    .filter { (_, target) ->
+      target == RefreshTarget.BOTH || target == RefreshTarget.FAVORITES
+    }
     .flatMapLatest {
       favoriteRepository
         .getFavorites()
@@ -87,14 +101,14 @@ class BrowseViewModel(
 
   val uiState = combine(
     _filesFlow,
-    _favoriteExistSetFlow,
+    _favoriteFilesMapFlow,
     _favoritesFlow,
     _fileLoading,
     _previewItem,
   ) { files, favoriteExistSet, favorites, loading, preview ->
     BrowserUiState(
       files = files,
-      favoriteExistSet = favoriteExistSet,
+      favoriteFilesMap = favoriteExistSet,
       favorites = favorites,
       fileLoading = loading,
       previewItem = preview
@@ -140,7 +154,7 @@ class BrowseViewModel(
     val file = _currentFavoriteFile.value ?: return@launch
     val result = favoriteRepository.addFileToFavorite(file.toAddFileToFavoriteRequest(), favoriteId)
     if (result) {
-      _refreshTrigger.emit(Unit)
+      _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_EXIST_SET)
       _event.emit(Event.AddFavoriteSuccess)
     }
   }

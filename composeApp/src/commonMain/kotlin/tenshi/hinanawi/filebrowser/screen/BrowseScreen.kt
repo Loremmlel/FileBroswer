@@ -121,7 +121,7 @@ fun BrowseScreen(
                 onDownload = if (!file.isDirectory) { fileInfo ->
                   viewModel.downloadFile(fileInfo)
                 } else null,
-                isFavorite = uiState.favoriteExistSet.contains(file.path),
+                isFavorite = uiState.favoriteFilesMap.containsKey(file.path),
                 onFavoriteToggle = { isFavorite ->
                   if (isFavorite) {
 
