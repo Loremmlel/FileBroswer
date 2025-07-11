@@ -22,6 +22,7 @@ class BrowseViewModel(
 ) : ViewModel() {
   data class BrowserUiState(
     val files: List<FileInfo> = emptyList(),
+    val favoriteExistSet: Set<String> = emptySet(),
     val fileLoading: Boolean = false,
     val previewItem: FileInfo? = null,
     val playingVideo: FileInfo? = null
@@ -45,9 +46,7 @@ class BrowseViewModel(
   private val _refreshTrigger = MutableSharedFlow<Unit>()
   private val _currentPath = MutableStateFlow(navigator.requestPath)
 
-  private val _filesFlow = combine(_refreshTrigger.onStart { emit(Unit) }, _currentPath) { _, path ->
-    path
-  }
+  private val _filesFlow = _currentPath
     .flatMapLatest { path ->
       filesRepository.getFiles(path)
         .catch { e ->
@@ -61,16 +60,35 @@ class BrowseViewModel(
       initialValue = emptyList()
     )
 
+  private val _favoriteExistSet = _refreshTrigger
+    .flatMapLatest {
+      favoriteRepository
+        .getAllFavoriteFiles()
+        .map { favoriteFileDtos ->
+          favoriteFileDtos.mapTo(HashSet()) { it. filePath }
+        }
+        .catch { e ->
+          ErrorHandler.handleException(e)
+        }
+    }
+    .stateIn(
+      scope = viewModelScope,
+      started = SharingStarted.WhileSubscribed(5000),
+      initialValue = emptySet()
+    )
+
   private val _previewItem = MutableStateFlow<FileInfo?>(null)
   private val _fileLoading = MutableStateFlow(false)
 
   val uiState = combine(
     _filesFlow,
+    _favoriteExistSet,
     _fileLoading,
-    _previewItem
-  ) { files, loading, preview ->
+    _previewItem,
+  ) { files, favoriteExistSet, loading, preview ->
     BrowserUiState(
       files = files,
+      favoriteExistSet = favoriteExistSet,
       fileLoading = loading,
       previewItem = preview
     )
@@ -103,12 +121,12 @@ class BrowseViewModel(
   fun refreshFiles() = viewModelScope.launch {
     closeImagePreview()
     _currentPath.value = navigator.requestPath
-    _refreshTrigger.emit(Unit)
   }
 
   fun addFavorite(file: FileInfo, favoriteId: Long) = viewModelScope.launch {
     val result = favoriteRepository.addFileToFavorite(file.toAddFileToFavoriteRequest(), favoriteId)
     if (result) {
+      _refreshTrigger.emit(Unit)
       _event.emit(Event.AddFavoriteSuccess)
     }
   }

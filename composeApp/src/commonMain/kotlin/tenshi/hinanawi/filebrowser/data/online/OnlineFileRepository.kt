@@ -3,7 +3,6 @@ package tenshi.hinanawi.filebrowser.data.online
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.SERVER_URL
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository

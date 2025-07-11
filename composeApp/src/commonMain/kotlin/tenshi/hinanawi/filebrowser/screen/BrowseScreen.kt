@@ -57,6 +57,7 @@ fun BrowseScreen(
           "添加收藏夹成功",
           Toast.SHORT
         ).show()
+
         is BrowseViewModel.Event.TryingPreviewNull -> Toast.makeText(
           "尝试预览空文件",
           Toast.SHORT
@@ -119,9 +120,13 @@ fun BrowseScreen(
                 onDownload = if (!file.isDirectory) { fileInfo ->
                   viewModel.downloadFile(fileInfo)
                 } else null,
-                isFavorite = false,
-                onFavoriteToggle = {
+                isFavorite = uiState.favoriteExistSet.contains(file.path),
+                onFavoriteToggle = { isFavorite ->
+                  if (isFavorite) {
 
+                  } else {
+                    addToFavoriteModalVisible = true
+                  }
                 })
             }
           }
@@ -135,15 +140,17 @@ fun BrowseScreen(
       )
     }
     uiState.previewItem?.let { previewItem ->
-      when(previewItem.type) {
+      when (previewItem.type) {
         FileType.Image -> {
           ImageViewer(
             file = previewItem,
             onDismiss = viewModel::closeImagePreview,
             onNext = viewModel::nextImagePreview,
             onPrev = viewModel::previousImagePreview,
-            onDownload = viewModel::downloadFile)
+            onDownload = viewModel::downloadFile
+          )
         }
+
         else -> {}
       }
     }
