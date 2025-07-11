@@ -27,6 +27,7 @@ class BrowseViewModel(
 
   sealed class Event {
     object AddFavoriteSuccess : Event()
+    object DeleteFavoriteSuccess : Event()
     object NoImagePreview : Event()
     object IsLastImage : Event()
     object IsFirstImage : Event()
@@ -35,7 +36,7 @@ class BrowseViewModel(
 
   private enum class RefreshTarget {
     BOTH,
-    FAVORITE_EXIST_SET,
+    FAVORITE_FILES_MAP,
     FAVORITES
   }
 
@@ -67,7 +68,7 @@ class BrowseViewModel(
 
   private val _favoriteFilesMapFlow = _refreshTrigger
     .filter { (_, target) ->
-      target == RefreshTarget.BOTH || target == RefreshTarget.FAVORITE_EXIST_SET
+      target == RefreshTarget.BOTH || target == RefreshTarget.FAVORITE_FILES_MAP
     }
     .flatMapLatest {
       favoriteRepository
@@ -154,8 +155,16 @@ class BrowseViewModel(
     val file = _currentFavoriteFile.value ?: return@launch
     val result = favoriteRepository.addFileToFavorite(file.toAddFileToFavoriteRequest(), favoriteId)
     if (result) {
-      _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_EXIST_SET)
+      _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_FILES_MAP)
       _event.emit(Event.AddFavoriteSuccess)
+    }
+  }
+
+  fun deleteFavoriteFile(favoriteFileId: Long) = viewModelScope.launch {
+    val result = favoriteRepository.deleteFavoriteFile(favoriteFileId)
+    if (result) {
+      _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_FILES_MAP)
+      _event.emit(Event.DeleteFavoriteSuccess)
     }
   }
 

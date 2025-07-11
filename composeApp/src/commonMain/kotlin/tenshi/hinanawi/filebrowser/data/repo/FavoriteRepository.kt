@@ -16,4 +16,6 @@ interface FavoriteRepository {
   suspend fun addFileToFavorite(request: AddFileToFavoriteRequest, favoriteId: Long): Boolean
 
   fun getAllFavoriteFiles(): Flow<List<FavoriteFileDto>>
+
+  suspend fun deleteFavoriteFile(favoriteFileId: Long): Boolean
 }

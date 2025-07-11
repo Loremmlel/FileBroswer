@@ -63,6 +63,10 @@ fun BrowseScreen(
           "尝试预览空文件",
           Toast.SHORT
         ).show()
+        is BrowseViewModel.Event.DeleteFavoriteSuccess -> Toast.makeText(
+          "删除收藏夹成功",
+          Toast.SHORT
+        ).show()
       }
     }
   }

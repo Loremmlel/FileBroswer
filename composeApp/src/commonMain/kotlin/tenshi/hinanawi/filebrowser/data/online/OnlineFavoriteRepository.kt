@@ -47,4 +47,11 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
     val data = client.get("/favorites/files").body<Response<List<FavoriteFileDto>>>().data
     emit(data ?: emptyList())
   }
+
+  override suspend fun deleteFavoriteFile(favoriteFileId: Long): Boolean = try {
+    client.delete("/favorites/files/${favoriteFileId}").body<Response<Boolean>>().data ?: false
+  } catch (e: Exception) {
+    ErrorHandler.handleException(e)
+    false
+  }
 }
