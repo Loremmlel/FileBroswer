@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import tenshi.hinanawi.filebrowser.component.yuzu.FileTypeIcon
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.util.formatFileSize
@@ -32,7 +33,6 @@ internal fun FileItem(
 ) {
   val iconButtonSize = 24.dp
   val iconButtonPadding = 4.dp
-  val iconSize = 48.dp
   var showConfirm by remember { mutableStateOf(false) }
 
   Box(
@@ -118,35 +118,11 @@ internal fun FileItem(
         .align(Alignment.Center),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      when (file.type) {
-        FileType.Folder -> Icon(
-          imageVector = Icons.Default.Folder,
-          contentDescription = "文件夹",
-          modifier = Modifier.size(iconSize),
-          tint = MaterialTheme.colorScheme.primary
-        )
-
-        FileType.Image -> Icon(
-          imageVector = Icons.Default.Image,
-          contentDescription = "图片",
-          modifier = Modifier.size(iconSize),
-          tint = MaterialTheme.colorScheme.primary
-        )
-
-        FileType.Video -> Icon(
-          imageVector = Icons.Default.VideoFile,
-          contentDescription = "视频",
-          modifier = Modifier.size(iconSize),
-          tint = MaterialTheme.colorScheme.primary
-        )
-
-        FileType.Other -> Icon(
-          imageVector = Icons.AutoMirrored.Filled.InsertDriveFile,
-          contentDescription = "其他",
-          modifier = Modifier.size(iconSize),
-          tint = MaterialTheme.colorScheme.primary
-        )
-      }
+      FileTypeIcon(
+        modifier = Modifier,
+        fileType = file.type,
+        iconSize = 48.dp
+      )
       Spacer(modifier = Modifier.height(8.dp))
 
       // 文件名
