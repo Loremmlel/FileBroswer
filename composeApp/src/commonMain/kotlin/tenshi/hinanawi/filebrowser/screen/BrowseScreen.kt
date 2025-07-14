@@ -93,7 +93,7 @@ fun BrowseScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
           ) {
-            items(uiState.files, key = { file -> file.name }) { file ->
+            items(uiState.files, key = { file -> file.path }) { file ->
               FileItem(
                 file = file,
                 onClick = {
