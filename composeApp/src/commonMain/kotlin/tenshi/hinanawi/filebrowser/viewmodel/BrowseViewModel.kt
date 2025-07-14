@@ -144,7 +144,7 @@ class BrowseViewModel(
     }
 
   fun refreshFiles() = viewModelScope.launch {
-    closeImagePreview()
+    closePreview()
     _currentPath.value = navigator.requestPath
   }
 
@@ -183,15 +183,15 @@ class BrowseViewModel(
   }
 
 
-  fun openImagePreview(image: FileInfo?) = viewModelScope.launch {
-    if (image == null) {
+  fun openPreview(previewItem: FileInfo?) = viewModelScope.launch {
+    if (previewItem == null) {
       _event.emit(Event.TryingPreviewNull)
       return@launch
     }
-    _previewItem.value = image
+    _previewItem.value = previewItem
   }
 
-  fun closeImagePreview() {
+  fun closePreview() {
     _previewItem.value = null
   }
 
@@ -203,10 +203,10 @@ class BrowseViewModel(
     // 写反了，耻辱
     val nextImage = uiState.value.files.firstAfter(_currentImageIndex) { it.type == FileType.Image }
     if (nextImage != null) {
-      openImagePreview(nextImage)
+      openPreview(nextImage)
     } else {
       _event.emit(Event.IsLastImage)
-      openImagePreview(_firstImage)
+      openPreview(_firstImage)
     }
   }
 
@@ -217,10 +217,10 @@ class BrowseViewModel(
     }
     val previousImage = uiState.value.files.firstBefore(_currentImageIndex) { it.type == FileType.Image }
     if (previousImage != null) {
-      openImagePreview(previousImage)
+      openPreview(previousImage)
     } else {
       _event.emit(Event.IsFirstImage)
-      openImagePreview(_lastImage)
+      openPreview(_lastImage)
     }
   }
 

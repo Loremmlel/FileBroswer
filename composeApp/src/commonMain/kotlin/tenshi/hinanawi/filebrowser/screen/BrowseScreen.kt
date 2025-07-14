@@ -47,7 +47,7 @@ fun BrowseScreen(
         { !uiState.fileLoading }
       ) {
         val previewItem = uiState.files.firstOrNull { it.name == previewItemName } ?: return@polling
-        viewModel.openImagePreview(previewItem)
+        viewModel.openPreview(previewItem)
       }
     }
   }
@@ -99,7 +99,7 @@ fun BrowseScreen(
                 onClick = {
                   when {
                     file.isDirectory -> viewModel.navigator.navigateTo(BreadCrumbItem(it.name, it.name))
-                    file.type == FileType.Image -> viewModel.openImagePreview(it)
+                    file.type == FileType.Image -> viewModel.openPreview(it)
                   }
                 },
                 onDelete = {
@@ -150,7 +150,7 @@ fun BrowseScreen(
         FileType.Image -> {
           ImageViewer(
             file = previewItem,
-            onDismiss = viewModel::closeImagePreview,
+            onDismiss = viewModel::closePreview,
             onNext = viewModel::nextImagePreview,
             onPrev = viewModel::previousImagePreview,
             onDownload = viewModel::downloadFile
