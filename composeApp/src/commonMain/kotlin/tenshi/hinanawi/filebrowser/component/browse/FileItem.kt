@@ -1,22 +1,29 @@
 package tenshi.hinanawi.filebrowser.component.browse
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.yuzu.FileTypeIcon
+import tenshi.hinanawi.filebrowser.component.yuzu.ThumbnailState
+import tenshi.hinanawi.filebrowser.component.yuzu.rememberThumbnailState
+import tenshi.hinanawi.filebrowser.data.repo.ThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.util.formatFileSize
@@ -25,6 +32,7 @@ import tenshi.hinanawi.filebrowser.util.formatFileSize
 internal fun FileItem(
   modifier: Modifier = Modifier,
   file: FileInfo,
+  thumbnailRepository: ThumbnailRepository,
   onClick: (FileInfo) -> Unit,
   onDelete: ((FileInfo) -> Unit)? = null,
   onDownload: ((FileInfo) -> Unit)? = null,
@@ -34,6 +42,12 @@ internal fun FileItem(
   val iconButtonSize = 24.dp
   val iconButtonPadding = 4.dp
   var showConfirm by remember { mutableStateOf(false) }
+
+  val shouldLoadThumbnail = file.type == FileType.Image || file.type == FileType.Video
+  val thumbnailState by if (shouldLoadThumbnail) rememberThumbnailState(
+    file.path,
+    thumbnailRepository
+  ) else mutableStateOf(null)
 
   Box(
     modifier = modifier
@@ -118,11 +132,33 @@ internal fun FileItem(
         .align(Alignment.Center),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      FileTypeIcon(
-        modifier = Modifier,
-        fileType = file.type,
-        iconSize = 48.dp
-      )
+      Box(
+        modifier = Modifier.size(64.dp),
+        contentAlignment = Alignment.Center
+      ) {
+        when (thumbnailState) {
+          is ThumbnailState.Success -> {
+            Image(
+              bitmap = (thumbnailState as ThumbnailState.Success).image,
+              contentDescription = "${file.name}缩略图",
+              modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
+              contentScale = ContentScale.Crop
+            )
+          }
+
+          is ThumbnailState.Loading -> {
+            CircularProgressIndicator(modifier = Modifier.size(32.dp))
+          }
+
+          else -> {
+            FileTypeIcon(
+              modifier = Modifier,
+              fileType = file.type,
+              iconSize = 48.dp
+            )
+          }
+        }
+      }
       Spacer(modifier = Modifier.height(8.dp))
 
       // 文件名

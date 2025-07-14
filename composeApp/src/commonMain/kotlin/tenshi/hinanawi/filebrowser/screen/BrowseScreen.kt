@@ -21,6 +21,7 @@ import tenshi.hinanawi.filebrowser.component.yuzu.BreadCrumb
 import tenshi.hinanawi.filebrowser.component.yuzu.ImageViewer
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.data.online.OnlineRandomRepository
+import tenshi.hinanawi.filebrowser.data.online.OnlineThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.util.polling
@@ -39,6 +40,8 @@ fun BrowseScreen(
   val randomPlayViewModel = remember { RandomPlayViewModel(OnlineRandomRepository()) }
 
   var addToFavoriteModalVisible by remember { mutableStateOf(false) }
+
+  val thumbnailRepository = remember { OnlineThumbnailRepository() }
 
   LaunchedEffect(path, previewItemName) {
     viewModel.navigator.navigateTo(path)
@@ -96,6 +99,7 @@ fun BrowseScreen(
             items(uiState.files, key = { file -> file.path }) { file ->
               FileItem(
                 file = file,
+                thumbnailRepository = thumbnailRepository,
                 onClick = {
                   when {
                     file.isDirectory -> viewModel.navigator.navigateTo(BreadCrumbItem(it.name, it.name))
