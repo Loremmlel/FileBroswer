@@ -62,12 +62,14 @@ fun App(
               route = Route.MainScreen.stringRoute
             ) { navBackStackEntry ->
               val pathString: String = navBackStackEntry.savedStateHandle["path"] ?: "/"
-              val path = pathString.split("/").toMutableList().apply {
-                // 去掉开头/造成的空字符串元素
-                removeFirst()
-                // 去掉末尾的文件名元素
-                removeLast()
-              }.map { it.toBreadCrumbItem() }
+              val path = remember(pathString) {
+                pathString.split("/").toMutableList().apply {
+                  // 去掉开头/造成的空字符串元素
+                  removeFirst()
+                  // 去掉末尾的文件名元素
+                  removeLast()
+                }.map { it.toBreadCrumbItem() }
+              }
               val previewItemName: String? = navBackStackEntry.savedStateHandle["previewItemName"]
               BrowseScreen(
                 viewModel = browseViewModel,

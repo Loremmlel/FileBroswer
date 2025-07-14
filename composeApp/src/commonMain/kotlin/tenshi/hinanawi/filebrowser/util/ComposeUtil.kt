@@ -8,6 +8,9 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.jvm.JvmSuppressWildcards
 
 const val ANIMATION_DURATION = 500
@@ -45,3 +48,22 @@ fun NavGraphBuilder.slideComposable(
   popExitTransition = popExitTransition,
   content = content
 )
+
+inline fun CoroutineScope.polling(
+  crossinline predicate: () -> Boolean,
+  interval: Long = 500,
+  timeout: Long = 10000,
+  crossinline block: () -> Unit
+) = launch {
+  val startTime = currentTimeMillis()
+  while (true) {
+    delay(interval)
+    if (predicate()) {
+      block()
+      break
+    }
+    if (currentTimeMillis() - startTime > timeout) {
+      break
+    }
+  }
+}

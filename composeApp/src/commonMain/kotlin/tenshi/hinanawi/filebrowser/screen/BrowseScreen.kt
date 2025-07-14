@@ -22,8 +22,8 @@ import tenshi.hinanawi.filebrowser.component.yuzu.ImageViewer
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.data.online.OnlineRandomRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
-import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.util.polling
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
 import tenshi.hinanawi.filebrowser.viewmodel.RandomPlayViewModel
 
@@ -40,11 +40,16 @@ fun BrowseScreen(
 
   var addToFavoriteModalVisible by remember { mutableStateOf(false) }
 
-  LaunchedEffect(path) {
+  LaunchedEffect(path, previewItemName) {
     viewModel.navigator.navigateTo(path)
-  }
-
-  LaunchedEffect(previewItemName) {
+    if (previewItemName != null) {
+      polling(
+        { !uiState.fileLoading }
+      ) {
+        val previewItem = uiState.files.firstOrNull { it.name == previewItemName } ?: return@polling
+        viewModel.openImagePreview(previewItem)
+      }
+    }
   }
 
   EventHandler(event = viewModel.event)
@@ -187,6 +192,7 @@ private fun EventHandler(event: SharedFlow<BrowseViewModel.Event>) {
           "尝试预览空文件",
           Toast.SHORT
         ).show()
+
         is BrowseViewModel.Event.CancelFavoriteFileSuccess -> Toast.makeText(
           "取消收藏该文件成功",
           Toast.SHORT
