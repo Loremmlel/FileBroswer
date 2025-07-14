@@ -12,8 +12,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.toRoute
-import androidx.savedstate.read
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import tenshi.hinanawi.filebrowser.component.yuzu.BottomNav
 import tenshi.hinanawi.filebrowser.component.yuzu.ErrorOverlay
@@ -63,25 +61,19 @@ fun App(
             startDestination = Route.MainScreen.stringRoute
           ) {
             slideComposable(
-              route = "${Route.MainScreen.stringRoute}?path={path}&previewItemName={previewItemName}",
-              arguments = listOf(
-                navArgument("path") {
-                  type = NavType.StringListType
-                  defaultValue = null
-                  nullable = true
-                },
-                navArgument("previewItemName") {
-                  type = NavType.StringType
-                  defaultValue = null
-                  nullable = true
-                }
-              )
+              route = Route.MainScreen.stringRoute
             ) { navBackStackEntry ->
-              val path = navBackStackEntry.savedStateHandle.get<List<String>>("path") ?: emptyList()
-              val previewItemName = navBackStackEntry.savedStateHandle.get<String>("previewItemName")
+              val pathString: String = navBackStackEntry.savedStateHandle["path"] ?: "/"
+              val path = pathString.split("/").toMutableList().apply {
+                // 去掉开头/造成的空字符串元素
+                removeFirst()
+                // 去掉末尾的文件名元素
+                removeLast()
+              }.map { it.toBreadCrumbItem() }
+              val previewItemName: String? = navBackStackEntry.savedStateHandle["previewItemName"]
               BrowseScreen(
                 viewModel = browseViewModel,
-                path = path.map { it.toBreadCrumbItem() },
+                path = path,
                 previewItemName = previewItemName
               )
             }

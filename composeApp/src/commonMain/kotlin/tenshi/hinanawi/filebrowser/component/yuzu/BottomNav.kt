@@ -21,6 +21,12 @@ fun BottomNav(
 
   var selectedItem by remember { mutableStateOf(Route.MainScreen.stringRoute) }
 
+  LaunchedEffect(navController) {
+    navController.currentBackStackEntryFlow.collect { entry ->
+      selectedItem = entry.destination.route ?: Route.MainScreen.stringRoute
+    }
+  }
+
   NavigationBar(
     modifier = modifier,
     containerColor = MaterialTheme.colorScheme.primaryContainer
