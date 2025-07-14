@@ -80,9 +80,15 @@ class ThumbnailService {
 
     val tempOutputFile = File.createTempFile("temp", ".jpg")
     try {
-      val command =
-        "ffmpeg -ss $seekPosition -i \"${video.absolutePath}\" -vframes 1 -q:v 2 -y \"${tempOutputFile.absolutePath}\""
-      val process = ProcessBuilder(command.split(" "))
+      val command = listOf(
+        "ffmpeg",
+        "-ss", seekPosition,
+        "-i", video.absolutePath,
+        "-vframes", "1",
+        "-q:v", "2",
+        "-y", tempOutputFile.absolutePath
+      )
+      val process = ProcessBuilder(command)
         .redirectErrorStream(true)
         .start()
       val completed = process.waitFor(15, TimeUnit.SECONDS)
@@ -116,11 +122,18 @@ class ThumbnailService {
   }
 
   private fun getVideoDurationSeconds(video: File): Double = try {
-    val command = "ffprobe -v quiet -print_format json -show_format -show_streams \"${video.absolutePath}\""
-    val process = ProcessBuilder(command.split(" "))
+    val command = listOf(
+      "ffprobe",
+      "-v", "quiet",
+      "-print_format", "json",
+      "-show_format",
+      "-show_streams",
+      video.absolutePath
+    )
+    val process = ProcessBuilder(command)
       .redirectErrorStream(true)
       .start()
-    val completed = process.waitFor(15, TimeUnit.SECONDS)
+    val completed = process.waitFor(10, TimeUnit.SECONDS)
     val output = process.inputStream.bufferedReader().readText()
 
     if (!completed || process.exitValue() != 0) {
