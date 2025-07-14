@@ -8,7 +8,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import tenshi.hinanawi.filebrowser.contant.Route
+import tenshi.hinanawi.filebrowser.constant.Route
 import kotlin.jvm.JvmSuppressWildcards
 
 const val ANIMATION_DURATION = 500
@@ -37,7 +37,7 @@ fun NavGraphBuilder.slideComposable(
   },
   content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) = composable(
-  route = route.stringRoute,
+  route = route,
   arguments = arguments,
   deepLinks = deepLinks,
   enterTransition = enterTransition,

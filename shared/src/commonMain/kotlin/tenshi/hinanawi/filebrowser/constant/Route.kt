@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.contant
+package tenshi.hinanawi.filebrowser.constant
 
 enum class Route(val stringRoute: String) {
   MainScreen("Main"),

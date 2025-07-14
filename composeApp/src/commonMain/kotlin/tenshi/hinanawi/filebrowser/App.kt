@@ -14,7 +14,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import tenshi.hinanawi.filebrowser.component.yuzu.BottomNav
 import tenshi.hinanawi.filebrowser.component.yuzu.ErrorOverlay
 import tenshi.hinanawi.filebrowser.component.yuzu.ToastContainer
-import tenshi.hinanawi.filebrowser.contant.Route
+import tenshi.hinanawi.filebrowser.constant.Route
 import tenshi.hinanawi.filebrowser.data.online.OnlineFavoriteRepository
 import tenshi.hinanawi.filebrowser.data.online.OnlineFileRepository
 import tenshi.hinanawi.filebrowser.screen.BrowseScreen
@@ -58,14 +58,18 @@ fun App(
             startDestination = Route.MainScreen.stringRoute
           ) {
             slideComposable(
-              route = Route.MainScreen
-            ) {
+              route = Route.MainScreen,
+            ) { backStackEntry ->
+
               BrowseScreen(viewModel = browseViewModel)
             }
             slideComposable(
               route = Route.FavoriteScreen
             ) {
-              FavoriteScreen(viewModel = favoriteViewModel)
+              FavoriteScreen(
+                viewModel = favoriteViewModel,
+                navController = navController
+              )
             }
           }
           BottomNav(

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 object EventBus {
   private val _event = MutableSharedFlow<Event>(
     replay = 0,
-    extraBufferCapacity = 64,
+    extraBufferCapacity = 16,
     onBufferOverflow = BufferOverflow.DROP_OLDEST
   )
   val event = _event.asSharedFlow()

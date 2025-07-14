@@ -7,7 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import tenshi.hinanawi.filebrowser.contant.Route
+import tenshi.hinanawi.filebrowser.constant.Route
 
 @Composable
 fun BottomNav(
