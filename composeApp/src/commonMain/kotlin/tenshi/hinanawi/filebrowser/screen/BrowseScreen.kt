@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.SharedFlow
 import tenshi.hinanawi.filebrowser.component.browse.AddToFavoritesModal
 import tenshi.hinanawi.filebrowser.component.browse.FileItem
 import tenshi.hinanawi.filebrowser.component.browse.HevcDetector
@@ -36,40 +37,7 @@ fun BrowseScreen(
 
   var addToFavoriteModalVisible by remember { mutableStateOf(false) }
 
-  LaunchedEffect(Unit) {
-    viewModel.event.collect {
-      when (it) {
-        is BrowseViewModel.Event.NoImagePreview -> Toast.makeText(
-          "没有图片正在预览",
-          Toast.SHORT
-        ).show()
-
-        is BrowseViewModel.Event.IsLastImage -> Toast.makeText(
-          "已经是最后一张图片了, 预览第一张图片",
-          Toast.VERY_SHORT
-        ).show()
-
-        is BrowseViewModel.Event.IsFirstImage -> Toast.makeText(
-          "已经是第一张图片了, 预览最后一张图片",
-          Toast.VERY_SHORT
-        ).show()
-
-        is BrowseViewModel.Event.AddFileToFavoriteSuccess -> Toast.makeText(
-          "添加收藏夹成功",
-          Toast.SHORT
-        ).show()
-
-        is BrowseViewModel.Event.TryingPreviewNull -> Toast.makeText(
-          "尝试预览空文件",
-          Toast.SHORT
-        ).show()
-        is BrowseViewModel.Event.CancelFavoriteFileSuccess -> Toast.makeText(
-          "取消收藏该文件成功",
-          Toast.SHORT
-        ).show()
-      }
-    }
-  }
+  EventHandler(event = viewModel.event)
 
   Column(
     modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
@@ -175,6 +143,44 @@ fun BrowseScreen(
         }
 
         else -> {}
+      }
+    }
+  }
+}
+
+@Composable
+private fun EventHandler(event: SharedFlow<BrowseViewModel.Event>) {
+  LaunchedEffect(Unit) {
+    event.collect {
+      when (it) {
+        is BrowseViewModel.Event.NoImagePreview -> Toast.makeText(
+          "没有图片正在预览",
+          Toast.SHORT
+        ).show()
+
+        is BrowseViewModel.Event.IsLastImage -> Toast.makeText(
+          "已经是最后一张图片了, 预览第一张图片",
+          Toast.VERY_SHORT
+        ).show()
+
+        is BrowseViewModel.Event.IsFirstImage -> Toast.makeText(
+          "已经是第一张图片了, 预览最后一张图片",
+          Toast.VERY_SHORT
+        ).show()
+
+        is BrowseViewModel.Event.AddFileToFavoriteSuccess -> Toast.makeText(
+          "添加收藏夹成功",
+          Toast.SHORT
+        ).show()
+
+        is BrowseViewModel.Event.TryingPreviewNull -> Toast.makeText(
+          "尝试预览空文件",
+          Toast.SHORT
+        ).show()
+        is BrowseViewModel.Event.CancelFavoriteFileSuccess -> Toast.makeText(
+          "取消收藏该文件成功",
+          Toast.SHORT
+        ).show()
       }
     }
   }

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.SharedFlow
 import tenshi.hinanawi.filebrowser.component.favorite.CreateFavoriteModal
 import tenshi.hinanawi.filebrowser.component.favorite.FavoriteHeader
 import tenshi.hinanawi.filebrowser.component.favorite.FavoriteItem
@@ -27,16 +28,6 @@ fun FavoriteScreen(
 ) {
   val uiState by viewModel.uiState.collectAsState()
 
-  LaunchedEffect(Unit) {
-    viewModel.event.collect {
-      when (it) {
-        is FavoriteViewModel.Event.CreateSuccess -> {
-          Toast.makeText("收藏夹创建成功", Toast.LONG).show()
-        }
-      }
-    }
-  }
-
   var createDialogVisible by remember { mutableStateOf(false) }
 
   fun onCreateClick() {
@@ -46,6 +37,9 @@ fun FavoriteScreen(
   fun onCreateDialogDismiss() {
     createDialogVisible = false
   }
+
+  EventHandler(event = viewModel.event)
+
   Box(
     modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
   ) {
@@ -88,6 +82,19 @@ fun FavoriteScreen(
           viewModel.createFavorite(name, sortOrder)
         }
       )
+    }
+  }
+}
+
+@Composable
+private fun EventHandler(event: SharedFlow<FavoriteViewModel.Event>) {
+  LaunchedEffect(Unit) {
+    event.collect {
+      when (it) {
+        is FavoriteViewModel.Event.CreateSuccess -> {
+          Toast.makeText("收藏夹创建成功", Toast.LONG).show()
+        }
+      }
     }
   }
 }

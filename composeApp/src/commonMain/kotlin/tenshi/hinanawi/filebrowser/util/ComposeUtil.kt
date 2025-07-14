@@ -37,7 +37,7 @@ fun NavGraphBuilder.slideComposable(
   },
   content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) = composable(
-  route = route,
+  route = route.stringRoute,
   arguments = arguments,
   deepLinks = deepLinks,
   enterTransition = enterTransition,
