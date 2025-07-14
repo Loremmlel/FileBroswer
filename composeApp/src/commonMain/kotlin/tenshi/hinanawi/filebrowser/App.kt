@@ -8,10 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import tenshi.hinanawi.filebrowser.component.yuzu.BottomNav
 import tenshi.hinanawi.filebrowser.component.yuzu.ErrorOverlay
@@ -82,7 +80,7 @@ fun App(
             ) {
               FavoriteScreen(
                 viewModel = favoriteViewModel,
-                navController = navController
+                appNavController = navController
               )
             }
           }

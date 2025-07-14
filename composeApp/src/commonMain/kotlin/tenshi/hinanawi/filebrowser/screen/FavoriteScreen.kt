@@ -17,7 +17,6 @@ import tenshi.hinanawi.filebrowser.component.favorite.CreateFavoriteModal
 import tenshi.hinanawi.filebrowser.component.favorite.FavoriteHeader
 import tenshi.hinanawi.filebrowser.component.favorite.FavoriteItem
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
-import tenshi.hinanawi.filebrowser.constant.Route
 import tenshi.hinanawi.filebrowser.viewmodel.FavoriteViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,7 +24,7 @@ import tenshi.hinanawi.filebrowser.viewmodel.FavoriteViewModel
 fun FavoriteScreen(
   modifier: Modifier = Modifier,
   viewModel: FavoriteViewModel,
-  navController: NavController
+  appNavController: NavController
 ) {
   val uiState by viewModel.uiState.collectAsState()
 
@@ -67,11 +66,11 @@ fun FavoriteScreen(
               favorite = favorite,
               onClick = {},
               onItemClick = { fileInfo ->
-                navController.previousBackStackEntry?.savedStateHandle?.apply {
+                appNavController.previousBackStackEntry?.savedStateHandle?.apply {
                   set("path", fileInfo.path)
                   set("previewItemName", fileInfo.name)
                 }
-                navController.popBackStack()
+                appNavController.popBackStack()
               }
             )
           }
