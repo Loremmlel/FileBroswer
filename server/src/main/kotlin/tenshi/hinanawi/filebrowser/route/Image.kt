@@ -1,7 +1,7 @@
 package tenshi.hinanawi.filebrowser.route
 
 import io.ktor.http.*
-import io.ktor.server.plugins.partialcontent.PartialContent
+import io.ktor.server.plugins.partialcontent.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.model.FileType

@@ -14,7 +14,6 @@ import tenshi.hinanawi.filebrowser.plugin.safeExecute
 import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getContentType
 import tenshi.hinanawi.filebrowser.util.getFileType
-import java.io.FileInputStream
 
 internal fun Route.files() {
   route("/files") {

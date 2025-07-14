@@ -2,8 +2,8 @@ package tenshi.hinanawi.filebrowser.data.online
 
 import androidx.collection.LruCache
 import androidx.compose.ui.graphics.ImageBitmap
-import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsBytes
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import tenshi.hinanawi.filebrowser.data.repo.ThumbnailRepository
 import tenshi.hinanawi.filebrowser.platform.toImageBitmap
 import tenshi.hinanawi.filebrowser.util.ErrorHandler

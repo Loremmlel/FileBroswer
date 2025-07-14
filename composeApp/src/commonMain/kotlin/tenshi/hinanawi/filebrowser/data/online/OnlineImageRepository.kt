@@ -9,9 +9,7 @@ import io.ktor.http.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.catch
 import tenshi.hinanawi.filebrowser.data.repo.ImageRepository
-import tenshi.hinanawi.filebrowser.util.ErrorHandler
 import tenshi.hinanawi.filebrowser.viewmodel.ImageLoadState
 
 class OnlineImageRepository : BaseOnlineRepository(), ImageRepository {

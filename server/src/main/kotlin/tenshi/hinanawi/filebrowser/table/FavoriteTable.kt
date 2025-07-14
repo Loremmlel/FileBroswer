@@ -2,7 +2,6 @@ package tenshi.hinanawi.filebrowser.table
 
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 object FavoriteTable : LongIdTable("favorites") {
