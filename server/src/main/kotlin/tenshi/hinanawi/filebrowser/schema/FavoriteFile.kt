@@ -4,7 +4,7 @@ package tenshi.hinanawi.filebrowser.schema
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import tenshi.hinanawi.filebrowser.model.FavoriteFileDto
+import tenshi.hinanawi.filebrowser.model.dto.FavoriteFileDto
 import tenshi.hinanawi.filebrowser.table.FavoriteFileTable
 
 class FavoriteFile(id: EntityID<Long>) : LongEntity(id) {

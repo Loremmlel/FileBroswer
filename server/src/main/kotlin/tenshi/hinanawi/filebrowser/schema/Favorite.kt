@@ -9,8 +9,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import tenshi.hinanawi.filebrowser.exception.ServiceException
-import tenshi.hinanawi.filebrowser.model.FavoriteDto
-import tenshi.hinanawi.filebrowser.model.FavoriteFileDto
+import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
+import tenshi.hinanawi.filebrowser.model.dto.FavoriteFileDto
 import tenshi.hinanawi.filebrowser.table.FavoriteFileTable
 import tenshi.hinanawi.filebrowser.table.FavoriteTable
 

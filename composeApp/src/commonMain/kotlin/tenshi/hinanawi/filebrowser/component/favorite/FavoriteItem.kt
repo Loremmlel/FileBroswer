@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import tenshi.hinanawi.filebrowser.model.FavoriteDto
-import tenshi.hinanawi.filebrowser.model.toFileInfo
+import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
+import tenshi.hinanawi.filebrowser.model.dto.toFileInfo
 
 @Composable
 fun FavoriteItem(

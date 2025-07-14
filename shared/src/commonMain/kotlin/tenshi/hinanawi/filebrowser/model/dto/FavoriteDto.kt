@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.model
+package tenshi.hinanawi.filebrowser.model.dto
 
 import kotlinx.serialization.Serializable
 

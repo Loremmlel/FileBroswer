@@ -1,11 +1,10 @@
 package tenshi.hinanawi.filebrowser.component.browse
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
-import tenshi.hinanawi.filebrowser.model.FavoriteDto
+import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

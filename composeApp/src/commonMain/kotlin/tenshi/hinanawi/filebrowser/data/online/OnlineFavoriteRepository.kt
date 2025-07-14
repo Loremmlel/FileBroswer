@@ -5,13 +5,12 @@ import io.ktor.client.request.*
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
 import tenshi.hinanawi.filebrowser.model.AddFileToFavoriteRequest
 import tenshi.hinanawi.filebrowser.model.CreateFavoriteRequest
-import tenshi.hinanawi.filebrowser.model.FavoriteDto
-import tenshi.hinanawi.filebrowser.model.FavoriteFileDto
+import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
+import tenshi.hinanawi.filebrowser.model.dto.FavoriteFileDto
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
