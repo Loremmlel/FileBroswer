@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
 import tenshi.hinanawi.filebrowser.model.dto.toFileInfo
 
@@ -23,7 +24,8 @@ import tenshi.hinanawi.filebrowser.model.dto.toFileInfo
 fun FavoriteItem(
   modifier: Modifier = Modifier,
   favorite: FavoriteDto,
-  onClick: () -> Unit
+  onClick: () -> Unit,
+  onItemClick: (FileInfo) -> Unit
 ) {
   Column(
     modifier = modifier
@@ -81,7 +83,7 @@ fun FavoriteItem(
       items(favorite.files) { file ->
         FavoriteFileItem(
           file = file.toFileInfo(),
-          onClick = {}
+          onClick = { onItemClick(file.toFileInfo()) }
         )
       }
     }

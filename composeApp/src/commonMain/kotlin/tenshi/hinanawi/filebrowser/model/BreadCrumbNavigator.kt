@@ -33,6 +33,12 @@ class BreadCrumbNavigator(
     onPathChanged()
   }
 
+  fun navigateTo(items: List<BreadCrumbItem>) {
+    _path.clear()
+    _path.addAll(items)
+    onPathChanged()
+  }
+
   fun popTo(targetId: String?, inclusive: Boolean = true) {
     if (targetId == ROOT_ID) {
       resetToRoot()
@@ -57,3 +63,5 @@ class BreadCrumbNavigator(
     onPathChanged()
   }
 }
+
+fun String.toBreadCrumbItem() = BreadCrumbItem(this, this)

@@ -22,6 +22,7 @@ import tenshi.hinanawi.filebrowser.component.yuzu.ImageViewer
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.data.online.OnlineRandomRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
+import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
 import tenshi.hinanawi.filebrowser.viewmodel.RandomPlayViewModel
@@ -30,12 +31,21 @@ import tenshi.hinanawi.filebrowser.viewmodel.RandomPlayViewModel
 @Composable
 fun BrowseScreen(
   modifier: Modifier = Modifier,
-  viewModel: BrowseViewModel
+  viewModel: BrowseViewModel,
+  path: List<BreadCrumbItem> = emptyList(),
+  previewItemName: String? = null
 ) {
   val uiState by viewModel.uiState.collectAsState()
   val randomPlayViewModel = remember { RandomPlayViewModel(OnlineRandomRepository()) }
 
   var addToFavoriteModalVisible by remember { mutableStateOf(false) }
+
+  LaunchedEffect(path) {
+    viewModel.navigator.navigateTo(path)
+  }
+
+  LaunchedEffect(previewItemName) {
+  }
 
   EventHandler(event = viewModel.event)
 

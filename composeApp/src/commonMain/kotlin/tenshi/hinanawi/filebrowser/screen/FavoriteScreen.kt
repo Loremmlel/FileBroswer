@@ -64,7 +64,10 @@ fun FavoriteScreen(
               modifier = Modifier
                 .fillMaxWidth(),
               favorite = favorite,
-              onClick = {}
+              onClick = {},
+              onItemClick = { fileInfo ->
+                navController
+              }
             )
           }
         }

@@ -8,8 +8,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.toRoute
+import androidx.savedstate.read
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import tenshi.hinanawi.filebrowser.component.yuzu.BottomNav
 import tenshi.hinanawi.filebrowser.component.yuzu.ErrorOverlay
@@ -17,6 +21,7 @@ import tenshi.hinanawi.filebrowser.component.yuzu.ToastContainer
 import tenshi.hinanawi.filebrowser.constant.Route
 import tenshi.hinanawi.filebrowser.data.online.OnlineFavoriteRepository
 import tenshi.hinanawi.filebrowser.data.online.OnlineFileRepository
+import tenshi.hinanawi.filebrowser.model.toBreadCrumbItem
 import tenshi.hinanawi.filebrowser.screen.BrowseScreen
 import tenshi.hinanawi.filebrowser.screen.FavoriteScreen
 import tenshi.hinanawi.filebrowser.util.slideComposable
@@ -58,13 +63,30 @@ fun App(
             startDestination = Route.MainScreen.stringRoute
           ) {
             slideComposable(
-              route = Route.MainScreen,
-            ) { backStackEntry ->
-
-              BrowseScreen(viewModel = browseViewModel)
+              route = "${Route.MainScreen.stringRoute}?path={path}&previewItemName={previewItemName}",
+              arguments = listOf(
+                navArgument("path") {
+                  type = NavType.StringListType
+                  defaultValue = null
+                  nullable = true
+                },
+                navArgument("previewItemName") {
+                  type = NavType.StringType
+                  defaultValue = null
+                  nullable = true
+                }
+              )
+            ) { navBackStackEntry ->
+              val path = navBackStackEntry.savedStateHandle.get<List<String>>("path") ?: emptyList()
+              val previewItemName = navBackStackEntry.savedStateHandle.get<String>("previewItemName")
+              BrowseScreen(
+                viewModel = browseViewModel,
+                path = path.map { it.toBreadCrumbItem() },
+                previewItemName = previewItemName
+              )
             }
             slideComposable(
-              route = Route.FavoriteScreen
+              route = Route.FavoriteScreen.stringRoute
             ) {
               FavoriteScreen(
                 viewModel = favoriteViewModel,
