@@ -21,12 +21,9 @@ class ThumbnailService {
   private val thumbnailMaxWidth: Int = 256
   private val thumbnailMaxHeight: Int = 256
 
-  private val basePath = AppConfig.basePath
-
   private val logger = LoggerFactory.getLogger("BusinessLogger")
 
-  fun createThumbnail(relativePath: String): ByteArray? {
-    val file = File(basePath, relativePath)
+  fun createThumbnail(file: File): ByteArray? {
     if (!file.exists() || !file.isFile) {
       return null
     }

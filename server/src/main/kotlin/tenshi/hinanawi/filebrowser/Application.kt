@@ -50,5 +50,6 @@ fun Application.module(
     transcode(transcodeManager)
     video()
     favorite()
+    thumbnail()
   }
 }
