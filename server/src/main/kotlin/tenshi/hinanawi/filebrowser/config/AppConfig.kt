@@ -18,7 +18,7 @@ internal object AppConfig {
   val cachePath: String get() = "${basePath}/$CACHE_DIR_NAME"
 
   val maxConcurrentTasks get() = props.getProperty("MAX_CONCURRENT_TASKS", "3").toInt()
-  val taskTimeoutMinutes get() = props.getProperty("TASK_TIMEOUT_MINUTES", "30").toLong()
+  val taskTimeoutMinutes get() = props.getProperty("TASK_TIMEOUT_MINUTES", "60").toLong()
 
   object Database {
     val driver: String get() = props.getProperty("DATABASE.DRIVER", "org.postgresql.Driver")
