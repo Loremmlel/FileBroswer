@@ -1,6 +1,5 @@
 package tenshi.hinanawi.filebrowser.component.browse
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,13 +15,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import tenshi.hinanawi.filebrowser.component.yuzu.FileTypeIcon
 import tenshi.hinanawi.filebrowser.component.yuzu.Thumbnail
-import tenshi.hinanawi.filebrowser.component.yuzu.ThumbnailState
 import tenshi.hinanawi.filebrowser.component.yuzu.rememberThumbnailState
 import tenshi.hinanawi.filebrowser.data.repo.ThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.FileInfo

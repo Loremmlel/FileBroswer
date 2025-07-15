@@ -64,6 +64,7 @@ fun Thumbnail(
       fileType = file.type,
       iconSize = 48.dp
     )
+
     is ThumbnailState.Loading -> CircularProgressIndicator(modifier = modifier.size(32.dp))
     is ThumbnailState.Success -> Image(
       bitmap = currentState.image,
