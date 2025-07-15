@@ -23,8 +23,7 @@ class OnlineThumbnailRepository : ThumbnailRepository, BaseOnlineRepository() {
       val imageBitmap = byteArray.toImageBitmap()
       _cache.put(path, imageBitmap)
       imageBitmap
-    } catch (e: Exception) {
-      ErrorHandler.handleException(e)
+    } catch (_: Exception) {
       null
     }
   }
