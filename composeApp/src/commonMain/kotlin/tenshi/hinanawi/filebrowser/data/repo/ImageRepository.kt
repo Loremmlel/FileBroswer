@@ -1,8 +1,8 @@
 package tenshi.hinanawi.filebrowser.data.repo
 
 import kotlinx.coroutines.flow.Flow
-import tenshi.hinanawi.filebrowser.viewmodel.ImageLoadState
+import tenshi.hinanawi.filebrowser.component.yuzu.RemoteImageState
 
 interface ImageRepository {
-  fun getImageStream(path: String): Flow<ImageLoadState>
+  fun getImageStream(path: String): Flow<RemoteImageState>
 }

@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tenshi.hinanawi.filebrowser.data.online.OnlineImageRepository
 import tenshi.hinanawi.filebrowser.model.FileInfo
-import tenshi.hinanawi.filebrowser.viewmodel.RemoteImageViewModel
 
 @Composable
 fun ImageViewer(
@@ -40,7 +39,7 @@ fun ImageViewer(
   val operationIconSize = 32.dp
   val iconButtonPadding = 4.dp
 
-  val remoteImageViewModel = remember { RemoteImageViewModel(OnlineImageRepository()) }
+  val imageRepository = remember { OnlineImageRepository() }
   Box(
     modifier = modifier
       .fillMaxSize()
@@ -48,13 +47,11 @@ fun ImageViewer(
   ) {
     RemoteImage(
       path = file.path,
-      contentDescription = file.name,
-      modifier = Modifier
-        .fillMaxSize()
+      imageRepository = imageRepository,
+      contentDescription = "${file.name}图片预览",
+      modifier = Modifier.fillMaxSize()
         .padding(vertical = 60.dp, horizontal = 40.dp)
-        .align(Alignment.Center),
-      // 唉，又是ViewModel问题导致的一闪而过
-      viewModel = remoteImageViewModel
+        .align(Alignment.Center)
     )
     // 标题栏
     Box(

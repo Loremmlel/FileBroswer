@@ -9,24 +9,25 @@ import io.ktor.http.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import tenshi.hinanawi.filebrowser.component.yuzu.RemoteImageState
 import tenshi.hinanawi.filebrowser.data.repo.ImageRepository
 import tenshi.hinanawi.filebrowser.viewmodel.ImageLoadState
 
 class OnlineImageRepository : BaseOnlineRepository(), ImageRepository {
   // fix: Kotlin Flow 的并发发射限制：普通 flow 构建器不允许从多个协程并发发射数据
   // 解决方案：使用 callbackFlow
-  override fun getImageStream(path: String): Flow<ImageLoadState> = callbackFlow {
-    trySend(ImageLoadState.Loading)
+  override fun getImageStream(path: String): Flow<RemoteImageState> = callbackFlow {
+    trySend(RemoteImageState.Loading)
     val response = client.get("/image?path=$path") {
       onDownload { bytesSentTotal, contentLength ->
         if (contentLength != null) {
           val progress = bytesSentTotal.toFloat() / contentLength
-          trySend(ImageLoadState.Progress(progress))
+          trySend(RemoteImageState.Progress(progress))
         }
       }
     }
     if (response.headers[HttpHeaders.ContentType]?.startsWith("image/") != true) {
-      trySend(ImageLoadState.Error("服务器错误: ${response.status}"))
+      trySend(RemoteImageState.Error("服务器错误: ${response.status}"))
       close()
       return@callbackFlow
     }
@@ -58,7 +59,7 @@ class OnlineImageRepository : BaseOnlineRepository(), ImageRepository {
 
     val imageBitmap = imageData.decodeToImageBitmap()
     val painter = BitmapPainter(imageBitmap)
-    trySend(ImageLoadState.Success(painter))
+    trySend(RemoteImageState.Success(painter))
     close()
   }
 }
