@@ -24,6 +24,7 @@ import tenshi.hinanawi.filebrowser.data.online.OnlineRandomRepository
 import tenshi.hinanawi.filebrowser.data.online.OnlineThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.platform.BackGestureHandler
 import tenshi.hinanawi.filebrowser.util.polling
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel
 import tenshi.hinanawi.filebrowser.viewmodel.RandomPlayViewModel
@@ -68,6 +69,9 @@ fun BrowseScreen(
     Box(
       modifier = Modifier.weight(1f).fillMaxWidth()
     ) {
+      BackGestureHandler {
+        viewModel.navigator.popBack()
+      }
       when {
         uiState.fileLoading -> {
           Column(
