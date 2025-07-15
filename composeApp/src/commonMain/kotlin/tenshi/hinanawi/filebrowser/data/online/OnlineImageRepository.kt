@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import tenshi.hinanawi.filebrowser.component.yuzu.RemoteImageState
 import tenshi.hinanawi.filebrowser.data.repo.ImageRepository
-import tenshi.hinanawi.filebrowser.viewmodel.ImageLoadState
 
 class OnlineImageRepository : BaseOnlineRepository(), ImageRepository {
   // fix: Kotlin Flow 的并发发射限制：普通 flow 构建器不允许从多个协程并发发射数据

@@ -18,7 +18,7 @@ fun RandomPlay(
   currentPath: String,
   onVideoPlay: (FileInfo) -> Unit
 ) {
-  val state by viewModel.uiState.collectAsState()
+  val uiState by viewModel.uiState.collectAsState()
 
   LaunchedEffect(currentPath) {
     viewModel.pathChange()
@@ -26,7 +26,7 @@ fun RandomPlay(
 
   Button(
     onClick = {
-      if (state.videoFiles.isEmpty() && !state.loading) {
+      if (uiState.videoFiles.isEmpty() && !uiState.loading) {
         viewModel.getAllVideos(currentPath)
       } else {
         val video = viewModel.getRandomVideo()
@@ -40,8 +40,8 @@ fun RandomPlay(
   ) {
     Text(
       text = when {
-        state.loading -> "加载中..."
-        state.videoFiles.isEmpty() -> "无视频文件, 点击加载"
+        uiState.loading -> "加载中..."
+        uiState.videoFiles.isEmpty() -> "无视频文件, 点击加载"
         else -> "随机播放"
       }
     )
