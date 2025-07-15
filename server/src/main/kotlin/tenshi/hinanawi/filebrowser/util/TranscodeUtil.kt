@@ -153,7 +153,8 @@ class TranscodeManager {
       process.waitFor()
 
       output.toDoubleOrNull() ?: 0.0
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+      logger.warn("Transcode Util: 获取视频时长时失败: $e; ${e.message}")
       0.0
     }
   }

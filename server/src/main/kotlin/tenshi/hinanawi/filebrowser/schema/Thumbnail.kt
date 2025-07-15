@@ -58,14 +58,14 @@ class ThumbnailService {
       outputStream.toByteArray()
     }
   } catch (e: Exception) {
-    logger.warn("Failed to create image thumbnail for file: ${image.absolutePath}", e.message)
+    logger.warn("创建缩略图失败: ${image.absolutePath}", e.message)
     null
   }
 
   private fun createVideoThumbnail(video: File): ByteArray? {
     val duration = getVideoDurationSeconds(video)
     if (duration <= 0.0) {
-      logger.warn("Invalid video duration for file: ${video.absolutePath}")
+      logger.warn("不合法的视频时长: ${video.absolutePath}")
       return null
     }
 
@@ -89,9 +89,9 @@ class ThumbnailService {
         .start()
       val completed = process.waitFor(15, TimeUnit.SECONDS)
       if (!completed || process.exitValue() != 0) {
-        logger.warn("ffmpeg failed to create video thumbnail for file: ${video.absolutePath}")
+        logger.warn("ffmpeg创建视频缩略图失败: ${video.absolutePath}")
         val output = process.inputStream.bufferedReader().readText()
-        logger.warn("ffmpeg output: $output")
+        logger.warn("ffmpeg输出: $output")
         return null
       }
       return createImageThumbnail(tempOutputFile)
@@ -133,13 +133,13 @@ class ThumbnailService {
     val output = process.inputStream.bufferedReader().readText()
 
     if (!completed || process.exitValue() != 0) {
-      logger.warn("ffprobe failed to get video duration for file: ${video.absolutePath}")
-      logger.warn("ffprobe output: $output")
+      logger.warn("ffprobe获取视频时长失败: ${video.absolutePath}")
+      logger.warn("ffprobe输出: $output")
       -1.0
     }
     parseDurationFromJson(output)
   } catch (e: Exception) {
-    logger.warn("Failed to get video duration for file: ${video.absolutePath}", e.message)
+    logger.warn("获取视频文件时长失败: ${video.absolutePath}", e.message)
     -1.0
   }
 
@@ -169,7 +169,7 @@ class ThumbnailService {
       ?: output.streams?.firstOrNull { it.codecType == "video" }?.duration?.toDoubleOrNull()
       ?: -1.0
   } catch (e: Exception) {
-    logger.warn("Failed to parse video duration from json: $json", e.message)
+    logger.warn("解析ffprobe json失败: $json", e.message)
     -1.0
   }
 

@@ -28,7 +28,7 @@ val GlobalExceptionHandler = createApplicationPlugin("GlobalExceptionHandler") {
           Response(500, Message.InternalServerError, null)
         )
       } catch (e: Exception) {
-        logger.error("Failed to send error response", e)
+        logger.error("发送错误消息失败", e)
       }
     }
   }
@@ -45,7 +45,7 @@ suspend inline fun ApplicationCall.safeExecute(
   try {
     block()
   } catch (e: ServiceException) {
-    logger.warn("ServiceException occurred: ${request.httpMethod.value} ${request.uri}", e)
+    logger.warn("ServiceException异常: ${request.httpMethod.value} ${request.uri}", e)
     if (!response.isCommitted) {
       respond(
         HttpStatusCode.BadRequest,
@@ -53,7 +53,7 @@ suspend inline fun ApplicationCall.safeExecute(
       )
     }
   } catch (e: Exception) {
-    logger.error("Route execution failed: ${request.httpMethod.value} ${request.uri}", e)
+    logger.error("路由执行失败: ${request.httpMethod.value} ${request.uri}", e)
     if (!response.isCommitted) {
       respond(
         HttpStatusCode.InternalServerError,
@@ -74,7 +74,7 @@ suspend inline fun ApplicationCall.safeExecute(
   try {
     block()
   } catch (e: Exception) {
-    logger.error("Route execution failed: ${request.httpMethod.value} ${request.uri}", e)
+    logger.error("路由执行失败: ${request.httpMethod.value} ${request.uri}", e)
     onError(e)
   }
 }
