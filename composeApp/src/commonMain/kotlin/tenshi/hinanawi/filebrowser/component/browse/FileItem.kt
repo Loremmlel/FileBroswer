@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.yuzu.FileTypeIcon
+import tenshi.hinanawi.filebrowser.component.yuzu.Thumbnail
 import tenshi.hinanawi.filebrowser.component.yuzu.ThumbnailState
 import tenshi.hinanawi.filebrowser.component.yuzu.rememberThumbnailState
 import tenshi.hinanawi.filebrowser.data.repo.ThumbnailRepository
@@ -136,28 +137,10 @@ internal fun FileItem(
         modifier = Modifier.size(64.dp),
         contentAlignment = Alignment.Center
       ) {
-        when (thumbnailState) {
-          is ThumbnailState.Success -> {
-            Image(
-              bitmap = (thumbnailState as ThumbnailState.Success).image,
-              contentDescription = "${file.name}缩略图",
-              modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
-              contentScale = ContentScale.Crop
-            )
-          }
-
-          is ThumbnailState.Loading -> {
-            CircularProgressIndicator(modifier = Modifier.size(32.dp))
-          }
-
-          else -> {
-            FileTypeIcon(
-              modifier = Modifier,
-              fileType = file.type,
-              iconSize = 48.dp
-            )
-          }
-        }
+        Thumbnail(
+          file = file,
+          thumbnailRepository = thumbnailRepository
+        )
       }
       Spacer(modifier = Modifier.height(8.dp))
 

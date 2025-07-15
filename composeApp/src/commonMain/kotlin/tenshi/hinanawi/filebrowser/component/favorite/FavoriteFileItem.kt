@@ -7,18 +7,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.yuzu.FileTypeIcon
+import tenshi.hinanawi.filebrowser.component.yuzu.Thumbnail
+import tenshi.hinanawi.filebrowser.component.yuzu.rememberThumbnailState
+import tenshi.hinanawi.filebrowser.data.repo.ThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.FileInfo
+import tenshi.hinanawi.filebrowser.model.FileType
 
 @Composable
 fun FavoriteFileItem(
   modifier: Modifier = Modifier,
   file: FileInfo,
+  thumbnailRepository: ThumbnailRepository,
   onClick: () -> Unit
 ) {
   Column(
@@ -32,10 +38,10 @@ fun FavoriteFileItem(
     verticalArrangement = Arrangement.SpaceAround,
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    FileTypeIcon(
-      modifier = Modifier,
-      fileType = file.type,
-      iconSize = 32.dp
+    Thumbnail(
+      modifier = Modifier.size(48.dp),
+      file = file,
+      thumbnailRepository = thumbnailRepository
     )
     Text(
       text = file.name,
