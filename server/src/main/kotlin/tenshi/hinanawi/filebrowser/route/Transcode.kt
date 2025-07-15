@@ -11,6 +11,7 @@ import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.model.TranscodeRequest
 import tenshi.hinanawi.filebrowser.plugin.safeExecute
 import tenshi.hinanawi.filebrowser.util.TranscodeManager
+import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
 
@@ -18,6 +19,7 @@ fun Route.transcode(transcoder: TranscodeManager) {
   route("/transcode") {
     post {
       call.safeExecute {
+        contentTypeJson()
         val request = receive<TranscodeRequest>()
 
         val fullPath = File(AppConfig.basePath, request.filePath).canonicalPath
@@ -47,6 +49,7 @@ fun Route.transcode(transcoder: TranscodeManager) {
 
     get("/{id}") {
       call.safeExecute {
+        contentTypeJson()
         val id = parameters["id"] ?: run {
           respond(
             HttpStatusCode.BadRequest,
@@ -70,6 +73,7 @@ fun Route.transcode(transcoder: TranscodeManager) {
 
     delete("/{id}") {
       call.safeExecute {
+        contentTypeJson()
         val id = parameters["id"] ?: run {
           respond(
             HttpStatusCode.BadRequest,
@@ -94,6 +98,7 @@ fun Route.transcode(transcoder: TranscodeManager) {
 
     get("/status") {
       call.safeExecute {
+        contentTypeJson()
         respond(
           HttpStatusCode.OK,
           Response(

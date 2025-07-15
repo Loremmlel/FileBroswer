@@ -226,8 +226,4 @@ class BrowseViewModel(
       openPreview(_lastImage)
     }
   }
-
-  fun playVideo(video: FileInfo) {
-
-  }
 }

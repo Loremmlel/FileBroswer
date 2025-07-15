@@ -11,6 +11,7 @@ import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.plugin.safeExecute
+import tenshi.hinanawi.filebrowser.util.contentTypeJson
 import tenshi.hinanawi.filebrowser.util.getContentType
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
@@ -21,6 +22,7 @@ fun Route.video() {
     get {
       call.safeExecute {
         val taskId = parameters["taskId"] ?: run {
+          contentTypeJson()
           respond(
             HttpStatusCode.BadRequest,
             Response(400, Message.VideoTaskIdUndefined, null)
@@ -37,6 +39,7 @@ fun Route.video() {
 
         val filePath = File("${AppConfig.cachePath}/$taskId", pathSegments).canonicalPath
         if (!filePath.startsWith(AppConfig.cachePath)) {
+          contentTypeJson()
           respond(
             HttpStatusCode.Forbidden,
             Response(403, Message.FilesForbidden, null)
@@ -46,6 +49,7 @@ fun Route.video() {
 
         val file = File(filePath)
         if (!file.exists() || file.getFileType() != FileType.Video) {
+          contentTypeJson()
           respond(
             HttpStatusCode.NotFound,
             Response(404, Message.VideoIsNotVideo, null)

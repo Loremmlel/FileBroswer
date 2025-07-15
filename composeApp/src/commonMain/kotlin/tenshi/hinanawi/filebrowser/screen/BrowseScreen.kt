@@ -136,7 +136,7 @@ fun BrowseScreen(
         modifier = Modifier.align(Alignment.BottomCenter),
         viewModel = randomPlayViewModel,
         currentPath = viewModel.navigator.requestPath,
-        onVideoPlay = viewModel::playVideo
+        onVideoPlay = {}
       )
       if (addToFavoriteModalVisible) {
         AddToFavoritesModal(
