@@ -122,7 +122,8 @@ fun BrowseScreen(
                     viewModel.setCurrentFavoriteFile(file)
                     addToFavoriteModalVisible = true
                   }
-                })
+                }
+              )
             }
           }
         }
