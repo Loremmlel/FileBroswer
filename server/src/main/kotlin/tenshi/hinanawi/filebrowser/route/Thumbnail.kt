@@ -14,7 +14,8 @@ fun Route.thumbnail() {
   val thumbnailService = ThumbnailService()
   route("/thumbnail") {
     install(PathValidator)
-    get("/thumbnail") {
+    // fix
+    get {
       call.safeExecute {
         val file = call.attributes[ValidatedFileKey]
         val thumbnailData = thumbnailService.createThumbnail(file)
