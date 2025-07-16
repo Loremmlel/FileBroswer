@@ -139,7 +139,10 @@ class TranscodeService {
   fun getStatus(id: String): TranscodeStatus? = tasks[id]?.status
 
   fun stopTranscode(id: String) {
-    val task = tasks.remove(id) ?: return
+    val task = tasks.remove(id) ?: run {
+      logger.warn("试图停止不存在的转码任务, id: $id")
+      return
+    }
 
     task.job?.cancel()
     task.process.destroyForcibly()
