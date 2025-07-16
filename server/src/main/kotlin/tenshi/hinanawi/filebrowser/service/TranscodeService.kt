@@ -28,6 +28,12 @@ class TranscodeService {
   private val durationPattern = Pattern.compile("Duration: (\\d+):(\\d+):(\\d+\\.\\d+)")
   private val timePattern = Pattern.compile("time=(\\d+):(\\d+):(\\d+\\.\\d+)")
 
+  private val hwaccelConfig by lazy {
+    runBlocking {
+      detectHardwareAcceleration()
+    }
+  }
+
   suspend fun startTranscode(video: File): TranscodeStatus {
     val id = UUID.randomUUID().toString()
     val outputDir = File(cacheDir, id).apply { mkdirs() }
@@ -40,7 +46,6 @@ class TranscodeService {
     )
 
     return try {
-      val hwaccelConfig = detectHardwareAcceleration()
       logger.info("使用编码器: ${hwaccelConfig.encoder}, 预设: ${hwaccelConfig.preset}")
       val command = buildList {
         add("ffmpeg")
