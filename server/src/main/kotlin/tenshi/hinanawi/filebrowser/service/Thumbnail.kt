@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.schema
+package tenshi.hinanawi.filebrowser.service
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

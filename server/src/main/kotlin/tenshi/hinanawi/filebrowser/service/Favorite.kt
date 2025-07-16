@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.schema
+package tenshi.hinanawi.filebrowser.service
 
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.dao.LongEntity

@@ -8,7 +8,7 @@ import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.plugin.safeExecute
-import tenshi.hinanawi.filebrowser.schema.ThumbnailService
+import tenshi.hinanawi.filebrowser.service.ThumbnailService
 
 fun Route.thumbnail() {
   val thumbnailService = ThumbnailService()
