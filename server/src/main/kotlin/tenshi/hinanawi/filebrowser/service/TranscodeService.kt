@@ -40,21 +40,51 @@ class TranscodeService {
     )
 
     return try {
-      val processBuilder = ProcessBuilder(
-        "ffmpeg",
-        "-i", video.absolutePath,
-        "-c:v", "libx264",
-        "-crf", "25",
-        "-preset", "fast",
-        "-c:a", "copy",
-        "-f", "hls",
-        "-g", "90",
-        "-hls_time", "9",
-        "-hls_list_size", "0",
-        "-hls_flags", "append_list+temp_file",
-        "-hls_segment_filename", "${outputDir.absolutePath}/segment%04d.ts",
-        playlistFile.absolutePath
-      )
+      val hwaccelConfig = detectHardwareAcceleration()
+      logger.info("使用编码器: ${hwaccelConfig.encoder}, 预设: ${hwaccelConfig.preset}")
+      val command = buildList {
+        add("ffmpeg")
+
+        hwaccelConfig.hwaccel?.let {
+          add("-hwaccel")
+          add(it)
+        }
+        hwaccelConfig.hwaccelOutputFormat?.let {
+          add("-hwaccel_output_format")
+          add(it)
+        }
+
+        add("-i")
+        add(video.absolutePath)
+
+        add("-c:v")
+        add(hwaccelConfig.encoder)
+        add("-preset")
+        add(hwaccelConfig.preset)
+
+        addAll(hwaccelConfig.extraArgs)
+
+        add("-c:a")
+        add("copy")
+
+        add("-f")
+        add("hls")
+        add("-g")
+        add("90")
+        add("-hls_time")
+        add("9")
+        add("-hls_list_size")
+        add("0")
+        add("-hls_flags")
+        add("append_list+temp_file")
+        add("-hls_segment_filename")
+        add("${outputDir.absolutePath}/segment%04d.ts")
+
+        add(playlistFile.absolutePath)
+      }
+      logger.info("转码命令: ${command.joinToString(" ")}")
+
+      val processBuilder = ProcessBuilder(command)
       val process = processBuilder.start()
       val updatedStatus = status.copy(status = TranscodeStatus.Enum.Processing)
 
@@ -156,5 +186,141 @@ class TranscodeService {
   fun cleanup() {
     tasks.keys.forEach { stopTranscode(it) }
     cacheDir.deleteRecursively()
+  }
+
+  private data class HwaccelConfig(
+    val encoder: String,
+    val preset: String,
+    val hwaccel: String? = null,
+    val hwaccelOutputFormat: String? = null,
+    val extraArgs: List<String> = emptyList()
+  )
+
+  private suspend fun detectHardwareAcceleration(): HwaccelConfig = withContext(Dispatchers.IO) {
+    val osName = System.getProperty("os.name").lowercase()
+    val osArch = System.getProperty("os.arch").lowercase()
+    logger.info("当前系统: $osName, 架构: $osArch")
+
+    when {
+      // macOS
+      osName.contains("mac") -> {
+        if (checkVideoToolboxSupport()) {
+          logger.info("使用macOS VideoToolbox硬件加速")
+          HwaccelConfig(
+            encoder = "h264_videotoolbox",
+            preset = "medium",
+            extraArgs = listOf("-allow_sw", "1", "-realtime", "0")
+          )
+        } else {
+          logger.info("Video Toolbox不可用， 使用CPU编码")
+          getCpuConfig()
+        }
+      }
+      // Windows
+      osName.contains("windows") -> {
+        when {
+          checkNvidiaNvencSupport() -> {
+            logger.info("使用NVIDIA NVENC硬件加速")
+            HwaccelConfig(
+              encoder = "h264_nvenc",
+              preset = "p6",
+              hwaccel = "cuda",
+              hwaccelOutputFormat = "cuda"
+            )
+          }
+
+          checkIntelQsvSupport() -> {
+            logger.info("使用Intel Quick Sync Video硬件加速")
+            HwaccelConfig(
+              encoder = "h264_qsv",
+              preset = "medium",
+              hwaccel = "qsv",
+              hwaccelOutputFormat = "qsv"
+            )
+          }
+
+          checkAmdAmfSupport() -> {
+            logger.info("使用AMD AMF硬件加速")
+            HwaccelConfig(
+              encoder = "h264_amf",
+              preset = "speed",
+              extraArgs = listOf("-usage", "transcoding", "-profile", "main")
+            )
+          }
+
+          else -> {
+            logger.info("硬件加速不可用，使用CPU编码")
+            getCpuConfig()
+          }
+        }
+      }
+
+      else -> {
+        logger.info("未知操作系统或者Linux，使用CPU编码")
+        getCpuConfig()
+      }
+    }
+  }
+
+  private fun getCpuConfig(): HwaccelConfig = HwaccelConfig(
+    encoder = "libx264",
+    preset = "fast",
+    extraArgs = listOf("-crf", "25")
+  )
+
+  private suspend fun checkVideoToolboxSupport(): Boolean = withContext(Dispatchers.IO) {
+    try {
+      val process = ProcessBuilder("ffmpeg", "-hide_banner", "-encoders").start()
+      val output = process.inputStream.bufferedReader().readText()
+      process.waitFor()
+      output.contains("h264_videotoolbox")
+    } catch (e: Exception) {
+      logger.warn("检测Video Toolbox硬件加速失败, $e, ${e.message}")
+      false
+    }
+  }
+
+  private suspend fun checkNvidiaNvencSupport(): Boolean = withContext(Dispatchers.IO) {
+    try {
+      val nvidiaProcess = ProcessBuilder("nvidia-smi").start()
+      val nvidiaExitCode = nvidiaProcess.waitFor()
+
+      if (nvidiaExitCode != 0) {
+        return@withContext false
+      }
+
+      val ffmpegProcess = ProcessBuilder("ffmpeg", "-hide_banner", "-encoders").start()
+      val output = ffmpegProcess.inputStream.bufferedReader().readText()
+      ffmpegProcess.waitFor()
+
+      output.contains("h264_nvenc")
+    } catch (e: Exception) {
+      logger.warn("检测NVIDIA NVENC硬件加速失败, $e, ${e.message}")
+      false
+    }
+  }
+
+  private suspend fun checkIntelQsvSupport(): Boolean = withContext(Dispatchers.IO) {
+    try {
+      val process = ProcessBuilder("ffmpeg", "-hide_banner", "-encoders").start()
+      val output = process.inputStream.bufferedReader().readText()
+      process.waitFor()
+      output.contains("h264_qsv")
+    } catch (e: Exception) {
+      logger.warn("检测 Intel QSV 支持时出错: ${e.message}")
+      false
+    }
+  }
+
+  private suspend fun checkAmdAmfSupport(): Boolean = withContext(Dispatchers.IO) {
+    try {
+      val process = ProcessBuilder("ffmpeg", "-hide_banner", "-encoders").start()
+      val output = process.inputStream.bufferedReader().readText()
+      process.waitFor()
+      output.contains("h264_amf")
+    } catch (e: Exception) {
+      logger.warn("检测 AMD AMF 支持时出错: ${e.message}")
+      false
+    }
   }
 }
