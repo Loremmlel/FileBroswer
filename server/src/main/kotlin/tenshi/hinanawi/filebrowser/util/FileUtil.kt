@@ -68,3 +68,9 @@ internal fun File.getContentType(): String = when (this.extension.lowercase()) {
   in TEXT_SUFFIX -> "text/plain"
   else -> "application/octet-stream"
 }
+
+fun File.getCacheControl(): String = when (this.extension.lowercase()) {
+  "m3u8" -> "no-cache, no-store, must-revalidate"
+  "ts" -> "max-age=86400, public"
+  else -> "max-age=3600"
+}
