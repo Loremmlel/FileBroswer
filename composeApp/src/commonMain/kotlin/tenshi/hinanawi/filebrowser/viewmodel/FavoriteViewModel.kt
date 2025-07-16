@@ -7,7 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
-import tenshi.hinanawi.filebrowser.model.CreateFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.request.CreateFavoriteRequest
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 

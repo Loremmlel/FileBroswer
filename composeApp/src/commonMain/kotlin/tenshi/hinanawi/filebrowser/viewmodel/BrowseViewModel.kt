@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
-import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
+import tenshi.hinanawi.filebrowser.util.BreadCrumbNavigator
 import tenshi.hinanawi.filebrowser.model.FileInfo
 import tenshi.hinanawi.filebrowser.model.FileType
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto

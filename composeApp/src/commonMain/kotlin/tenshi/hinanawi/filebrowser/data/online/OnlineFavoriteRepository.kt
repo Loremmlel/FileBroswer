@@ -6,8 +6,8 @@ import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
-import tenshi.hinanawi.filebrowser.model.AddFileToFavoriteRequest
-import tenshi.hinanawi.filebrowser.model.CreateFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.request.AddFileToFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.request.CreateFavoriteRequest
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteFileDto

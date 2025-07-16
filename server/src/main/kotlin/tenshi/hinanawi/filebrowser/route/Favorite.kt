@@ -6,6 +6,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.model.*
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteFileDto
+import tenshi.hinanawi.filebrowser.model.request.AddFileToFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.request.AddFilesToFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.request.CreateFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.request.RemoveFavoriteFilesRequest
+import tenshi.hinanawi.filebrowser.model.request.UpdateFavoriteRequest
 import tenshi.hinanawi.filebrowser.plugin.safeExecute
 import tenshi.hinanawi.filebrowser.service.FavoriteService
 import tenshi.hinanawi.filebrowser.util.contentTypeJson

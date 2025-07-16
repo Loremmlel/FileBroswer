@@ -1,8 +1,8 @@
 package tenshi.hinanawi.filebrowser.data.repo
 
 import kotlinx.coroutines.flow.Flow
-import tenshi.hinanawi.filebrowser.model.AddFileToFavoriteRequest
-import tenshi.hinanawi.filebrowser.model.CreateFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.request.AddFileToFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.request.CreateFavoriteRequest
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteFileDto
 

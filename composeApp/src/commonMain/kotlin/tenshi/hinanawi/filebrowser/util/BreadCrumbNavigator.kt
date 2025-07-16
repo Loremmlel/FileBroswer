@@ -1,14 +1,10 @@
-package tenshi.hinanawi.filebrowser.model
+package tenshi.hinanawi.filebrowser.util
 
 import androidx.compose.runtime.toMutableStateList
+import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 
 internal const val ROOT_DIR_NAME = "/"
 internal val ROOT_ID: String? = null
-
-class BreadCrumbItem(
-  val dirName: String,
-  val id: String? = null
-)
 
 class BreadCrumbNavigator(
   initialPath: List<BreadCrumbItem> = emptyList(),

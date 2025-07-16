@@ -15,8 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
-import tenshi.hinanawi.filebrowser.model.BreadCrumbNavigator
-import tenshi.hinanawi.filebrowser.model.ROOT_DIR_NAME
+import tenshi.hinanawi.filebrowser.util.BreadCrumbNavigator
+import tenshi.hinanawi.filebrowser.util.ROOT_DIR_NAME
 import tenshi.hinanawi.filebrowser.util.truncate
 
 

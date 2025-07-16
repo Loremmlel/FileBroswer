@@ -17,7 +17,7 @@ import tenshi.hinanawi.filebrowser.component.yuzu.ToastContainer
 import tenshi.hinanawi.filebrowser.constant.Route
 import tenshi.hinanawi.filebrowser.data.online.OnlineFavoriteRepository
 import tenshi.hinanawi.filebrowser.data.online.OnlineFileRepository
-import tenshi.hinanawi.filebrowser.model.toBreadCrumbItem
+import tenshi.hinanawi.filebrowser.util.toBreadCrumbItem
 import tenshi.hinanawi.filebrowser.screen.BrowseScreen
 import tenshi.hinanawi.filebrowser.screen.FavoriteScreen
 import tenshi.hinanawi.filebrowser.util.slideComposable
