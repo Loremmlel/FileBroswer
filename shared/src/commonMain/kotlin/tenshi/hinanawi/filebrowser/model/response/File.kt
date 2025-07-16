@@ -21,3 +21,21 @@ fun FileInfo.toAddFileToFavoriteRequest() = AddFileToFavoriteRequest(
   lastModified = lastModified,
   fileSize = size
 )
+
+@Serializable
+enum class FileType {
+  Folder,
+  Image,
+  Video,
+  Other;
+
+  override fun toString(): String = this.name
+}
+
+fun String.parseFileType(): FileType? = when (this) {
+  FileType.Folder.name -> FileType.Folder
+  FileType.Image.name -> FileType.Image
+  FileType.Video.name -> FileType.Video
+  FileType.Other.name -> FileType.Other
+  else -> null
+}
