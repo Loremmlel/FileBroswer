@@ -7,6 +7,7 @@ import tenshi.hinanawi.filebrowser.model.response.TranscodeStatus
 import java.io.File
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.regex.Pattern
 import kotlin.time.Duration.Companion.minutes
 
 class TranscodeService {
@@ -23,6 +24,9 @@ class TranscodeService {
   private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
   private val logger = LoggerFactory.getLogger("BusinessLogger")
+
+  private val durationPattern = Pattern.compile("Duration: (\\d+):(\\d+):(\\d+\\.\\d+)")
+  private val timePattern = Pattern.compile("time=(\\d+):(\\d+):(\\d+\\.\\d+)")
 
   suspend fun startTranscode(filePath: String): TranscodeStatus {
     val inputFile = File(AppConfig.basePath, filePath)
@@ -80,13 +84,13 @@ class TranscodeService {
     try {
       errorReader.useLines { lines ->
         for (line in lines) {
-          val durationMatch = Regex("Duration: (\\d+):(\\d+):(\\d+\\.\\d+)").find(line)
+          val durationMatch = durationPattern.toRegex().find(line)
           if (durationMatch != null) {
             val (h, m, s) = durationMatch.destructured
             duration = h.toDouble() * 3600 + m.toDouble() * 60 + s.toDouble()
           }
 
-          val timeMatch = Regex("time=(\\d+):(\\d+):(\\d+\\.\\d+)").find(line)
+          val timeMatch = timePattern.toRegex().find(line)
           if (timeMatch != null && duration > 0) {
             val (h, m, s) = timeMatch.destructured
             val currentTime = h.toDouble() * 3600 + m.toDouble() * 60 + s.toDouble()
