@@ -82,6 +82,7 @@ kotlin {
     }
     wasmJsMain.dependencies {
       implementation(libs.ktor.client.js)
+      implementation(npm("hls.js", "^1.6.7"))
     }
   }
 }
