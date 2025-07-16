@@ -6,7 +6,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.RandomRepository
-import tenshi.hinanawi.filebrowser.model.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 import tenshi.hinanawi.filebrowser.util.currentTimeMillis
 

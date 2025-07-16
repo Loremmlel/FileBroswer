@@ -4,7 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.plugins.partialcontent.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileType
 import tenshi.hinanawi.filebrowser.model.Message
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.plugin.PathValidator

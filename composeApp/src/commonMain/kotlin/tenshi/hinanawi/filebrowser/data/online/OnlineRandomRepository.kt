@@ -5,7 +5,7 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.data.repo.RandomRepository
-import tenshi.hinanawi.filebrowser.model.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
 import tenshi.hinanawi.filebrowser.model.Response
 
 class OnlineRandomRepository : RandomRepository, BaseOnlineRepository() {

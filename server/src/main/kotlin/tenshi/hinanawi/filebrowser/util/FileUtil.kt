@@ -1,6 +1,6 @@
 package tenshi.hinanawi.filebrowser.util
 
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileType
 import java.io.File
 
 internal val IMAGE_SUFFIX = setOf("png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "ico")

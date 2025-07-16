@@ -1,8 +1,8 @@
 package tenshi.hinanawi.filebrowser.model.dto
 
 import kotlinx.serialization.Serializable
-import tenshi.hinanawi.filebrowser.model.FileInfo
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileType
 
 @Serializable
 data class FavoriteFileDto(

@@ -1,7 +1,7 @@
 package tenshi.hinanawi.filebrowser.model.request
 
 import kotlinx.serialization.Serializable
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileType
 
 @Serializable
 data class CreateFavoriteRequest(

@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileType
 
 @Composable
 fun FileTypeIcon(

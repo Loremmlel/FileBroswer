@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.SERVER_URL
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
 import tenshi.hinanawi.filebrowser.getPlatform
-import tenshi.hinanawi.filebrowser.model.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.platform.createFileDownloader
 import tenshi.hinanawi.filebrowser.util.ErrorHandler

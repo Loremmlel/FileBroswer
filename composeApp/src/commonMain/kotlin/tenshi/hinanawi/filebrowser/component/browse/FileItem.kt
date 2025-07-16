@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.yuzu.Thumbnail
 import tenshi.hinanawi.filebrowser.component.yuzu.rememberThumbnailState
 import tenshi.hinanawi.filebrowser.data.repo.ThumbnailRepository
-import tenshi.hinanawi.filebrowser.model.FileInfo
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileType
 import tenshi.hinanawi.filebrowser.util.formatFileSize
 
 @Composable

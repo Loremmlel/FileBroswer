@@ -23,7 +23,7 @@ import tenshi.hinanawi.filebrowser.component.yuzu.Toast
 import tenshi.hinanawi.filebrowser.data.online.OnlineRandomRepository
 import tenshi.hinanawi.filebrowser.data.online.OnlineThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileType
 import tenshi.hinanawi.filebrowser.platform.BackGestureHandler
 import tenshi.hinanawi.filebrowser.util.polling
 import tenshi.hinanawi.filebrowser.viewmodel.BrowseViewModel

@@ -4,7 +4,7 @@ import kotlinx.datetime.Clock
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileType
 
 object FavoriteFileTable : LongIdTable("favorite_files") {
   val favoriteId = reference(

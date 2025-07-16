@@ -5,6 +5,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import tenshi.hinanawi.filebrowser.config.AppConfig
 import tenshi.hinanawi.filebrowser.model.*
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileType
+import tenshi.hinanawi.filebrowser.model.response.parseFileType
 import tenshi.hinanawi.filebrowser.plugin.PathValidator
 import tenshi.hinanawi.filebrowser.plugin.ValidatedFileKey
 import tenshi.hinanawi.filebrowser.plugin.safeExecute

@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.data.repo.ThumbnailRepository
-import tenshi.hinanawi.filebrowser.model.FileInfo
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileType
 
 sealed class ThumbnailState {
   object Loading : ThumbnailState()

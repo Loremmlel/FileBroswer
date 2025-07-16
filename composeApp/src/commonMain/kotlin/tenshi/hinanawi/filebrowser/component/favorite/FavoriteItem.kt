@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.data.online.OnlineThumbnailRepository
-import tenshi.hinanawi.filebrowser.model.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
 import tenshi.hinanawi.filebrowser.model.dto.toFileInfo
 

@@ -8,7 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import tenshi.hinanawi.filebrowser.model.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
 import tenshi.hinanawi.filebrowser.viewmodel.RandomPlayViewModel
 
 @Composable

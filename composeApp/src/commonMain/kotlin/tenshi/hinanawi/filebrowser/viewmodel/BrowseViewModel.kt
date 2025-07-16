@@ -8,10 +8,10 @@ import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
 import tenshi.hinanawi.filebrowser.util.BreadCrumbNavigator
-import tenshi.hinanawi.filebrowser.model.FileInfo
-import tenshi.hinanawi.filebrowser.model.FileType
+import tenshi.hinanawi.filebrowser.model.response.FileInfo
+import tenshi.hinanawi.filebrowser.model.response.FileType
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
-import tenshi.hinanawi.filebrowser.model.toAddFileToFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.response.toAddFileToFavoriteRequest
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 import tenshi.hinanawi.filebrowser.util.firstAfter
 import tenshi.hinanawi.filebrowser.util.firstBefore
