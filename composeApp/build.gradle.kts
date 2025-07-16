@@ -48,6 +48,8 @@ kotlin {
     androidMain.dependencies {
       implementation(compose.preview)
       implementation(libs.androidx.activity.compose)
+      implementation(libs.androidx.media3.ui)
+      implementation(libs.androidx.media3.exoplayer)
       implementation(libs.ktor.client.okhttp)
       implementation(libs.kotlinx.coroutines.android)
     }
@@ -75,6 +77,7 @@ kotlin {
       implementation(compose.desktop.currentOs)
       implementation(libs.kotlinx.coroutinesSwing)
       implementation(libs.ktor.client.okhttp)
+      implementation(libs.vlcj)
     }
     wasmJsMain.dependencies {
       implementation(libs.ktor.client.js)
