@@ -28,8 +28,7 @@ class TranscodeService {
   private val durationPattern = Pattern.compile("Duration: (\\d+):(\\d+):(\\d+\\.\\d+)")
   private val timePattern = Pattern.compile("time=(\\d+):(\\d+):(\\d+\\.\\d+)")
 
-  suspend fun startTranscode(filePath: String): TranscodeStatus {
-    val inputFile = File(AppConfig.basePath, filePath)
+  suspend fun startTranscode(video: File): TranscodeStatus {
     val id = UUID.randomUUID().toString()
     val outputDir = File(cacheDir, id).apply { mkdirs() }
     val playlistFile = File(outputDir, "playlist.m3u8")
@@ -43,7 +42,7 @@ class TranscodeService {
     return try {
       val processBuilder = ProcessBuilder(
         "ffmpeg",
-        "-i", inputFile.absolutePath,
+        "-i", video.absolutePath,
         "-c:v", "libx264",
         "-crf", "25",
         "-preset", "fast",
