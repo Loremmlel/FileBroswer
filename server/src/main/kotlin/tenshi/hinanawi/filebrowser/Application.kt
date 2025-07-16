@@ -12,28 +12,23 @@ import tenshi.hinanawi.filebrowser.plugin.GlobalExceptionHandler
 import tenshi.hinanawi.filebrowser.plugin.RequestLogging
 import tenshi.hinanawi.filebrowser.plugin.ResponseBodyLogging
 import tenshi.hinanawi.filebrowser.route.*
-import tenshi.hinanawi.filebrowser.util.TranscodeManager
 
 fun main() {
   System.setProperty("io.ktor.development", "true")
-  val transcodeManager = TranscodeManager()
   embeddedServer(
     Netty,
     port = SERVER_PORT,
     host = "0.0.0.0",
     module = {
-      module(transcodeManager)
+      module()
     }
   )
     .start(wait = true)
     .monitor.subscribe(ApplicationStopping) {
-      transcodeManager.shutdown()
     }
 }
 
-fun Application.module(
-  transcodeManager: TranscodeManager
-) {
+fun Application.module() {
   DatabaseFactory.init()
   install(GlobalCorsHandler)
   install(RequestLogging)
@@ -47,8 +42,6 @@ fun Application.module(
     files()
     random()
     image()
-    transcode(transcodeManager)
-    video()
     favorite()
     thumbnail()
   }
