@@ -18,7 +18,7 @@ dependencies {
   implementation(projects.shared)
   implementation(libs.logback)
   implementation(libs.ktor.serverCore)
-  implementation(libs.ktor.serverNetty)
+  implementation(libs.ktor.serverCio)
   implementation(libs.ktor.contentNegotiation)
   implementation(libs.ktor.serializationKotlinxJson)
   implementation(libs.ktor.serverPartialContent)

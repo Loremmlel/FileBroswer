@@ -25,8 +25,8 @@ class TranscodeService {
 
   private val logger = LoggerFactory.getLogger("BusinessLogger")
 
-  private val durationPattern = Pattern.compile("Duration: (\\d+):(\\d+):(\\d+\\.\\d+)")
-  private val timePattern = Pattern.compile("time=(\\d+):(\\d+):(\\d+\\.\\d+)")
+  private val durationPattern by lazy { Pattern.compile("Duration: (\\d+):(\\d+):(\\d+\\.\\d+)") }
+  private val timePattern by lazy { Pattern.compile("time=(\\d+):(\\d+):(\\d+\\.\\d+)") }
 
   private val hwaccelConfig by lazy {
     runBlocking {
