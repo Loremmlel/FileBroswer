@@ -11,6 +11,7 @@ interface ThumbnailRepository {
 }
 
 class OnlineThumbnailRepository : ThumbnailRepository, BaseOnlineRepository() {
+  private val basePath = "/thumbnail"
   private val _cache = LruCache<String, ImageBitmap>(100)
   override suspend fun getThumbnail(path: String): ImageBitmap? {
     val cache = _cache[path]
@@ -18,7 +19,7 @@ class OnlineThumbnailRepository : ThumbnailRepository, BaseOnlineRepository() {
       return cache
     }
     return try {
-      val byteArray = client.get("/thumbnail?path=$path").bodyAsBytes()
+      val byteArray = client.get("${basePath}?path=$path").bodyAsBytes()
       if (byteArray.isEmpty()) {
         null
       }
