@@ -30,13 +30,15 @@ external class Hls(config: JsAny = definedExternally) {
 actual fun VideoCore(
   modifier: Modifier,
   url: String,
-  isPlaying: Boolean,
   onReady: () -> Unit,
   onError: (String) -> Unit
 ) {
   val videoElement = remember {
     (document.createElement("video") as HTMLVideoElement).apply {
-
+      style.apply {
+        width = "100%"
+        height = "100%"
+      }
     }
   }
   var hls by remember { mutableStateOf<Hls?>(null) }
@@ -72,14 +74,6 @@ actual fun VideoCore(
       videoElement.addEventListener("error") {
         onError("video元素错误")
       }
-    }
-  }
-
-  LaunchedEffect(isPlaying, videoElement) {
-    if (isPlaying) {
-      videoElement.play()
-    } else {
-      videoElement.pause()
     }
   }
 

@@ -69,7 +69,7 @@ fun Route.video() {
   /**
    * 直接播放视频的接口
    */
-  route("/direct-video") {
+  route("/direct") {
     install(PathValidator)
     get {
       call.safeExecute {

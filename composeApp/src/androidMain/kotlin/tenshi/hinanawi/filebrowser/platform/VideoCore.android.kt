@@ -23,7 +23,6 @@ import androidx.media3.ui.PlayerView
 actual fun VideoCore(
   modifier: Modifier,
   url: String,
-  isPlaying: Boolean,
   onReady: () -> Unit,
   onError: (String) -> Unit
 ) {
@@ -59,14 +58,6 @@ actual fun VideoCore(
       })
 
       prepare()
-    }
-  }
-
-  LaunchedEffect(isPlaying) {
-    if (isPlaying) {
-      exoPlayer.play()
-    } else {
-      exoPlayer.pause()
     }
   }
 

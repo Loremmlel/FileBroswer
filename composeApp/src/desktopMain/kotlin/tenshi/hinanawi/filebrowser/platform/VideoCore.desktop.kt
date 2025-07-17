@@ -15,7 +15,6 @@ import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
 actual fun VideoCore(
   modifier: Modifier,
   url: String,
-  isPlaying: Boolean,
   onReady: () -> Unit,
   onError: (String) -> Unit
 ) {
@@ -36,14 +35,6 @@ actual fun VideoCore(
     )
 
     mediaPlayerComponent.mediaPlayer().media().play(url)
-  }
-
-  LaunchedEffect(isPlaying) {
-    if (isPlaying) {
-      mediaPlayerComponent.mediaPlayer().controls().play()
-    } else {
-      mediaPlayerComponent.mediaPlayer().controls().pause()
-    }
   }
 
   DisposableEffect(mediaPlayerComponent) {
