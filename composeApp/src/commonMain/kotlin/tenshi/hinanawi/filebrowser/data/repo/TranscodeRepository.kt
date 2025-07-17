@@ -11,23 +11,25 @@ import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.model.response.TranscodeStatus
 
 interface TranscodeRepository {
-  fun startTranscode(path: String): Flow<TranscodeStatus>
+  suspend fun startTranscode(path: String): TranscodeStatus
   fun observeTranscode(id: String): Flow<TranscodeStatus?>
   suspend fun stopTranscode(id: String): Boolean
 }
 
 class OnlineTranscodeRepository : TranscodeRepository, BaseOnlineRepository() {
   private val basePath = "/transcode"
-  override fun startTranscode(path: String): Flow<TranscodeStatus> = flow {
+  override suspend fun startTranscode(path: String): TranscodeStatus = try {
     val response = client.post("$basePath?path=$path").body<Response<TranscodeStatus>>()
-    emit(response.data ?: throw ApiException(code = response.code, message = response.message))
+    response.data ?: throw ApiException(response.code, response.message)
+  } catch (e: Exception) {
+    throw Exception("转码启动失败: $e - message: ${e.message}")
   }
 
   override fun observeTranscode(id: String): Flow<TranscodeStatus?> = flow {
     while (true) {
       val response = client.get("$basePath/$id").body<Response<TranscodeStatus>>()
       emit(response.data)
-      delay(500)
+      delay(1500)
     }
   }
 
