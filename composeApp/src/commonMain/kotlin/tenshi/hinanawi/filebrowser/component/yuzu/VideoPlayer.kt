@@ -2,9 +2,9 @@ package tenshi.hinanawi.filebrowser.component.yuzu
 
 import androidx.compose.runtime.*
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.TranscodeRepository
 import tenshi.hinanawi.filebrowser.model.response.TranscodeStatus
@@ -23,7 +23,6 @@ fun rememberTranscodeState(
   transcodeRepository: TranscodeRepository
 ): State<TranscodeState> {
   val state = remember(videoPath) { mutableStateOf<TranscodeState>(TranscodeState.Idle) }
-  val pollingJob = remember { mutableStateOf<Job?>(null) }
   val scope = rememberCoroutineScope()
 
   LaunchedEffect(videoPath) {
@@ -33,45 +32,29 @@ fun rememberTranscodeState(
     try {
       state.value = TranscodeState.Loading
       val startStatus = transcodeRepository.startTranscode(videoPath)
-      state.value = TranscodeState.InProgress(startStatus)
-    } catch (e: Exception) {
-      state.value = TranscodeState.Error("$e - message: ${e.message}")
-    }
-  }
-
-  LaunchedEffect(state) {
-    when (val currentState = state.value) {
-      is TranscodeState.InProgress -> {
-        pollingJob.value?.cancel()
-        pollingJob.value = launch {
-          transcodeRepository.observeTranscode(currentState.status.id)
-            .catch { e ->
-              state.value = TranscodeState.Error("$e - message: ${e.message}")
-            }
-            .filterNotNull()
-            .collect {
-              state.value = if (it.status == TranscodeStatus.Enum.Completed && it.progress >= 0.99) {
-                TranscodeState.Completed(it)
-              } else {
-                TranscodeState.InProgress(it)
-              }
-            }
+      delay(100)
+      transcodeRepository.observeTranscode(startStatus.id)
+        .catch { e ->
+          state.value = TranscodeState.Error("转码监控失败: ${e.message}")
         }
-      }
-      is TranscodeState.Completed -> {
-        pollingJob.value?.cancel()
-        pollingJob.value = null
-      }
-      else -> Unit
+        .filterNotNull()
+        .collect { status ->
+          state.value = when {
+            status.status == TranscodeStatus.Enum.Completed && status.progress >= 0.99 -> {
+              TranscodeState.Completed(status)
+            }
+            else -> TranscodeState.InProgress(status)
+          }
+        }
+    } catch (e: Exception) {
+      state.value = TranscodeState.Error("转码启动失败: ${e.message}")
     }
   }
 
   DisposableEffect(videoPath) {
     onDispose {
-      pollingJob.value?.cancel()
       scope.launch {
-        val status = state.value
-        (status as? TranscodeState.InProgress)?.let {
+        (state.value as? TranscodeState.InProgress)?.let {
           transcodeRepository.stopTranscode(it.status.id)
         }
       }

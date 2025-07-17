@@ -23,7 +23,7 @@ class OnlineTranscodeRepository : TranscodeRepository, BaseOnlineRepository() {
     val response = client.post("$basePath?path=$path").body<Response<TranscodeStatus>>()
     response.data ?: throw ApiException(response.code, response.message)
   } catch (e: Exception) {
-    throw Exception("转码启动失败: $e - message: ${e.message}")
+    throw Exception("转码启动失败: ${e.message}")
   }
 
   override fun observeTranscode(id: String): Flow<TranscodeStatus?> = flow {
