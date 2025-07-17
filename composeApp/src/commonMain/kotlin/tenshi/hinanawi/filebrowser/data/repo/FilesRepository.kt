@@ -3,8 +3,6 @@ package tenshi.hinanawi.filebrowser.data.repo
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.SERVER_URL
 import tenshi.hinanawi.filebrowser.getPlatform
 import tenshi.hinanawi.filebrowser.model.Response
@@ -13,7 +11,7 @@ import tenshi.hinanawi.filebrowser.platform.createFileDownloader
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 interface FilesRepository {
-  fun getFiles(path: String): Flow<List<FileInfo>>
+  suspend fun getFiles(path: String): List<FileInfo>
 
   suspend fun deleteFile(path: String)
 
@@ -25,9 +23,9 @@ class OnlineFileRepository : BaseOnlineRepository(), FilesRepository {
 
   private val fileDownloader = createFileDownloader()
 
-  override fun getFiles(path: String) = flow {
+  override suspend fun getFiles(path: String): List<FileInfo> {
     val response = client.get("$basePath?path=$path").body<Response<List<FileInfo>>>()
-    emit(response.data ?: emptyList())
+    return response.data ?: emptyList()
   }
 
   override suspend fun deleteFile(path: String) = try {

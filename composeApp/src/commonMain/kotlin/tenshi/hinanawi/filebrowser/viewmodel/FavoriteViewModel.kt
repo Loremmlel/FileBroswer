@@ -7,8 +7,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
-import tenshi.hinanawi.filebrowser.model.request.CreateFavoriteRequest
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
+import tenshi.hinanawi.filebrowser.model.request.CreateFavoriteRequest
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -32,35 +32,27 @@ class FavoriteViewModel(
   private val _favoritesFlow = _refreshTrigger
     .onStart { emit(Unit) }
     .flatMapLatest {
-      favoriteRepository
-        .getFavorites()
+      flow {
+        emit(favoriteRepository.getFavorites())
+      }
         .catch { e ->
           ErrorHandler.handleException(e)
           emit(emptyList())
         }
     }
-    .stateIn(
-      scope = viewModelScope,
-      started = SharingStarted.WhileSubscribed(5000),
-      initialValue = emptyList()
-    )
 
   private val _currentFavoriteId = MutableStateFlow<Long?>(null)
   private val _currentFavoriteFlow = _currentFavoriteId
     .filterNotNull()
     .flatMapLatest {
-      favoriteRepository
-        .getFavoriteDetail(it)
+      flow {
+        emit(favoriteRepository.getFavoriteDetail(it))
+      }
         .catch { e ->
           ErrorHandler.handleException(e)
           emit(null)
         }
     }
-    .stateIn(
-      scope = viewModelScope,
-      started = SharingStarted.WhileSubscribed(5000),
-      initialValue = null
-    )
 
   val uiState = combine(
     _favoritesFlow,

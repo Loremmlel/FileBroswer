@@ -1,31 +1,25 @@
 package tenshi.hinanawi.filebrowser.data.repo
 
-import io.ktor.client.call.body
-import io.ktor.client.request.delete
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import tenshi.hinanawi.filebrowser.model.Response
-import tenshi.hinanawi.filebrowser.model.request.AddFileToFavoriteRequest
-import tenshi.hinanawi.filebrowser.model.request.CreateFavoriteRequest
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
 import tenshi.hinanawi.filebrowser.model.dto.FavoriteFileDto
+import tenshi.hinanawi.filebrowser.model.request.AddFileToFavoriteRequest
+import tenshi.hinanawi.filebrowser.model.request.CreateFavoriteRequest
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 interface FavoriteRepository {
-  fun getFavorites(): Flow<List<FavoriteDto>>
+  suspend fun getFavorites(): List<FavoriteDto>
 
   suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto?
 
-  fun getFavoriteDetail(id: Long): Flow<FavoriteDto?>
+  suspend fun getFavoriteDetail(id: Long): FavoriteDto?
 
   suspend fun addFileToFavorite(request: AddFileToFavoriteRequest, favoriteId: Long): Boolean
 
-  fun getAllFavoriteFiles(): Flow<List<FavoriteFileDto>>
+  suspend fun getAllFavoriteFiles(): List<FavoriteFileDto>
 
   suspend fun deleteFavoriteFile(favoriteFileId: Long): Boolean
 }
@@ -33,10 +27,10 @@ interface FavoriteRepository {
 class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
   private val basePath = "/favorites"
 
-  override fun getFavorites(): Flow<List<FavoriteDto>> = flow {
+  override suspend fun getFavorites(): List<FavoriteDto> {
     val data = client.get(basePath).body<Response<List<FavoriteDto>>>().data
-    // flow里一定要记得emit
-    emit(data ?: emptyList())
+    // flow一定要emit ✋😭✋ ✋😭✋ ✋😭✋
+    return data ?: emptyList()
   }
 
   override suspend fun createFavorite(request: CreateFavoriteRequest): FavoriteDto? = try {
@@ -49,9 +43,9 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
     null
   }
 
-  override fun getFavoriteDetail(id: Long): Flow<FavoriteDto?> = flow {
+  override suspend fun getFavoriteDetail(id: Long): FavoriteDto? {
     val response = client.get("$basePath/$id").body<Response<FavoriteDto>>()
-    emit(response.data)
+    return response.data
   }
 
   override suspend fun addFileToFavorite(request: AddFileToFavoriteRequest, favoriteId: Long): Boolean = try {
@@ -64,9 +58,9 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
     false
   }
 
-  override fun getAllFavoriteFiles(): Flow<List<FavoriteFileDto>> = flow {
+  override suspend fun getAllFavoriteFiles(): List<FavoriteFileDto> {
     val data = client.get("$basePath/files").body<Response<List<FavoriteFileDto>>>().data
-    emit(data ?: emptyList())
+    return data ?: emptyList()
   }
 
   override suspend fun deleteFavoriteFile(favoriteFileId: Long): Boolean = try {

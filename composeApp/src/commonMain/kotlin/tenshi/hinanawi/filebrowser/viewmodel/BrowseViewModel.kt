@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.data.repo.FavoriteRepository
 import tenshi.hinanawi.filebrowser.data.repo.FilesRepository
-import tenshi.hinanawi.filebrowser.util.BreadCrumbNavigator
+import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
 import tenshi.hinanawi.filebrowser.model.response.FileInfo
 import tenshi.hinanawi.filebrowser.model.response.FileType
-import tenshi.hinanawi.filebrowser.model.dto.FavoriteDto
 import tenshi.hinanawi.filebrowser.model.response.toAddFileToFavoriteRequest
+import tenshi.hinanawi.filebrowser.util.BreadCrumbNavigator
 import tenshi.hinanawi.filebrowser.util.ErrorHandler
 import tenshi.hinanawi.filebrowser.util.firstAfter
 import tenshi.hinanawi.filebrowser.util.firstBefore
@@ -56,8 +56,9 @@ class BrowseViewModel(
 
   private val _filesFlow = _currentPath
     .flatMapLatest { path ->
-      filesRepository
-        .getFiles(path)
+      flow {
+        emit(filesRepository.getFiles(path))
+      }
         .onStart {
           _fileLoading.value = true
         }
@@ -75,8 +76,9 @@ class BrowseViewModel(
       target == RefreshTarget.BOTH || target == RefreshTarget.FAVORITE_FILES_MAP
     }
     .flatMapLatest {
-      favoriteRepository
-        .getAllFavoriteFiles()
+      flow {
+        emit(favoriteRepository.getAllFavoriteFiles())
+      }
         .map { favoriteFileDtos ->
           favoriteFileDtos.associate {
             it.filePath to it.id
@@ -93,8 +95,9 @@ class BrowseViewModel(
       target == RefreshTarget.BOTH || target == RefreshTarget.FAVORITES
     }
     .flatMapLatest {
-      favoriteRepository
-        .getFavorites()
+      flow {
+        emit(favoriteRepository.getFavorites())
+      }
         .catch {
           ErrorHandler.handleException(it)
           emit(emptyList())

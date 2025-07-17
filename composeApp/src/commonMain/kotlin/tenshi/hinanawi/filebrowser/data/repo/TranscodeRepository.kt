@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.exception.ApiException
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.model.response.TranscodeStatus
+import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 interface TranscodeRepository {
   suspend fun startTranscode(path: String): TranscodeStatus
@@ -35,7 +36,8 @@ class OnlineTranscodeRepository : TranscodeRepository, BaseOnlineRepository() {
 
   override suspend fun stopTranscode(id: String): Boolean = try {
     client.delete("$basePath/$id").status == HttpStatusCode.OK
-  } catch (_: Exception) {
+  } catch (e: Exception) {
+    ErrorHandler.handleException(e)
     false
   }
 }
