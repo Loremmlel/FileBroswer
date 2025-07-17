@@ -20,6 +20,7 @@ import tenshi.hinanawi.filebrowser.component.browse.RandomPlay
 import tenshi.hinanawi.filebrowser.component.yuzu.BreadCrumb
 import tenshi.hinanawi.filebrowser.component.yuzu.ImageViewer
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
+import tenshi.hinanawi.filebrowser.component.yuzu.VideoPlayer
 import tenshi.hinanawi.filebrowser.data.repo.OnlineRandomRepository
 import tenshi.hinanawi.filebrowser.data.repo.OnlineThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
@@ -65,7 +66,10 @@ fun BrowseScreen(
       navigator = viewModel.navigator,
       modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(horizontal = 16.dp, vertical = 8.dp)
     )
-    HevcDetector()
+    HevcDetector(
+      supportHevc = uiState.supportHevc,
+      setSupportHevc = viewModel::setSupportHevc
+    )
     Box(
       modifier = Modifier.weight(1f).fillMaxWidth()
     ) {
@@ -107,7 +111,7 @@ fun BrowseScreen(
                 onClick = {
                   when {
                     file.isDirectory -> viewModel.navigator.navigateTo(BreadCrumbItem(it.name, it.name))
-                    file.type == FileType.Image -> viewModel.openPreview(it)
+                    file.type == FileType.Image || file.type == FileType.Video -> viewModel.openPreview(it)
                   }
                 },
                 onDelete = {
@@ -163,6 +167,14 @@ fun BrowseScreen(
             onNext = viewModel::nextImagePreview,
             onPrev = viewModel::previousImagePreview,
             onDownload = viewModel::downloadFile
+          )
+        }
+
+        FileType.Video -> {
+          VideoPlayer(
+            modifier = Modifier.fillMaxSize(),
+            path = previewItem.path,
+            supportHevc = uiState.supportHevc ?: false
           )
         }
 

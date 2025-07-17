@@ -26,7 +26,8 @@ class BrowseViewModel(
     val favoriteFilesMap: Map<String, Long> = emptyMap(),
     val favorites: List<FavoriteDto> = emptyList(),
     val fileLoading: Boolean = false,
-    val previewItem: FileInfo? = null
+    val previewItem: FileInfo? = null,
+    val supportHevc: Boolean? = null
   )
 
   sealed class Event {
@@ -49,22 +50,25 @@ class BrowseViewModel(
   private val _favoriteFilesMap = MutableStateFlow<Map<String, Long>>(emptyMap())
   private val _favorites = MutableStateFlow<List<FavoriteDto>>(emptyList())
 
-  private val _previewItem = MutableStateFlow<FileInfo?>(null)
   private val _fileLoading = MutableStateFlow(false)
+  private val _previewItem = MutableStateFlow<FileInfo?>(null)
+  private val _supportHevc = MutableStateFlow<Boolean?>(null)
 
   val uiState = combine(
-    _files,
-    _favoriteFilesMap,
-    _favorites,
-    _fileLoading,
-    _previewItem,
-  ) { files, favoriteExistSet, favorites, loading, preview ->
+    combine(_files, _favoriteFilesMap, _favorites) { files, favoriteFilesMap, favorites ->
+      Triple(files, favoriteFilesMap, favorites)
+    },
+    combine(_fileLoading, _previewItem, _supportHevc) { fileLoading, previewItem, supportHevc ->
+    Triple(fileLoading, previewItem, supportHevc)
+  }
+  ) { (files, favoriteExistSet, favorites), (fileLoading, previewItem, supportHevc) ->
     BrowserUiState(
       files = files,
       favoriteFilesMap = favoriteExistSet,
       favorites = favorites,
-      fileLoading = loading,
-      previewItem = preview
+      fileLoading = fileLoading,
+      previewItem = previewItem,
+      supportHevc = supportHevc
     )
   }
     .distinctUntilChanged()
@@ -207,5 +211,9 @@ class BrowseViewModel(
       _event.emit(Event.IsFirstImage)
       openPreview(_lastImage)
     }
+  }
+
+  fun setSupportHevc(value: Boolean?) = viewModelScope.launch {
+    _supportHevc.value = value
   }
 }

@@ -20,15 +20,16 @@ import tenshi.hinanawi.filebrowser.platform.createHevcSupportDetector
 
 @Composable
 fun HevcDetector(
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  supportHevc: Boolean?,
+  setSupportHevc: (Boolean?) -> Unit
 ) {
   val hevcSupportDetector = remember { createHevcSupportDetector() }
 
   var expanded by remember { mutableStateOf(false) }
-  var supportHevc by remember { mutableStateOf<Boolean?>(null) }
 
   LaunchedEffect(Unit) {
-    supportHevc = hevcSupportDetector.isHevcSupported()
+    setSupportHevc(hevcSupportDetector.isHevcSupported())
   }
 
   val (backgroundColor, contentColor) = when (supportHevc) {
@@ -67,12 +68,12 @@ fun HevcDetector(
         } else {
           Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-              imageVector = if (supportHevc == true) Icons.Default.CheckCircle else Icons.Default.Info,
-              contentDescription = if (supportHevc == true) "HEVC支持" else "HEVC不支持",
+              imageVector = if (supportHevc) Icons.Default.CheckCircle else Icons.Default.Info,
+              contentDescription = if (supportHevc) "HEVC支持" else "HEVC不支持",
               modifier = Modifier.padding(end = 8.dp)
             )
             Text(
-              text = if (supportHevc == true) "你的设备支持HEVC原生播放" else "你的设备不支持HEVC原生播放",
+              text = if (supportHevc) "你的设备支持HEVC原生播放" else "你的设备不支持HEVC原生播放",
               style = MaterialTheme.typography.bodyMedium,
               fontWeight = FontWeight.Medium,
               maxLines = 1,
