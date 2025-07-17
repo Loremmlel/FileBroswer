@@ -20,8 +20,8 @@ import tenshi.hinanawi.filebrowser.component.browse.RandomPlay
 import tenshi.hinanawi.filebrowser.component.yuzu.BreadCrumb
 import tenshi.hinanawi.filebrowser.component.yuzu.ImageViewer
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
-import tenshi.hinanawi.filebrowser.data.online.OnlineRandomRepository
-import tenshi.hinanawi.filebrowser.data.online.OnlineThumbnailRepository
+import tenshi.hinanawi.filebrowser.data.repo.OnlineRandomRepository
+import tenshi.hinanawi.filebrowser.data.repo.OnlineThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
 import tenshi.hinanawi.filebrowser.model.response.FileType
 import tenshi.hinanawi.filebrowser.platform.BackGestureHandler

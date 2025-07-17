@@ -1,4 +1,4 @@
-package tenshi.hinanawi.filebrowser.data.online
+package tenshi.hinanawi.filebrowser.data.repo
 
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -12,6 +12,7 @@ import tenshi.hinanawi.filebrowser.SERVER_PORT
 import tenshi.hinanawi.filebrowser.exception.ApiException
 import tenshi.hinanawi.filebrowser.model.ResponseWithoutData
 
+
 abstract class BaseOnlineRepository {
   protected val client = _client
 
@@ -19,7 +20,7 @@ abstract class BaseOnlineRepository {
     private val _client = HttpClient {
       defaultRequest {
         url {
-          protocol = URLProtocol.HTTP
+          protocol = URLProtocol.Companion.HTTP
           host = SERVER_HOST
           port = SERVER_PORT
         }
