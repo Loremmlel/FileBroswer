@@ -38,12 +38,6 @@ class BrowseViewModel(
     object TryingPreviewNull : Event()
   }
 
-  private enum class RefreshTarget {
-    BOTH,
-    FAVORITE_FILES_MAP,
-    FAVORITES
-  }
-
   // kotlin编译器的类型检查有bug啊，还说进入了死循环，需要手动声明类型
   // 编译构建倒是不会出问题，但是IDE划红线太烦了
   val navigator: BreadCrumbNavigator = BreadCrumbNavigator(onPathChanged = ::refreshFiles)
@@ -51,66 +45,17 @@ class BrowseViewModel(
   private val _event = MutableSharedFlow<Event>()
   val event = _event.asSharedFlow()
 
-  private val _refreshTrigger = MutableStateFlow(0 to RefreshTarget.BOTH)
-  private val _currentPath = MutableStateFlow(navigator.requestPath)
-
-  private val _filesFlow = _currentPath
-    .flatMapLatest { path ->
-      flow {
-        emit(filesRepository.getFiles(path))
-      }
-        .onStart {
-          _fileLoading.value = true
-        }
-        .onCompletion {
-          _fileLoading.value = false
-        }
-        .catch {
-          ErrorHandler.handleException(it)
-          emit(emptyList())
-        }
-    }
-
-  private val _favoriteFilesMapFlow = _refreshTrigger
-    .filter { (_, target) ->
-      target == RefreshTarget.BOTH || target == RefreshTarget.FAVORITE_FILES_MAP
-    }
-    .flatMapLatest {
-      flow {
-        emit(favoriteRepository.getAllFavoriteFiles())
-      }
-        .map { favoriteFileDtos ->
-          favoriteFileDtos.associate {
-            it.filePath to it.id
-          }
-        }
-        .catch {
-          ErrorHandler.handleException(it)
-          emit(emptyMap())
-        }
-    }
-
-  private val _favoritesFlow = _refreshTrigger
-    .filter { (_, target) ->
-      target == RefreshTarget.BOTH || target == RefreshTarget.FAVORITES
-    }
-    .flatMapLatest {
-      flow {
-        emit(favoriteRepository.getFavorites())
-      }
-        .catch {
-          ErrorHandler.handleException(it)
-          emit(emptyList())
-        }
-    }
+  private val _files = MutableStateFlow<List<FileInfo>>(emptyList())
+  private val _favoriteFilesMap = MutableStateFlow<Map<String, Long>>(emptyMap())
+  private val _favorites = MutableStateFlow<List<FavoriteDto>>(emptyList())
 
   private val _previewItem = MutableStateFlow<FileInfo?>(null)
   private val _fileLoading = MutableStateFlow(false)
 
   val uiState = combine(
-    _filesFlow,
-    _favoriteFilesMapFlow,
-    _favoritesFlow,
+    _files,
+    _favoriteFilesMap,
+    _favorites,
     _fileLoading,
     _previewItem,
   ) { files, favoriteExistSet, favorites, loading, preview ->
@@ -149,9 +94,43 @@ class BrowseViewModel(
       it.name == uiState.value.previewItem?.name
     }
 
+  init {
+    getData()
+  }
+
   fun refreshFiles() = viewModelScope.launch {
-    closePreview()
-    _currentPath.value = navigator.requestPath
+    _fileLoading.value = true
+    try {
+      _files.value = filesRepository.getFiles(navigator.requestPath)
+    } catch (e: Exception) {
+      ErrorHandler.handleException(e)
+      _files.value = emptyList()
+    } finally {
+      _fileLoading.value = false
+    }
+  }
+
+  private fun refreshFavoriteFiles() = viewModelScope.launch {
+    try {
+      val favoriteFiles = favoriteRepository.getAllFavoriteFiles()
+      _favoriteFilesMap.value = favoriteFiles.associate { it.filePath to it.id }
+    } catch (e: Exception) {
+      ErrorHandler.handleException(e)
+    }
+  }
+
+  private fun refreshFavorites() = viewModelScope.launch {
+    try {
+      _favorites.value = favoriteRepository.getFavorites()
+    } catch (e: Exception) {
+      ErrorHandler.handleException(e)
+    }
+  }
+
+  private fun getData() {
+    refreshFiles()
+    refreshFavorites()
+    refreshFavoriteFiles()
   }
 
   fun setCurrentFavoriteFile(file: FileInfo?) {
@@ -162,7 +141,7 @@ class BrowseViewModel(
     val file = _currentFavoriteFile.value ?: return@launch
     val result = favoriteRepository.addFileToFavorite(file.toAddFileToFavoriteRequest(), favoriteId)
     if (result) {
-      _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_FILES_MAP)
+      refreshFavoriteFiles()
       _event.emit(Event.AddFileToFavoriteSuccess)
       EventBus.emit(EventBus.Event.NotifyFavoriteFileAdd)
     }
@@ -171,7 +150,7 @@ class BrowseViewModel(
   fun cancelFavoriteFile(favoriteFileId: Long) = viewModelScope.launch {
     val result = favoriteRepository.deleteFavoriteFile(favoriteFileId)
     if (result) {
-      _refreshTrigger.emit((_refreshTrigger.value.first + 1) to RefreshTarget.FAVORITE_FILES_MAP)
+      refreshFavoriteFiles()
       _event.emit(Event.CancelFavoriteFileSuccess)
       EventBus.emit(EventBus.Event.NotifyFavoriteFileRemove)
     }
