@@ -19,7 +19,7 @@ class OnlineThumbnailRepository : ThumbnailRepository, BaseOnlineRepository() {
       return cache
     }
     return try {
-      val byteArray = client.get("${basePath}?path=$path").bodyAsBytes()
+      val byteArray = client.get("$basePath?path=$path").bodyAsBytes()
       if (byteArray.isEmpty()) {
         null
       }

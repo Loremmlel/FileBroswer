@@ -50,12 +50,12 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
   }
 
   override fun getFavoriteDetail(id: Long): Flow<FavoriteDto?> = flow {
-    val response = client.get("${basePath}/$id").body<Response<FavoriteDto>>()
+    val response = client.get("$basePath/$id").body<Response<FavoriteDto>>()
     emit(response.data)
   }
 
   override suspend fun addFileToFavorite(request: AddFileToFavoriteRequest, favoriteId: Long): Boolean = try {
-    client.post("${basePath}/${favoriteId}/files") {
+    client.post("$basePath/${favoriteId}/files") {
       setBody(request)
       contentType(ContentType.Application.Json)
     }.body<Response<FavoriteFileDto>>().data != null
@@ -65,12 +65,12 @@ class OnlineFavoriteRepository : FavoriteRepository, BaseOnlineRepository() {
   }
 
   override fun getAllFavoriteFiles(): Flow<List<FavoriteFileDto>> = flow {
-    val data = client.get("${basePath}/files").body<Response<List<FavoriteFileDto>>>().data
+    val data = client.get("$basePath/files").body<Response<List<FavoriteFileDto>>>().data
     emit(data ?: emptyList())
   }
 
   override suspend fun deleteFavoriteFile(favoriteFileId: Long): Boolean = try {
-    client.delete("${basePath}/files/${favoriteFileId}").body<Response<Boolean>>().data ?: false
+    client.delete("$basePath/files/${favoriteFileId}").body<Response<Boolean>>().data ?: false
   } catch (e: Exception) {
     ErrorHandler.handleException(e)
     false

@@ -14,7 +14,7 @@ interface RandomRepository {
 class OnlineRandomRepository : RandomRepository, BaseOnlineRepository() {
   private val basePath = "/random"
   override fun getAllVideo(path: String): Flow<List<FileInfo>> = flow {
-    val response = client.get("${basePath}?path=$path").body<Response<List<FileInfo>>>()
+    val response = client.get("$basePath?path=$path").body<Response<List<FileInfo>>>()
     emit(response.data ?: emptyList())
   }
 }

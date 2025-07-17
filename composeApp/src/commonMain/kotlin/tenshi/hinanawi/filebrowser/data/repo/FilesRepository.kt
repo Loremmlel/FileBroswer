@@ -26,12 +26,12 @@ class OnlineFileRepository : BaseOnlineRepository(), FilesRepository {
   private val fileDownloader = createFileDownloader()
 
   override fun getFiles(path: String) = flow {
-    val response = client.get("${basePath}?path=$path").body<Response<List<FileInfo>>>()
+    val response = client.get("$basePath?path=$path").body<Response<List<FileInfo>>>()
     emit(response.data ?: emptyList())
   }
 
   override suspend fun deleteFile(path: String) = try {
-    client.delete("${basePath}?path=$path")
+    client.delete("$basePath?path=$path")
     Unit
   } catch (e: Exception) {
     ErrorHandler.handleException(e)
@@ -39,12 +39,12 @@ class OnlineFileRepository : BaseOnlineRepository(), FilesRepository {
 
   override suspend fun downloadFile(path: String, filename: String) {
     try {
-      val downloadUrl = "$SERVER_URL${basePath}/download?path=$path"
+      val downloadUrl = "$SERVER_URL$basePath/download?path=$path"
       if (getPlatform().name == "Web with Kotlin/Wasm") {
         fileDownloader.downloadFile(downloadUrl, filename)
         return
       }
-      val response = client.get("${basePath}/download?path=$path")
+      val response = client.get("$basePath/download?path=$path")
       val contentLength = response.headers["Content-Length"]?.toLongOrNull()
 
       // 使用流式下载

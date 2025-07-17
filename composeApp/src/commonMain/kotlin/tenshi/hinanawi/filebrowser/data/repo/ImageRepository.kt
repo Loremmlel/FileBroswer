@@ -21,7 +21,7 @@ class OnlineImageRepository : BaseOnlineRepository(), ImageRepository {
   // 解决方案：使用 callbackFlow
   override fun getImageStream(path: String): Flow<RemoteImageState> = callbackFlow {
     trySend(RemoteImageState.Loading)
-    val response = client.get("${basePath}?path=$path") {
+    val response = client.get("$basePath?path=$path") {
       onDownload { bytesSentTotal, contentLength ->
         if (contentLength != null) {
           val progress = bytesSentTotal.toFloat() / contentLength
@@ -31,7 +31,6 @@ class OnlineImageRepository : BaseOnlineRepository(), ImageRepository {
     }
     if (response.headers[HttpHeaders.ContentType]?.startsWith("image/") != true) {
       trySend(RemoteImageState.Error("服务器错误: ${response.status}"))
-      close()
       return@callbackFlow
     }
 
