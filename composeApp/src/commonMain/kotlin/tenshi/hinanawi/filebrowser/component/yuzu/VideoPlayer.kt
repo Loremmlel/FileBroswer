@@ -1,10 +1,12 @@
 package tenshi.hinanawi.filebrowser.component.yuzu
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import tenshi.hinanawi.filebrowser.data.repo.OnlineTranscodeRepository
 import tenshi.hinanawi.filebrowser.data.repo.TranscodeRepository
 import tenshi.hinanawi.filebrowser.model.response.TranscodeStatus
 
@@ -42,6 +44,7 @@ fun rememberTranscodeState(
             status.status == TranscodeStatus.Enum.Completed && status.progress >= 0.99 -> {
               TranscodeUiState.Completed(status)
             }
+
             else -> TranscodeUiState.InProgress(status)
           }
         }
@@ -61,4 +64,17 @@ fun rememberTranscodeState(
   }
 
   return state
+}
+
+@Composable
+fun VideoPlayer(
+  modifier: Modifier = Modifier,
+  path: String
+) {
+  val transcodeRepository = remember { OnlineTranscodeRepository() }
+  val uiState = rememberTranscodeState(
+    videoPath = path,
+    transcodeRepository = transcodeRepository
+  )
+
 }

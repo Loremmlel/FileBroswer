@@ -19,6 +19,11 @@ import java.io.File
 fun Route.video() {
   route("/video") {
     install(PartialContent)
+    /**
+     * 获取HLS视频流接口
+     *
+     * 例如，/one-uuid/playlist.m3u8、/one-uuid/segment0001.ts等等。
+     */
     get("/{taskId}/{...}") {
       call.safeExecute {
         val taskId = call.parameters["taskId"] ?: run {
@@ -61,6 +66,9 @@ fun Route.video() {
     }
   }
 
+  /**
+   * 直接播放视频的接口
+   */
   route("/direct-video") {
     install(PathValidator)
     get {
