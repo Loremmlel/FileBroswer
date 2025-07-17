@@ -98,6 +98,12 @@ class BrowseViewModel(
     getData()
   }
 
+  private fun getData() {
+    refreshFiles()
+    refreshFavorites()
+    refreshFavoriteFiles()
+  }
+
   fun refreshFiles() = viewModelScope.launch {
     _fileLoading.value = true
     try {
@@ -125,12 +131,6 @@ class BrowseViewModel(
     } catch (e: Exception) {
       ErrorHandler.handleException(e)
     }
-  }
-
-  private fun getData() {
-    refreshFiles()
-    refreshFavorites()
-    refreshFavoriteFiles()
   }
 
   fun setCurrentFavoriteFile(file: FileInfo?) {

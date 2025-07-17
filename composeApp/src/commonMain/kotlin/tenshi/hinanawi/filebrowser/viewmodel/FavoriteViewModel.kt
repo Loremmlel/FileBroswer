@@ -17,7 +17,6 @@ class FavoriteViewModel(
 ) : ViewModel() {
   data class FavoriteUiState(
     val favorites: List<FavoriteDto> = emptyList(),
-    val currentFavorite: FavoriteDto? = null,
     val loading: Boolean = true
   )
 
@@ -28,41 +27,16 @@ class FavoriteViewModel(
   private val _event = MutableSharedFlow<Event>()
   val event = _event.asSharedFlow()
 
-  private val _refreshTrigger = MutableSharedFlow<Unit>()
-  private val _favoritesFlow = _refreshTrigger
-    .onStart { emit(Unit) }
-    .flatMapLatest {
-      flow {
-        emit(favoriteRepository.getFavorites())
-      }
-        .catch { e ->
-          ErrorHandler.handleException(e)
-          emit(emptyList())
-        }
-    }
-
-  private val _currentFavoriteId = MutableStateFlow<Long?>(null)
-  private val _currentFavoriteFlow = _currentFavoriteId
-    .filterNotNull()
-    .flatMapLatest {
-      flow {
-        emit(favoriteRepository.getFavoriteDetail(it))
-      }
-        .catch { e ->
-          ErrorHandler.handleException(e)
-          emit(null)
-        }
-    }
+  private val _favorites = MutableStateFlow<List<FavoriteDto>>(emptyList())
+  private val _loading = MutableStateFlow(false)
 
   val uiState = combine(
-    _favoritesFlow,
-    _currentFavoriteFlow,
-    _currentFavoriteId
-  ) { favorites, currentFavorite, currentFavoriteId ->
+    _favorites,
+    _loading
+  ) { favorites, loading ->
     FavoriteUiState(
       favorites = favorites,
-      currentFavorite = currentFavorite,
-      loading = currentFavoriteId != null && currentFavorite == null
+      loading = loading
     )
   }
     .catch { e ->
@@ -75,6 +49,7 @@ class FavoriteViewModel(
     )
 
   init {
+    getData()
     viewModelScope.launch {
       EventBus.event.collect {
         when (it) {
@@ -85,15 +60,26 @@ class FavoriteViewModel(
     }
   }
 
-  suspend fun refreshFavorites() {
-    _refreshTrigger.emit(Unit)
+  private fun getData() {
+    refreshFavorites()
+  }
+
+  fun refreshFavorites() = viewModelScope.launch {
+    _loading.value = true
+    try {
+      _favorites.value = favoriteRepository.getFavorites()
+    } catch (e: Exception) {
+      ErrorHandler.handleException(e)
+    } finally {
+      _loading.value = false
+    }
   }
 
   fun createFavorite(name: String, sortOrder: Int = 0) = viewModelScope.launch {
     val newFavorite = favoriteRepository.createFavorite(CreateFavoriteRequest(name, sortOrder))
     if (newFavorite != null) {
       _event.emit(Event.CreateSuccess)
-      delay(1000)
+      delay(500)
       refreshFavorites()
     }
   }
