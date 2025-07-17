@@ -1,10 +1,6 @@
 package tenshi.hinanawi.filebrowser.component.yuzu
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,7 +31,7 @@ sealed class TranscodeUiState {
 fun rememberTranscodeState(
   videoPath: String,
   transcodeRepository: TranscodeRepository
-): State<TranscodeUiState> {
+): Pair<State<TranscodeUiState>, (TranscodeUiState) -> Unit> {
   val state = remember(videoPath) { mutableStateOf<TranscodeUiState>(TranscodeUiState.Idle) }
   val scope = rememberCoroutineScope()
 
@@ -76,7 +72,7 @@ fun rememberTranscodeState(
     }
   }
 
-  return state
+  return Pair(state, { state.value = it })
 }
 
 @Composable
@@ -99,7 +95,7 @@ fun VideoPlayer(
     )
   } else {
     val transcodeRepository = remember { OnlineTranscodeRepository() }
-    val transcodeUiState = rememberTranscodeState(
+    val (uiState, setUiState) = rememberTranscodeState(
       videoPath = path,
       transcodeRepository = transcodeRepository
     )
@@ -109,7 +105,7 @@ fun VideoPlayer(
         .fillMaxSize()
         .padding(4.dp)
     ) {
-      val state = transcodeUiState.value
+      val state = uiState.value
       when (state) {
         is TranscodeUiState.Idle -> {
           Text(
@@ -145,6 +141,7 @@ fun VideoPlayer(
             )
           }
         }
+
         is TranscodeUiState.Completed -> {
           taskId = state.status.id
           Text(
@@ -153,6 +150,7 @@ fun VideoPlayer(
             style = MaterialTheme.typography.titleLarge
           )
         }
+
         is TranscodeUiState.Error -> {
           Text(
             modifier = Modifier.align(Alignment.Center),
@@ -171,7 +169,7 @@ fun VideoPlayer(
 
           },
           onError = { message ->
-
+            setUiState(TranscodeUiState.Error(message))
           }
         )
       }
