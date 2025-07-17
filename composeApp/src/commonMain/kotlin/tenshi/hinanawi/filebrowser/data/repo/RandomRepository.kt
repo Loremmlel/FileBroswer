@@ -6,15 +6,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.model.response.FileInfo
+import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 interface RandomRepository {
-  fun getAllVideo(path: String): Flow<List<FileInfo>>
+  suspend fun getAllVideo(path: String): List<FileInfo>
 }
 
 class OnlineRandomRepository : RandomRepository, BaseOnlineRepository() {
   private val basePath = "/random"
-  override fun getAllVideo(path: String): Flow<List<FileInfo>> = flow {
+  override suspend fun getAllVideo(path: String): List<FileInfo> {
     val response = client.get("$basePath?path=$path").body<Response<List<FileInfo>>>()
-    emit(response.data ?: emptyList())
+    return response.data ?: emptyList()
   }
 }

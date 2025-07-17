@@ -33,17 +33,19 @@ class RandomPlayViewModel(
         val requestTime = currentTimeMillis()
         val lastRequestTime = _requestTimeMap[path] ?: 0
         val cacheVideoFiles = _cacheMap[path]
+        _loading.value = true
         if (requestTime - lastRequestTime <= cacheDuration && cacheVideoFiles != null) {
           flowOf(cacheVideoFiles)
             .onCompletion {
               _loading.value = false
             }
         } else {
-          randomRepository.getAllVideo(path)
+          flow {
+            emit(randomRepository.getAllVideo(path))
+          }
             .catch { e ->
               ErrorHandler.handleException(e)
               emit(emptyList())
-              _loading.value = false
             }
             .onEach { videoFiles ->
               _requestTimeMap[path] = requestTime
@@ -56,11 +58,6 @@ class RandomPlayViewModel(
       },
     _clearTrigger.map { emptyList() }
   )
-    .stateIn(
-      scope = viewModelScope,
-      started = SharingStarted.WhileSubscribed(),
-      initialValue = emptyList()
-    )
 
   private val _loading = MutableStateFlow(false)
 
