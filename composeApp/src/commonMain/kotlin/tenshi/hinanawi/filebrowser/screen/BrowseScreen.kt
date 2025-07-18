@@ -174,7 +174,8 @@ fun BrowseScreen(
           VideoPlayer(
             modifier = Modifier.fillMaxSize(),
             path = previewItem.path,
-            supportHevc = uiState.supportHevc ?: false
+            supportHevc = uiState.supportHevc ?: false,
+            onClose = viewModel::closePreview
           )
         }
 

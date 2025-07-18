@@ -1,6 +1,10 @@
 package tenshi.hinanawi.filebrowser.component.yuzu
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -9,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNotNull
@@ -79,32 +84,45 @@ fun rememberTranscodeState(
 fun VideoPlayer(
   modifier: Modifier = Modifier,
   path: String,
-  supportHevc: Boolean
+  supportHevc: Boolean,
+  onClose: () -> Unit
 ) {
-  if (supportHevc) {
-    VideoCore(
-      modifier = modifier
-        .fillMaxSize(),
-      url = "$SERVER_URL/video/direct?path=$path",
-      onReady = {
+  Box(
+    modifier = modifier
+      .fillMaxSize()
+      .padding(4.dp)
+  ) {
+    IconButton(onClick = onClose) {
+      Icon(
+        modifier = Modifier
+          .zIndex(Float.MAX_VALUE)
+          .size(24.dp)
+          .padding(horizontal = 12.dp)
+          .align(Alignment.TopStart),
+        imageVector = Icons.Default.Close,
+        contentDescription = "关闭视频",
+        tint = Color.White
+      )
+    }
+    if (supportHevc) {
+      VideoCore(
+        modifier = modifier
+          .fillMaxSize(),
+        url = "$SERVER_URL/direct-video?path=$path",
+        onReady = {
 
-      },
-      onError = { message ->
+        },
+        onError = { message ->
 
-      }
-    )
-  } else {
-    val transcodeRepository = remember { OnlineTranscodeRepository() }
-    val (uiState, setUiState) = rememberTranscodeState(
-      videoPath = path,
-      transcodeRepository = transcodeRepository
-    )
-    var taskId by remember { mutableStateOf<String?>(null) }
-    Box(
-      modifier = modifier
-        .fillMaxSize()
-        .padding(4.dp)
-    ) {
+        }
+      )
+    } else {
+      val transcodeRepository = remember { OnlineTranscodeRepository() }
+      val (uiState, setUiState) = rememberTranscodeState(
+        videoPath = path,
+        transcodeRepository = transcodeRepository
+      )
+      var taskId by remember { mutableStateOf<String?>(null) }
       val state = uiState.value
       when (state) {
         is TranscodeUiState.Idle -> {
