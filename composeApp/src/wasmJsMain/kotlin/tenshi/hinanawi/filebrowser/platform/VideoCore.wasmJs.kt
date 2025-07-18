@@ -30,8 +30,11 @@ external class Hls(config: JsAny = definedExternally) {
 actual fun VideoCore(
   modifier: Modifier,
   url: String,
+  autoPlay: Boolean,
+  showControls: Boolean,
   onReady: () -> Unit,
-  onError: (String) -> Unit
+  onError: (String) -> Unit,
+  onClose: () -> Unit
 ) {
   val videoElement = remember {
     (document.createElement("video") as HTMLVideoElement).apply {

@@ -15,8 +15,11 @@ import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
 actual fun VideoCore(
   modifier: Modifier,
   url: String,
+  autoPlay: Boolean,
+  showControls: Boolean,
   onReady: () -> Unit,
-  onError: (String) -> Unit
+  onError: (String) -> Unit,
+  onClose: () -> Unit
 ) {
   val mediaPlayerComponent = remember {
     EmbeddedMediaPlayerComponent()

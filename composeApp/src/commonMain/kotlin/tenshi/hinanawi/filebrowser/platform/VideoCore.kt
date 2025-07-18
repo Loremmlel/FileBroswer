@@ -7,6 +7,9 @@ import androidx.compose.ui.Modifier
 expect fun VideoCore(
   modifier: Modifier = Modifier,
   url: String,
+  autoPlay: Boolean = true,
+  showControls: Boolean = true,
   onReady: () -> Unit,
-  onError: (String) -> Unit
+  onError: (String) -> Unit,
+  onClose: () -> Unit
 )
