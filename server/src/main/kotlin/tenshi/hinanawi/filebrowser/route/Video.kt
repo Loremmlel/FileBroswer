@@ -69,8 +69,9 @@ fun Route.video() {
   /**
    * 直接播放视频的接口
    */
-  route("/direct") {
+  route("/direct-video") {
     install(PathValidator)
+    install(PartialContent)
     get {
       call.safeExecute {
         val file = attributes[ValidatedFileKey]
