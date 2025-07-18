@@ -114,7 +114,8 @@ fun VideoPlayer(
         },
         onError = { message ->
 
-        }
+        },
+        onClose = onClose
       )
     } else {
       val transcodeRepository = remember { OnlineTranscodeRepository() }
@@ -188,7 +189,8 @@ fun VideoPlayer(
           },
           onError = { message ->
             setUiState(TranscodeUiState.Error(message))
-          }
+          },
+          onClose = onClose
         )
       }
     }

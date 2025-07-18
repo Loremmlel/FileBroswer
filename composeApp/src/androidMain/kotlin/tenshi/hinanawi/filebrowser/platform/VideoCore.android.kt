@@ -86,7 +86,10 @@ actual fun VideoCore(
       addListener(object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
           when (playbackState) {
-            Player.STATE_READY -> onReady()
+            Player.STATE_READY -> {
+              onReady()
+              playing = true
+            }
             else -> {}
           }
         }
@@ -143,7 +146,10 @@ actual fun VideoCore(
         speedBoosting = it
         exoPlayer.setPlaybackSpeed(if (speedBoosting) 3f else 1f)
       },
-      onClose = onClose
+      onClose = {
+        onClose()
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+      }
     )
   } else {
     Box(modifier = modifier) {
@@ -193,20 +199,6 @@ actual fun VideoCore(
       }
     }
   }
-
-  AndroidView(
-    modifier = modifier,
-    factory = { context ->
-      PlayerView(context).apply {
-        player = exoPlayer
-        useController = true
-        layoutParams = ViewGroup.LayoutParams(
-          ViewGroup.LayoutParams.MATCH_PARENT,
-          ViewGroup.LayoutParams.MATCH_PARENT
-        )
-      }
-    }
-  )
 }
 
 @Composable
