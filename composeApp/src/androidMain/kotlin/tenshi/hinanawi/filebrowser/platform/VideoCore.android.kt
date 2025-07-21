@@ -166,12 +166,12 @@ actual fun VideoCore(
           isSpeedBoosting = isSpeedBoosting,
           currentPosition = currentPosition,
           duration = duration,
-          showControlsOverlay = true,
+          showControlsOverlay = showControlsOverlay,
           seekIndicator = seekIndicator,
-          showControls = true,
+          showControls = showControls,
           onFullscreen = {
             isFullscreen = false
-            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
           },
           onClose = {
             onClose()
