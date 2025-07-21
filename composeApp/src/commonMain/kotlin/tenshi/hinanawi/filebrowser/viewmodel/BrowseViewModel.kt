@@ -109,6 +109,7 @@ class BrowseViewModel(
   }
 
   fun refreshFiles() = viewModelScope.launch {
+    closePreview()
     _fileLoading.value = true
     try {
       _files.value = filesRepository.getFiles(navigator.requestPath)
