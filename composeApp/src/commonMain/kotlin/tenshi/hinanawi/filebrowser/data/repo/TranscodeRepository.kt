@@ -37,8 +37,7 @@ class OnlineTranscodeRepository : TranscodeRepository, BaseOnlineRepository() {
 
   override suspend fun stopTranscode(id: String): Boolean = try {
     client.delete("$transcodingPath/$id").status == HttpStatusCode.OK
-  } catch (e: Exception) {
-    ErrorHandler.handleException(e)
+  } catch (_: Exception) {
     false
   }
 }

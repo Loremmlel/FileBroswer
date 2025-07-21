@@ -3,11 +3,7 @@ package tenshi.hinanawi.filebrowser.component.yuzu
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +35,7 @@ fun rememberTranscodeState(
 ): Pair<State<TranscodeUiState>, (TranscodeUiState) -> Unit> {
   val state = remember(videoPath) { mutableStateOf<TranscodeUiState>(TranscodeUiState.Idle) }
   val scope = rememberCoroutineScope()
+  var currentTaskId by remember { mutableStateOf<String?>(null) }
 
   LaunchedEffect(videoPath) {
     if (state.value !is TranscodeUiState.Idle) {
@@ -47,6 +44,7 @@ fun rememberTranscodeState(
     try {
       state.value = TranscodeUiState.Loading
       val startStatus = transcodeRepository.startTranscode(videoPath)
+      currentTaskId = startStatus.id
       delay(100)
       transcodeRepository.observeTranscode(startStatus.id)
         .catch { e ->
@@ -69,9 +67,16 @@ fun rememberTranscodeState(
 
   DisposableEffect(videoPath) {
     onDispose {
-      scope.launch {
-        (state.value as? TranscodeUiState.InProgress)?.let {
-          transcodeRepository.stopTranscode(it.status.id)
+      currentTaskId?.let { taskId ->
+        scope.launch {
+          try {
+            val result = transcodeRepository.stopTranscode(taskId)
+            if (!result) {
+              println("组件退出清除转码失败")
+            }
+          } catch (e: Exception) {
+            println("组件退出清除转码失败: $e, ${e.message}")
+          }
         }
       }
     }
