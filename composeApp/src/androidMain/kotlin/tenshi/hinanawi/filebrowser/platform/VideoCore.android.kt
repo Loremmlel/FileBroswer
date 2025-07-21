@@ -3,22 +3,20 @@ package tenshi.hinanawi.filebrowser.platform
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.util.Log
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Fullscreen
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +41,10 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.hls.HlsMediaSource
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import tenshi.hinanawi.filebrowser.util.currentTimeMillis
 import java.util.*
+import kotlin.math.abs
 
 @SuppressLint("SourceLockedOrientationActivity")
 @OptIn(UnstableApi::class)
@@ -65,6 +66,7 @@ actual fun VideoCore(
   var currentPosition by remember { mutableLongStateOf(0L) }
   var duration by remember { mutableLongStateOf(0L) }
   var isSpeedBoosting by remember { mutableStateOf(false) }
+  var seekIndicator by remember { mutableStateOf<SeekIndicator?>(null) }
 
   val exoPlayer = remember(url) {
     ExoPlayer.Builder(context).build().apply {
@@ -88,6 +90,7 @@ actual fun VideoCore(
             Player.STATE_READY -> {
               onReady()
             }
+
             else -> {}
           }
         }
@@ -103,7 +106,7 @@ actual fun VideoCore(
   }
 
   // 更新播放进度
-  LaunchedEffect(exoPlayer.currentPosition, exoPlayer.duration) {
+  LaunchedEffect(Unit) {
     while (true) {
       currentPosition = exoPlayer.currentPosition
       duration = exoPlayer.duration.coerceAtLeast(0)
@@ -114,7 +117,7 @@ actual fun VideoCore(
   // 自动隐藏控制栏
   LaunchedEffect(exoPlayer.isPlaying, showControlsOverlay) {
     if (showControlsOverlay && exoPlayer.isPlaying) {
-      delay(3000)
+      delay(2000)
       showControlsOverlay = false
     }
   }
@@ -136,9 +139,15 @@ actual fun VideoCore(
       isSpeedBoosting = isSpeedBoosting,
       currentPosition = currentPosition,
       duration = duration,
+      seekIndicator = seekIndicator,
       onSeek = { exoPlayer.seekTo(it) },
       onPlayPause = {
-        if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
+        if (exoPlayer.isPlaying) {
+          exoPlayer.pause()
+          showControlsOverlay = true
+        } else {
+          exoPlayer.play()
+        }
       },
       onSpeedBoost = {
         isSpeedBoosting = it
@@ -147,54 +156,203 @@ actual fun VideoCore(
       onClose = {
         onClose()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-      }
+      },
+      onShowControls = { showControlsOverlay = it },
+      onSeekIndicatorChange = { seekIndicator = it }
     )
   } else {
     Box(modifier = modifier) {
-      AndroidView(
-        factory = { context ->
-          PlayerView(context).apply {
-            player = exoPlayer
-            useController = false
-            layoutParams = ViewGroup.LayoutParams(
-              ViewGroup.LayoutParams.MATCH_PARENT,
-              ViewGroup.LayoutParams.MATCH_PARENT
-            )
+      PlayerContent(
+        exoPlayer = exoPlayer,
+        isPlaying = exoPlayer.isPlaying,
+        isSpeedBoosting = isSpeedBoosting,
+        currentPosition = currentPosition,
+        duration = duration,
+        showControlsOverlay = showControlsOverlay,
+        seekIndicator = seekIndicator,
+        onPlayPause = {
+          if (exoPlayer.isPlaying) {
+            exoPlayer.pause()
+            showControlsOverlay = true
+          } else {
+            exoPlayer.play()
           }
         },
-        modifier = Modifier
-          .fillMaxSize()
-          .pointerInput(Unit) {
-            detectTapGestures(
-              onTap = {
-                showControlsOverlay = !showControlsOverlay
-              }
-            )
-          }
+        onSeek = { exoPlayer.seekTo(it) },
+        onSpeedBoost = {
+          isSpeedBoosting = it
+          exoPlayer.setPlaybackSpeed(if (isSpeedBoosting) 3f else 1f)
+        },
+        onFullscreen = {
+          isFullscreen = true
+          activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        },
+        onClose = onClose,
+        onShowControls = { showControlsOverlay = it },
+        onSeekIndicatorChange = { seekIndicator = it },
+        showControls = showControls
       )
+    }
+  }
+}
 
-      if (showControls) {
-        PlayerControlsOverlay(
-          visible = showControlsOverlay,
-          isPlaying = exoPlayer.isPlaying,
-          currentPosition = currentPosition,
-          duration = duration,
-          onPlayPause = {
-            if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
-          },
-          onSeek = { position -> exoPlayer.seekTo(position) },
-          onFullscreen = {
-            isFullscreen = true
-            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-          },
-          onClose = onClose,
-          onSpeedBoost = { boost ->
-            isSpeedBoosting = boost
-            exoPlayer.setPlaybackSpeed(if (boost) 3f else 1f)
-          },
-          isSpeedBoosting = isSpeedBoosting
-        )
-      }
+data class SeekIndicator(
+  val direction: SeekDirection,
+  val seconds: Int
+)
+
+enum class SeekDirection {
+  Forward, Backward
+}
+
+@Composable
+private fun PlayerContent(
+  exoPlayer: ExoPlayer,
+  isPlaying: Boolean,
+  isSpeedBoosting: Boolean,
+  currentPosition: Long,
+  duration: Long,
+  showControlsOverlay: Boolean,
+  seekIndicator: SeekIndicator?,
+  onPlayPause: () -> Unit,
+  onSeek: (Long) -> Unit,
+  onSpeedBoost: (Boolean) -> Unit,
+  onFullscreen: () -> Unit,
+  onClose: (() -> Unit)?,
+  onShowControls: (Boolean) -> Unit,
+  onSeekIndicatorChange: (SeekIndicator?) -> Unit,
+  showControls: Boolean
+) {
+  var dragStartX by remember { mutableFloatStateOf(0f) }
+  var currentDragX by remember { mutableFloatStateOf(0f) }
+  var isDragging by remember { mutableStateOf(false) }
+
+  val scope = rememberCoroutineScope()
+
+  Box(modifier = Modifier.fillMaxSize()) {
+    AndroidView(
+      factory = { context ->
+        PlayerView(context).apply {
+          player = exoPlayer
+          useController = false
+          layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+          )
+        }
+      },
+      modifier = Modifier
+        .fillMaxSize()
+        .pointerInput(Unit) {
+          val longPressThreshold = 300L
+          awaitEachGesture {
+            awaitFirstDown()
+            val downTime = currentTimeMillis()
+            var isLongPress = false
+
+            val longPressJob = scope.launch {
+              delay(longPressThreshold)
+              isLongPress = true
+              onSpeedBoost(true)
+            }
+
+            val up = waitForUpOrCancellation()
+
+            longPressJob.cancel()
+            if (isLongPress) {
+              onSpeedBoost(false)
+            }
+            if (up != null) {
+              val pressDuration = currentTimeMillis() - downTime
+              if (pressDuration < longPressThreshold) {
+                onShowControls(true)
+              }
+            }
+          }
+        }
+        .pointerInput(Unit) {
+          detectHorizontalDragGestures(
+            onDragStart = { offset ->
+              dragStartX = offset.x
+              currentDragX = offset.x
+              isDragging = true
+            },
+            onDragEnd = {
+              if (!isDragging) {
+                return@detectHorizontalDragGestures
+              }
+              val dragDistance = currentDragX - dragStartX
+
+              val halfScreenWidth = size.width / 2f
+              val ratio = dragDistance / halfScreenWidth
+
+              val seekSeconds = (ratio * 300).toInt()
+
+              if (abs(seekSeconds) > 0) {
+                val newPosition = (currentPosition + seekSeconds * 1000)
+                  .coerceIn(0, duration)
+                Log.e("fuck", "$currentPosition -> $newPosition")
+                onSeek(newPosition)
+              }
+
+              onSeekIndicatorChange(null)
+              isDragging = false
+            },
+            onDragCancel = {
+              onSeekIndicatorChange(null)
+              isDragging = false
+            },
+            onHorizontalDrag = { change, dragAmount ->
+              if (!isDragging) {
+                return@detectHorizontalDragGestures
+              }
+              currentDragX += dragAmount
+              val dragDistance = currentDragX - dragStartX
+
+              val halfScreenWidth = size.width / 2f
+              val ratio = dragDistance / halfScreenWidth
+
+              val seekSeconds = (ratio * 300).toInt()
+
+              if (abs(seekSeconds) > 0) {
+                val direction = if (seekSeconds > 0) SeekDirection.Forward else SeekDirection.Backward
+                onSeekIndicatorChange(SeekIndicator(direction, abs(seekSeconds)))
+              } else {
+                onSeekIndicatorChange(null)
+              }
+            }
+          )
+        }
+    )
+
+    // 显示快进/快退指示器
+    seekIndicator?.let {
+      SeekIndicatorOverlay(
+        direction = it.direction,
+        seconds = it.seconds,
+        modifier = Modifier.align(Alignment.Center)
+      )
+    }
+
+    // 显示三倍速指示器
+    SpeedBoostIndicator(
+      visible = isSpeedBoosting,
+      modifier = Modifier.align(Alignment.Center)
+    )
+
+    // 显示控制界面
+    if (showControls) {
+      PlayerControlsOverlay(
+        visible = showControlsOverlay,
+        isPlaying = isPlaying,
+        currentPosition = currentPosition,
+        duration = duration,
+        isSpeedBoosting = isSpeedBoosting,
+        onPlayPause = onPlayPause,
+        onFullscreen = onFullscreen,
+        onClose = onClose,
+        onControlsInteraction = onShowControls
+      )
     }
   }
 }
@@ -207,13 +365,14 @@ private fun FullscreenPlayer(
   isSpeedBoosting: Boolean,
   currentPosition: Long,
   duration: Long,
+  seekIndicator: SeekIndicator?,
   onSeek: (Long) -> Unit,
   onPlayPause: () -> Unit,
   onSpeedBoost: (Boolean) -> Unit,
-  onClose: (() -> Unit)?
+  onClose: (() -> Unit)?,
+  onShowControls: (Boolean) -> Unit,
+  onSeekIndicatorChange: (SeekIndicator?) -> Unit
 ) {
-  var showControls by remember { mutableStateOf(true) }
-
   Dialog(
     onDismissRequest = onExitFullscreen,
     properties = DialogProperties(
@@ -227,35 +386,22 @@ private fun FullscreenPlayer(
         .fillMaxSize()
         .background(Color.Black)
     ) {
-      AndroidView(
-        factory = { context ->
-          PlayerView(context).apply {
-            player = exoPlayer
-            useController = false
-            layoutParams = ViewGroup.LayoutParams(
-              ViewGroup.LayoutParams.MATCH_PARENT,
-              ViewGroup.LayoutParams.MATCH_PARENT
-            )
-          }
-        },
-        modifier = Modifier
-          .fillMaxSize()
-          .pointerInput(Unit) {
-            detectTapGestures(onTap = { showControls = !showControls })
-          }
-      )
-
-      PlayerControlsOverlay(
-        visible = showControls,
+      PlayerContent(
+        exoPlayer = exoPlayer,
         isPlaying = isPlaying,
+        isSpeedBoosting = isSpeedBoosting,
         currentPosition = currentPosition,
         duration = duration,
+        showControlsOverlay = true,
+        seekIndicator = seekIndicator,
         onPlayPause = onPlayPause,
         onSeek = onSeek,
+        onSpeedBoost = onSpeedBoost,
         onFullscreen = onExitFullscreen,
         onClose = onClose,
-        onSpeedBoost = onSpeedBoost,
-        isSpeedBoosting = isSpeedBoosting
+        onShowControls = onShowControls,
+        onSeekIndicatorChange = onSeekIndicatorChange,
+        showControls = true
       )
     }
   }
@@ -267,12 +413,11 @@ private fun PlayerControlsOverlay(
   isPlaying: Boolean,
   currentPosition: Long,
   duration: Long,
+  isSpeedBoosting: Boolean,
   onPlayPause: () -> Unit,
-  onSeek: (Long) -> Unit,
   onFullscreen: () -> Unit,
   onClose: (() -> Unit)?,
-  onSpeedBoost: (Boolean) -> Unit,
-  isSpeedBoosting: Boolean
+  onControlsInteraction: (Boolean) -> Unit
 ) {
   AnimatedVisibility(
     visible = visible,
@@ -283,6 +428,14 @@ private fun PlayerControlsOverlay(
       modifier = Modifier
         .fillMaxSize()
         .background(Color.Black.copy(alpha = 0.3f))
+        .pointerInput(Unit) {
+          detectTapGestures(
+            // 点击空白区域隐藏控制界面
+            onTap = {
+              onControlsInteraction(false)
+            }
+          )
+        }
     ) {
       // 顶部控制栏
       Row(
@@ -311,6 +464,9 @@ private fun PlayerControlsOverlay(
           onClick = onFullscreen,
           modifier = Modifier
             .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+            .pointerInput(Unit) {
+              detectTapGestures { }
+            }
         ) {
           Icon(
             imageVector = Icons.Default.Fullscreen,
@@ -328,16 +484,7 @@ private fun PlayerControlsOverlay(
           .size(64.dp)
           .background(Color.Black.copy(alpha = 0.5f), CircleShape)
           .pointerInput(Unit) {
-            detectTapGestures(
-              onTap = {
-                onPlayPause()
-              },
-              onPress = {
-                onSpeedBoost(true)
-                tryAwaitRelease()
-                onSpeedBoost(false)
-              }
-            )
+            detectTapGestures { }
           }
       ) {
         Icon(
@@ -358,11 +505,13 @@ private fun PlayerControlsOverlay(
             RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
           )
           .padding(16.dp)
+          .pointerInput(Unit) {
+            detectTapGestures { }
+          }
       ) {
         VideoProgressBar(
           currentPosition = currentPosition,
-          duration = duration,
-          onSeek = onSeek
+          duration = duration
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -401,7 +550,6 @@ private fun PlayerControlsOverlay(
 private fun VideoProgressBar(
   currentPosition: Long,
   duration: Long,
-  onSeek: (Long) -> Unit
 ) {
   var dragging by remember { mutableStateOf(false) }
   var dragPosition by remember { mutableFloatStateOf(0f) }
@@ -413,51 +561,119 @@ private fun VideoProgressBar(
   Box(
     modifier = Modifier
       .fillMaxWidth()
-      .height(20.dp)
-      .pointerInput(Unit) {
-        detectDragGestures(
-          onDragStart = {
-            dragging = true
-          },
-          onDragEnd = {
-            dragging = false
-            if (duration > 0) {
-              onSeek((dragPosition * duration).toLong())
-            }
-          },
-          onDrag = { change, dragAmount ->
-            dragPosition = (dragPosition + dragAmount.x / (size.width * 2)).coerceIn(0f, 1f)
-            change.consume()
-          }
-        )
-      }
+      .height(16.dp)
   ) {
-    // 背景进度条
     Box(
       modifier = Modifier
         .fillMaxWidth()
-        .height(4.dp)
-        .background(Color.Gray.copy(alpha = 0.5f), RoundedCornerShape(2.dp))
+        .height(2.dp)
+        .background(Color.Gray.copy(alpha = 0.5f), RoundedCornerShape(1.dp))
         .align(Alignment.Center)
     )
 
-    // 当前进度
     Box(
       modifier = Modifier
         .fillMaxWidth(progress)
-        .height(4.dp)
-        .background(Color.Blue, RoundedCornerShape(2.dp))
+        .height(2.dp)
+        .background(Color.White, RoundedCornerShape(1.dp))
         .align(Alignment.CenterStart)
     )
 
-    // 拖拽手柄
     Box(
       modifier = Modifier
-        .offset(x = (progress * (300.dp - 12.dp)))
-        .size(12.dp)
-        .background(Color.Red, CircleShape)
+        .offset(x = (progress * (300.dp - 8.dp)))
+        .size(8.dp)
+        .background(Color.White, CircleShape)
         .align(Alignment.CenterStart)
     )
+  }
+}
+
+@Composable
+private fun SpeedBoostIndicator(
+  modifier: Modifier = Modifier,
+  visible: Boolean
+) {
+  AnimatedVisibility(
+    visible = visible,
+    enter = fadeIn(),
+    exit = fadeOut(),
+    modifier = modifier
+  ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "speedBoostTransition")
+    val alpha by infiniteTransition.animateFloat(
+      initialValue = 0.2f,
+      targetValue = 0.6f,
+      animationSpec = infiniteRepeatable(
+        animation = tween(800),
+        repeatMode = RepeatMode.Reverse
+      ),
+      label = "speedBoostAlpha"
+    )
+
+    Box(
+      modifier = Modifier
+        .size(100.dp)
+        .background(
+          Color.Black.copy(alpha = alpha),
+          RoundedCornerShape(12.dp)
+        ),
+      contentAlignment = Alignment.Center
+    ) {
+      Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+      ) {
+        Icon(
+          imageVector = Icons.Default.FastForward,
+          contentDescription = "三倍速",
+          tint = Color.White.copy(alpha = 0.8f),
+          modifier = Modifier.size(40.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+          text = "3x",
+          color = Color.White.copy(alpha = 0.8f),
+          style = MaterialTheme.typography.headlineSmall
+        )
+      }
+    }
+  }
+}
+
+@Composable
+private fun SeekIndicatorOverlay(
+  direction: SeekDirection,
+  seconds: Int,
+  modifier: Modifier = Modifier
+) {
+  Box(
+    modifier = modifier
+      .width(100.dp)
+      .wrapContentHeight()
+      .background(
+        Color.Black.copy(alpha = 0.6f),
+        RoundedCornerShape(12.dp)
+      )
+      .padding(8.dp),
+    contentAlignment = Alignment.Center
+  ) {
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      Icon(
+        imageVector = if (direction == SeekDirection.Forward)
+          Icons.Default.FastForward else Icons.Default.FastRewind,
+        contentDescription = if (direction == SeekDirection.Forward) "快进" else "快退",
+        tint = Color.White,
+        modifier = Modifier.size(40.dp)
+      )
+      Spacer(modifier = Modifier.height(4.dp))
+      Text(
+        text = "${if (direction == SeekDirection.Forward) "+" else "-"}${seconds}秒",
+        color = Color.White,
+        style = MaterialTheme.typography.headlineSmall
+      )
+    }
   }
 }
 
