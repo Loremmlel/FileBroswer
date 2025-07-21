@@ -60,12 +60,11 @@ actual fun VideoCore(
   val context = LocalContext.current
   val activity = context as? Activity
 
-  var fullscreen by remember { mutableStateOf(false) }
+  var isFullscreen by remember { mutableStateOf(false) }
   var showControlsOverlay by remember { mutableStateOf(true) }
-  var playing by remember { mutableStateOf(false) }
   var currentPosition by remember { mutableLongStateOf(0L) }
   var duration by remember { mutableLongStateOf(0L) }
-  var speedBoosting by remember { mutableStateOf(false) }
+  var isSpeedBoosting by remember { mutableStateOf(false) }
 
   val exoPlayer = remember(url) {
     ExoPlayer.Builder(context).build().apply {
@@ -88,7 +87,6 @@ actual fun VideoCore(
           when (playbackState) {
             Player.STATE_READY -> {
               onReady()
-              playing = true
             }
             else -> {}
           }
@@ -109,13 +107,13 @@ actual fun VideoCore(
     while (true) {
       currentPosition = exoPlayer.currentPosition
       duration = exoPlayer.duration.coerceAtLeast(0)
-      delay(1000)
+      delay(500)
     }
   }
 
   // 自动隐藏控制栏
   LaunchedEffect(exoPlayer) {
-    if (showControlsOverlay && playing) {
+    if (showControlsOverlay && exoPlayer.isPlaying) {
       delay(3000)
       showControlsOverlay = false
     }
@@ -127,24 +125,24 @@ actual fun VideoCore(
     }
   }
 
-  if (fullscreen) {
+  if (isFullscreen) {
     FullscreenPlayer(
       exoPlayer = exoPlayer,
       onExitFullscreen = {
-        fullscreen = false
+        isFullscreen = false
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
       },
-      playing = playing,
-      speedBoosting = speedBoosting,
+      isPlaying = exoPlayer.isPlaying,
+      isSpeedBoosting = isSpeedBoosting,
       currentPosition = currentPosition,
       duration = duration,
       onSeek = { exoPlayer.seekTo(it) },
       onPlayPause = {
-        if (playing) exoPlayer.pause() else exoPlayer.play()
+        if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
       },
       onSpeedBoost = {
-        speedBoosting = it
-        exoPlayer.setPlaybackSpeed(if (speedBoosting) 3f else 1f)
+        isSpeedBoosting = it
+        exoPlayer.setPlaybackSpeed(if (isSpeedBoosting) 3f else 1f)
       },
       onClose = {
         onClose()
@@ -178,23 +176,23 @@ actual fun VideoCore(
       if (showControls) {
         PlayerControlsOverlay(
           visible = showControlsOverlay,
-          playing = playing,
+          isPlaying = exoPlayer.isPlaying,
           currentPosition = currentPosition,
           duration = duration,
           onPlayPause = {
-            if (playing) exoPlayer.pause() else exoPlayer.play()
+            if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
           },
           onSeek = { position -> exoPlayer.seekTo(position) },
           onFullscreen = {
-            fullscreen = true
+            isFullscreen = true
             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
           },
           onClose = onClose,
           onSpeedBoost = { boost ->
-            speedBoosting = boost
+            isSpeedBoosting = boost
             exoPlayer.setPlaybackSpeed(if (boost) 3f else 1f)
           },
-          speedBoosting = speedBoosting
+          isSpeedBoosting = isSpeedBoosting
         )
       }
     }
@@ -205,8 +203,8 @@ actual fun VideoCore(
 private fun FullscreenPlayer(
   exoPlayer: ExoPlayer,
   onExitFullscreen: () -> Unit,
-  playing: Boolean,
-  speedBoosting: Boolean,
+  isPlaying: Boolean,
+  isSpeedBoosting: Boolean,
   currentPosition: Long,
   duration: Long,
   onSeek: (Long) -> Unit,
@@ -249,7 +247,7 @@ private fun FullscreenPlayer(
 
       PlayerControlsOverlay(
         visible = showControls,
-        playing = playing,
+        isPlaying = isPlaying,
         currentPosition = currentPosition,
         duration = duration,
         onPlayPause = onPlayPause,
@@ -257,7 +255,7 @@ private fun FullscreenPlayer(
         onFullscreen = onExitFullscreen,
         onClose = onClose,
         onSpeedBoost = onSpeedBoost,
-        speedBoosting = speedBoosting
+        isSpeedBoosting = isSpeedBoosting
       )
     }
   }
@@ -266,7 +264,7 @@ private fun FullscreenPlayer(
 @Composable
 private fun PlayerControlsOverlay(
   visible: Boolean,
-  playing: Boolean,
+  isPlaying: Boolean,
   currentPosition: Long,
   duration: Long,
   onPlayPause: () -> Unit,
@@ -274,7 +272,7 @@ private fun PlayerControlsOverlay(
   onFullscreen: () -> Unit,
   onClose: (() -> Unit)?,
   onSpeedBoost: (Boolean) -> Unit,
-  speedBoosting: Boolean
+  isSpeedBoosting: Boolean
 ) {
   AnimatedVisibility(
     visible = visible,
@@ -341,8 +339,8 @@ private fun PlayerControlsOverlay(
           }
       ) {
         Icon(
-          imageVector = if (playing) Icons.Default.Pause else Icons.Default.PlayArrow,
-          contentDescription = if (playing) "暂停" else "播放",
+          imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+          contentDescription = if (isPlaying) "暂停" else "播放",
           tint = Color.White,
           modifier = Modifier.size(32.dp)
         )
@@ -378,7 +376,7 @@ private fun PlayerControlsOverlay(
             style = MaterialTheme.typography.bodySmall
           )
 
-          if (speedBoosting) {
+          if (isSpeedBoosting) {
             Text(
               text = "3x",
               color = Color.Yellow,
