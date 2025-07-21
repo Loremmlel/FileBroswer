@@ -46,13 +46,13 @@ import tenshi.hinanawi.filebrowser.util.currentTimeMillis
 import java.util.*
 import kotlin.math.abs
 
-class AndroidPlayerActions(
+data class AndroidPlayerActions(
   override val player: ExoPlayer,
   override val onPlayPause: () -> Unit,
   override val onSeek: (Long) -> Unit,
   override val onSpeedBoost: (Boolean) -> Unit,
-  val onShowControls: (Boolean) -> Unit,
-  override val onSeekIndicatorChange: (SeekIndicator?) -> Unit
+  override val onSeekIndicatorChange: (SeekIndicator?) -> Unit,
+  val onShowControls: (Boolean) -> Unit
 ) : PlayerActions()
 
 @SuppressLint("SourceLockedOrientationActivity")
