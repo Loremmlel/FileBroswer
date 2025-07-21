@@ -18,9 +18,10 @@ interface TranscodeRepository {
 }
 
 class OnlineTranscodeRepository : TranscodeRepository, BaseOnlineRepository() {
-  private val basePath = "/transcode"
+  private val transcodePath = "/transcode"
+  private val transcodingPath = "/transcoding"
   override suspend fun startTranscode(path: String): TranscodeStatus = try {
-    val response = client.post("$basePath?path=$path").body<Response<TranscodeStatus>>()
+    val response = client.post("$transcodePath?path=$path").body<Response<TranscodeStatus>>()
     response.data ?: throw ApiException(response.code, response.message)
   } catch (e: Exception) {
     throw Exception("转码启动失败: ${e.message}")
@@ -28,14 +29,14 @@ class OnlineTranscodeRepository : TranscodeRepository, BaseOnlineRepository() {
 
   override fun observeTranscode(id: String): Flow<TranscodeStatus?> = flow {
     while (true) {
-      val response = client.get("$basePath/$id").body<Response<TranscodeStatus>>()
+      val response = client.get("$transcodingPath/$id").body<Response<TranscodeStatus>>()
       emit(response.data)
       delay(1500)
     }
   }
 
   override suspend fun stopTranscode(id: String): Boolean = try {
-    client.delete("$basePath/$id").status == HttpStatusCode.OK
+    client.delete("$transcodingPath/$id").status == HttpStatusCode.OK
   } catch (e: Exception) {
     ErrorHandler.handleException(e)
     false

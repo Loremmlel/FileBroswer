@@ -24,16 +24,18 @@ fun Route.video() {
      *
      * 例如，/one-uuid/playlist.m3u8、/one-uuid/segment0001.ts等等。
      */
-    get("/{taskId}/{...}") {
+    get("/{taskId}/{param...}") {
       call.safeExecute {
-        val taskId = call.parameters["taskId"] ?: run {
+        val taskId = call.pathParameters["taskId"] ?: run {
           respond(
             HttpStatusCode.BadRequest,
             Response<Unit>(400, Message.VideoTaskIdUndefined, null)
           )
           return@safeExecute
         }
-        val segments = call.parameters.getAll("...")?.joinToString("/") ?: run {
+        println(taskId)
+        // 不能使用{...}然后getAll("...")或者getAll("")，会获取不到数据
+        val segments = call.pathParameters.getAll("param")?.joinToString("/") ?: run {
           respond(
             HttpStatusCode.BadRequest,
             Response<Unit>(400, Message.VideoPathSegmentUndefined, null)

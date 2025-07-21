@@ -35,10 +35,13 @@ fun Route.transcode(
         )
       }
     }
+  }
 
-    get("/{id}") {
+  // 如果使用"/transocde/{id}"，依然会应用PathValidator插件
+  route("/transcoding/{id}") {
+    get {
       call.safeExecute {
-        val id = call.parameters["id"]
+        val id = call.pathParameters["id"]
         if (id == null) {
           respond(
             HttpStatusCode.BadRequest,
@@ -62,9 +65,9 @@ fun Route.transcode(
       }
     }
 
-    delete("/{id}") {
+    delete {
       call.safeExecute {
-        val id = call.parameters["id"]
+        val id = call.pathParameters["id"]
         if (id == null) {
           respond(
             HttpStatusCode.BadRequest,
