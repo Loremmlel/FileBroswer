@@ -332,8 +332,10 @@ private fun PlayerControlsOverlay(
               onTap = {
                 onPlayPause()
               },
-              onLongPress = {
+              onPress = {
                 onSpeedBoost(true)
+                tryAwaitRelease()
+                onSpeedBoost(false)
               }
             )
           }
