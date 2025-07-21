@@ -103,7 +103,7 @@ actual fun VideoCore(
   }
 
   // 更新播放进度
-  LaunchedEffect(exoPlayer) {
+  LaunchedEffect(exoPlayer.currentPosition, exoPlayer.duration) {
     while (true) {
       currentPosition = exoPlayer.currentPosition
       duration = exoPlayer.duration.coerceAtLeast(0)
@@ -112,7 +112,7 @@ actual fun VideoCore(
   }
 
   // 自动隐藏控制栏
-  LaunchedEffect(exoPlayer) {
+  LaunchedEffect(exoPlayer.isPlaying, showControlsOverlay) {
     if (showControlsOverlay && exoPlayer.isPlaying) {
       delay(3000)
       showControlsOverlay = false
