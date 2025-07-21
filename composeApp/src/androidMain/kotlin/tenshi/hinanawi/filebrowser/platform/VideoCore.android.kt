@@ -135,7 +135,7 @@ actual fun VideoCore(
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
       },
       playing = playing,
-      sppedBoosting = speedBoosting,
+      speedBoosting = speedBoosting,
       currentPosition = currentPosition,
       duration = duration,
       onSeek = { exoPlayer.seekTo(it) },
@@ -206,7 +206,7 @@ private fun FullscreenPlayer(
   exoPlayer: ExoPlayer,
   onExitFullscreen: () -> Unit,
   playing: Boolean,
-  sppedBoosting: Boolean,
+  speedBoosting: Boolean,
   currentPosition: Long,
   duration: Long,
   onSeek: (Long) -> Unit,
@@ -257,7 +257,7 @@ private fun FullscreenPlayer(
         onFullscreen = onExitFullscreen,
         onClose = onClose,
         onSpeedBoost = onSpeedBoost,
-        speedBoosting = sppedBoosting
+        speedBoosting = speedBoosting
       )
     }
   }
@@ -404,7 +404,7 @@ private fun VideoProgressBar(
   onSeek: (Long) -> Unit
 ) {
   var dragging by remember { mutableStateOf(false) }
-  var dragPosition by remember { mutableStateOf(0f) }
+  var dragPosition by remember { mutableFloatStateOf(0f) }
 
   val progress = if (duration > 0) {
     if (dragging) dragPosition else currentPosition.toFloat() / duration
