@@ -289,9 +289,9 @@ private fun PlayerContent(
               val seekSeconds = (ratio * 300).toInt()
 
               if (abs(seekSeconds) > 0) {
-                val newPosition = (currentPosition + seekSeconds * 1000)
+                // 不知道为什么，如果用currentPosition的话，这个值会被锁定在第一次触发拖动手势时的exoPlayer.currentPosition
+                val newPosition = (exoPlayer.currentPosition + seekSeconds * 1000)
                   .coerceIn(0, duration)
-                Log.e("fuck", "$currentPosition -> $newPosition")
                 onSeek(newPosition)
               }
 
