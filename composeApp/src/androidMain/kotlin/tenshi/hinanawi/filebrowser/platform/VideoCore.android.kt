@@ -3,6 +3,7 @@ package tenshi.hinanawi.filebrowser.platform
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
@@ -26,7 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -501,22 +504,15 @@ private fun VideoProgressBar(currentPosition: Long, duration: Long) {
     Box(
       modifier = Modifier
         .fillMaxWidth()
-        .height(2.dp)
+        .height(3.dp)
         .background(Color.Gray.copy(alpha = 0.5f), RoundedCornerShape(1.dp))
         .align(Alignment.Center)
     )
     Box(
       modifier = Modifier
         .fillMaxWidth(progress)
-        .height(2.dp)
+        .height(3.dp)
         .background(Color.White, RoundedCornerShape(1.dp))
-        .align(Alignment.CenterStart)
-    )
-    Box(
-      modifier = Modifier
-        .offset(x = progress * (300.dp - 8.dp))
-        .size(8.dp)
-        .background(Color.White, CircleShape)
         .align(Alignment.CenterStart)
     )
   }
