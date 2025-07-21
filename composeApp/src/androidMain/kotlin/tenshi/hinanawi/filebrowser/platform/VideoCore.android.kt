@@ -46,17 +46,14 @@ import tenshi.hinanawi.filebrowser.util.currentTimeMillis
 import java.util.*
 import kotlin.math.abs
 
-data class SeekIndicator(val direction: SeekDirection, val seconds: Int)
-enum class SeekDirection { Forward, Backward }
-
-data class PlayerActions(
-  val exoPlayer: ExoPlayer,
-  val onPlayPause: () -> Unit,
-  val onSeek: (Long) -> Unit,
-  val onSpeedBoost: (Boolean) -> Unit,
+class AndroidPlayerActions(
+  override val player: ExoPlayer,
+  override val onPlayPause: () -> Unit,
+  override val onSeek: (Long) -> Unit,
+  override val onSpeedBoost: (Boolean) -> Unit,
   val onShowControls: (Boolean) -> Unit,
-  val onSeekIndicatorChange: (SeekIndicator?) -> Unit
-)
+  override val onSeekIndicatorChange: (SeekIndicator?) -> Unit
+) : PlayerActions()
 
 @SuppressLint("SourceLockedOrientationActivity")
 @OptIn(UnstableApi::class)
@@ -125,8 +122,8 @@ actual fun VideoCore(
     onDispose { exoPlayer.release() }
   }
 
-  val playerActions = PlayerActions(
-    exoPlayer = exoPlayer,
+  val playerActions = AndroidPlayerActions(
+    player = exoPlayer,
     onPlayPause = {
       if (exoPlayer.isPlaying) {
         exoPlayer.pause()
@@ -204,7 +201,7 @@ actual fun VideoCore(
 
 @Composable
 private fun PlayerContent(
-  playerActions: PlayerActions,
+  playerActions: AndroidPlayerActions,
   isPlaying: Boolean,
   isSpeedBoosting: Boolean,
   currentPosition: Long,
@@ -222,7 +219,7 @@ private fun PlayerContent(
     AndroidView(
       factory = { context ->
         PlayerView(context).apply {
-          player = playerActions.exoPlayer
+          player = playerActions.player
           useController = false
           layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -263,7 +260,7 @@ private fun PlayerContent(
               if (dragState.isDragging) {
                 val seekSeconds = calculateSeekSeconds(dragState, size.width)
                 if (abs(seekSeconds) > 0) {
-                  val newPosition = (playerActions.exoPlayer.currentPosition + seekSeconds * 1000)
+                  val newPosition = (playerActions.player.currentPosition + seekSeconds * 1000)
                     .coerceIn(0, duration)
                   playerActions.onSeek(newPosition)
                 }

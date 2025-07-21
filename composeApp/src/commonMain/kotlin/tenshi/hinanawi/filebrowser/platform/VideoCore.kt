@@ -13,3 +13,17 @@ expect fun VideoCore(
   onError: (String) -> Unit,
   onClose: () -> Unit
 )
+
+enum class SeekDirection {
+  Forward, Backward
+}
+
+data class SeekIndicator(val direction: SeekDirection, val seconds: Int)
+
+abstract class PlayerActions {
+  abstract val player: Any
+  abstract val onPlayPause: () -> Unit
+  abstract val onSeek: (Long) -> Unit
+  abstract val onSpeedBoost: (Boolean) -> Unit
+  abstract val onSeekIndicatorChange: (SeekIndicator?) -> Unit
+}
