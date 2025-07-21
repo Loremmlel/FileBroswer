@@ -1,4 +1,3 @@
-// desktopMain/kotlin/tenshi/hinanawi/filebrowser/platform/VideoCore.desktop.kt
 package tenshi.hinanawi.filebrowser.platform
 
 import androidx.compose.runtime.Composable

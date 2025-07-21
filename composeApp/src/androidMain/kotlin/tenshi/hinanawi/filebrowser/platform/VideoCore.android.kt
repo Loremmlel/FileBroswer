@@ -3,7 +3,6 @@ package tenshi.hinanawi.filebrowser.platform
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
@@ -27,12 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -160,9 +156,11 @@ actual fun VideoCore(
         usePlatformDefaultWidth = false
       )
     ) {
-      Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Black)) {
+      Box(
+        modifier = Modifier
+          .fillMaxSize()
+          .background(Color.Black)
+      ) {
         PlayerContent(
           playerActions = playerActions,
           isPlaying = exoPlayer.isPlaying,
@@ -498,9 +496,11 @@ private fun ControlButton(
 private fun VideoProgressBar(currentPosition: Long, duration: Long) {
   val progress = if (duration > 0) currentPosition.toFloat() / duration else 0f
 
-  Box(modifier = Modifier
-    .fillMaxWidth()
-    .height(16.dp)) {
+  Box(
+    modifier = Modifier
+      .fillMaxWidth()
+      .height(16.dp)
+  ) {
     Box(
       modifier = Modifier
         .fillMaxWidth()
