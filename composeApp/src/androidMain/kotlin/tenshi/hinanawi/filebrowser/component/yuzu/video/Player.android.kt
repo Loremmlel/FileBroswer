@@ -1,11 +1,11 @@
 package tenshi.hinanawi.filebrowser.component.yuzu.video
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +30,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
+@SuppressLint("SourceLockedOrientationActivity")
 @Composable
 actual fun VideoPlayer(
   modifier: Modifier,
@@ -41,16 +42,25 @@ actual fun VideoPlayer(
   onClose: () -> Unit
 ) {
   val context = LocalContext.current
+  val activity = context as? Activity
 
-  val player = remember(url) {
-    AndroidVideoPlayer(context)
+  val playerView = remember(context) {
+    PlayerView(context).apply {
+      useController = false
+    }
   }
-  val controller = remember(player) {
+
+  val controller = remember(context) {
+    val player = AndroidVideoPlayer(context)
     VideoPlayerController(player)
   }
 
   LaunchedEffect(url) {
     controller.initialize(url, autoPlay)
+  }
+
+  LaunchedEffect(controller.platformPlayer as AndroidVideoPlayer) {
+    playerView.player = controller.platformPlayer.exoPlayer
   }
 
   // 监听错误事件
@@ -69,16 +79,16 @@ actual fun VideoPlayer(
 
   // 处理全屏切换
   LaunchedEffect(isFullscreen) {
-    val activity = context as? Activity
     if (isFullscreen) {
       activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     } else {
-      activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+      activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
   }
 
   DisposableEffect(Unit) {
     onDispose {
+      activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
       controller.release()
     }
   }
@@ -97,6 +107,7 @@ actual fun VideoPlayer(
         controlsState = controlsState,
         title = title,
         isFullscreen = true,
+        playerView = playerView,
         onFullscreenToggle = { isFullscreen = !isFullscreen },
         onClose = onClose,
         modifier = Modifier.fillMaxSize()
@@ -109,9 +120,10 @@ actual fun VideoPlayer(
       controlsState = controlsState,
       title = title,
       isFullscreen = false,
+      playerView = playerView,
       onFullscreenToggle = { isFullscreen = !isFullscreen },
       onClose = onClose,
-      modifier = modifier
+      modifier = modifier.fillMaxSize()
     )
   }
 }
@@ -123,6 +135,7 @@ private fun VideoPlayerContent(
   controlsState: ControlsState,
   title: String,
   isFullscreen: Boolean,
+  playerView: PlayerView,
   onFullscreenToggle: () -> Unit,
   onClose: () -> Unit,
   modifier: Modifier = Modifier
@@ -137,13 +150,32 @@ private fun VideoPlayerContent(
     // ExoPlayer视图
     AndroidView(
       factory = { context ->
-        PlayerView(context).apply {
-          player = (controller.player as AndroidVideoPlayer).exoPlayer
-          useController = false
-        }
+        playerView
       },
       modifier = Modifier
         .fillMaxSize()
+        .pointerInput(Unit) {
+          awaitEachGesture {
+            awaitFirstDown()
+            val downTime = currentTimeMillis()
+            var isLongPress = false
+
+            val longPressJob = scope.launch {
+              delay(300L)
+              isLongPress = true
+              controller.handleGestureEvent(GestureEvent.LongPress(true))
+            }
+
+            val up = waitForUpOrCancellation()
+            longPressJob.cancel()
+
+            if (isLongPress) {
+              controller.handleGestureEvent(GestureEvent.LongPress(false))
+            } else if (up != null && currentTimeMillis() - downTime < 300L) {
+              controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
+            }
+          }
+        }
         .pointerInput(Unit) {
           detectDragGestures(
             onDragStart = { offset ->
@@ -183,11 +215,7 @@ private fun VideoPlayerContent(
               when {
                 // 水平滑动结束：执行跳转
                 isHorizontalDrag -> {
-                  controller.handleGestureEvent(
-                    GestureEvent.SwipeEnd(
-                      targetPosition = controlsState.seekPreviewPosition
-                    )
-                  )
+                  controller.handleGestureEvent(GestureEvent.SwipeEnd)
                 }
                 // 垂直滑动结束：显示音量指示器
                 accumulatedOffset.y != 0f -> {
@@ -200,28 +228,6 @@ private fun VideoPlayerContent(
               isHorizontalDrag = false
             }
           )
-        }
-        .pointerInput(Unit) {
-          awaitEachGesture {
-            awaitFirstDown()
-            val downTime = currentTimeMillis()
-            var isLongPress = false
-
-            val longPressJob = scope.launch {
-              delay(300L)
-              isLongPress = true
-              controller.handleGestureEvent(GestureEvent.LongPress(true))
-            }
-
-            val up = waitForUpOrCancellation()
-            longPressJob.cancel()
-
-            if (isLongPress) {
-              controller.handleGestureEvent(GestureEvent.LongPress(false))
-            } else if (up != null && currentTimeMillis() - downTime < 300L) {
-              controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
-            }
-          }
         }
     )
 

@@ -51,7 +51,7 @@ sealed class GestureEvent {
   data class LongPress(val isPressed: Boolean) : GestureEvent()
   data class SwipePreview(val targetPosition: Duration) : GestureEvent()
   data class VolumeAdjust(val deltaY: Float) : GestureEvent()
-  data class SwipeEnd(val targetPosition: Duration) : GestureEvent()
+  object SwipeEnd : GestureEvent()
 }
 
 /**
