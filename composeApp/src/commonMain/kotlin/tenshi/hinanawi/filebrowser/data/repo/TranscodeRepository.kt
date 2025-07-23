@@ -1,6 +1,6 @@
 package tenshi.hinanawi.filebrowser.data.repo
 
-import io.ktor.client.call.body
+import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.delay
@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.flow
 import tenshi.hinanawi.filebrowser.exception.ApiException
 import tenshi.hinanawi.filebrowser.model.Response
 import tenshi.hinanawi.filebrowser.model.response.TranscodeStatus
-import tenshi.hinanawi.filebrowser.util.ErrorHandler
 
 interface TranscodeRepository {
   suspend fun startTranscode(path: String): TranscodeStatus
@@ -31,6 +30,9 @@ class OnlineTranscodeRepository : TranscodeRepository, BaseOnlineRepository() {
     while (true) {
       val response = client.get("$transcodingPath/$id").body<Response<TranscodeStatus>>()
       emit(response.data)
+      if (response.data?.status === TranscodeStatus.Enum.Completed && (response.data?.progress ?: 0.0) >= 0.99) {
+        break
+      }
       delay(1500)
     }
   }

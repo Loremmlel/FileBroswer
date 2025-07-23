@@ -5,6 +5,7 @@ import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
@@ -58,11 +59,17 @@ class AndroidVideoPlayer(
         override fun onPlaybackStateChanged(playbackState: Int) {
           val isLoading = playbackState == Player.STATE_BUFFERING
           _state.value = _state.value.copy(isLoading = isLoading)
+        }
 
-          if (playbackState == Player.STATE_READY) {
-            _state.value = _state.value.copy(
-              duration = duration.milliseconds
-            )
+        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+          if (!timeline.isEmpty) {
+            val window = Timeline.Window()
+            timeline.getWindow(0, window)
+            if (window.durationMs > 0) {
+              _state.value = _state.value.copy(
+                duration = window.durationMs.milliseconds
+              )
+            }
           }
         }
 

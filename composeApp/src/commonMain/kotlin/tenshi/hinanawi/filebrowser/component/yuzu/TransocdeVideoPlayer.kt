@@ -32,7 +32,7 @@ sealed class TranscodeUiState {
 fun rememberTranscodeState(
   videoPath: String,
   transcodeRepository: TranscodeRepository
-): Pair<State<TranscodeUiState>, (TranscodeUiState) -> Unit> {
+): State<TranscodeUiState> {
   val state = remember(videoPath) { mutableStateOf<TranscodeUiState>(TranscodeUiState.Idle) }
   val scope = rememberCoroutineScope()
   var currentTaskId by remember { mutableStateOf<String?>(null) }
@@ -82,7 +82,7 @@ fun rememberTranscodeState(
     }
   }
 
-  return Pair(state, { state.value = it })
+  return state
 }
 
 @Composable
@@ -122,7 +122,7 @@ fun TranscodeVideoPlayer(
       )
     } else {
       val transcodeRepository = remember { OnlineTranscodeRepository() }
-      val (uiState, setUiState) = rememberTranscodeState(
+      val uiState = rememberTranscodeState(
         videoPath = path,
         transcodeRepository = transcodeRepository
       )
