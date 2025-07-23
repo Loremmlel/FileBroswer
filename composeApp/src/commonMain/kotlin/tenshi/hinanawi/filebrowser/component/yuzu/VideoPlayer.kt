@@ -86,7 +86,7 @@ fun rememberTranscodeState(
 }
 
 @Composable
-fun VideoPlayer(
+fun TranscodeVideoPlayer(
   modifier: Modifier = Modifier,
   path: String,
   supportHevc: Boolean,

@@ -20,7 +20,7 @@ import tenshi.hinanawi.filebrowser.component.browse.RandomPlay
 import tenshi.hinanawi.filebrowser.component.yuzu.BreadCrumb
 import tenshi.hinanawi.filebrowser.component.yuzu.ImageViewer
 import tenshi.hinanawi.filebrowser.component.yuzu.Toast
-import tenshi.hinanawi.filebrowser.component.yuzu.VideoPlayer
+import tenshi.hinanawi.filebrowser.component.yuzu.TranscodeVideoPlayer
 import tenshi.hinanawi.filebrowser.data.repo.OnlineRandomRepository
 import tenshi.hinanawi.filebrowser.data.repo.OnlineThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.BreadCrumbItem
@@ -171,7 +171,7 @@ fun BrowseScreen(
         }
 
         FileType.Video -> {
-          VideoPlayer(
+          TranscodeVideoPlayer(
             modifier = Modifier.fillMaxSize(),
             path = previewItem.path,
             supportHevc = uiState.supportHevc ?: false,
