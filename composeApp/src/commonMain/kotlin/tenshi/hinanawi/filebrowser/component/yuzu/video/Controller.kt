@@ -6,8 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class VideoPlayerController(
@@ -138,9 +136,7 @@ class VideoPlayerController(
 
     when (event) {
       is KeyboardEvent.LongPressRight -> {
-        _controlsState.value = _controlsState.value.copy(
-          showSpeedIndicator = event.isPressed
-        )
+        _controlsState.value = _controlsState.value.copy(showSpeedIndicator = event.isPressed)
         if (event.isPressed) {
           player.setPlaybackSpeed(3.0f)
         } else {

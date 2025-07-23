@@ -2,8 +2,11 @@ package tenshi.hinanawi.filebrowser.component.yuzu.video
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,12 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.media3.ui.PlayerView
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import tenshi.hinanawi.filebrowser.util.currentTimeMillis
 import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -122,10 +127,11 @@ private fun VideoPlayerContent(
   onClose: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val density = LocalDensity.current
   var accumulatedOffset by remember { mutableStateOf(Offset.Zero) }
   var startPosition by remember { mutableStateOf(Duration.ZERO) }
   var isHorizontalDrag by remember { mutableStateOf(false) }
+
+  val scope = rememberCoroutineScope()
 
   Box(modifier = modifier) {
     // ExoPlayer视图
@@ -196,16 +202,26 @@ private fun VideoPlayerContent(
           )
         }
         .pointerInput(Unit) {
-          detectTapGestures(
-            onLongPress = {
+          awaitEachGesture {
+            awaitFirstDown()
+            val downTime = currentTimeMillis()
+            var isLongPress = false
+
+            val longPressJob = scope.launch {
+              delay(300L)
+              isLongPress = true
               controller.handleGestureEvent(GestureEvent.LongPress(true))
-            },
-            onTap = {
-              if (!controlsState.isVisible) {
-                controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
-              }
             }
-          )
+
+            val up = waitForUpOrCancellation()
+            longPressJob.cancel()
+
+            if (isLongPress) {
+              controller.handleGestureEvent(GestureEvent.LongPress(false))
+            } else if (up != null && currentTimeMillis() - downTime < 300L) {
+              controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
+            }
+          }
         }
     )
 
