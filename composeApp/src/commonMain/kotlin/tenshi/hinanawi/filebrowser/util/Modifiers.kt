@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 fun Modifier.nullIndicatorClickable(
   enabled: Boolean = true,
   onClick: () -> Unit
-) = Modifier.clickable(
+) = this.clickable(
   interactionSource = MutableInteractionSource(),
   indication = null,
   enabled = enabled,

@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import tenshi.hinanawi.filebrowser.util.nullIndicatorClickable
 import kotlin.time.Duration
 
 /**
@@ -47,7 +48,7 @@ fun VideoControlsOverlay(
     Box(
       modifier = Modifier
         .fillMaxSize()
-        .clickable { onControlsClick() }
+        .nullIndicatorClickable { onControlsClick() }
     ) {
       // 上层控制栏
       Row(
