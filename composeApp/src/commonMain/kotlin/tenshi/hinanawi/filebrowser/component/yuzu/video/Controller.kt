@@ -108,10 +108,19 @@ class VideoPlayerController(
         }
       }
 
+      is GestureEvent.SwipeStart -> {
+        _controlsState.value = _controlsState.value.copy(
+          seekStartPosition = platformPlayer.state.value.currentPosition
+        )
+      }
+
       is GestureEvent.SwipePreview -> {
         _controlsState.value = _controlsState.value.copy(
           showSeekPreview = true,
-          seekPreviewPosition = event.targetPosition
+          seekPreviewPosition = (_controlsState.value.seekStartPosition + event.offset).coerceIn(
+            Duration.ZERO,
+            platformPlayer.state.value.duration
+          )
         )
       }
 

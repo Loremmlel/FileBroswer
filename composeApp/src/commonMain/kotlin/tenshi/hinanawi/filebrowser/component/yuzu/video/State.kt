@@ -24,6 +24,7 @@ data class ControlsState(
   val isAnimating: Boolean = false,
   val showSpeedIndicator: Boolean = false,
   val showSeekPreview: Boolean = false,
+  val seekStartPosition: Duration = Duration.ZERO,
   val seekPreviewPosition: Duration = Duration.ZERO,
   val showVolumeIndicator: Boolean = false
 )
@@ -49,7 +50,8 @@ sealed class VideoPlayerEvent {
  */
 sealed class GestureEvent {
   data class LongPress(val isPressed: Boolean) : GestureEvent()
-  data class SwipePreview(val targetPosition: Duration) : GestureEvent()
+  object SwipeStart : GestureEvent()
+  data class SwipePreview(val offset: Duration) : GestureEvent()
   data class VolumeAdjust(val deltaY: Float) : GestureEvent()
   object SwipeEnd : GestureEvent()
 }

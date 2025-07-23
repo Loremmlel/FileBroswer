@@ -3,6 +3,7 @@ package tenshi.hinanawi.filebrowser.component.yuzu.video
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.util.Log
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -141,7 +142,6 @@ private fun VideoPlayerContent(
   modifier: Modifier = Modifier
 ) {
   var accumulatedOffset by remember { mutableStateOf(Offset.Zero) }
-  var startPosition by remember { mutableStateOf(Duration.ZERO) }
   var isHorizontalDrag by remember { mutableStateOf(false) }
 
   val scope = rememberCoroutineScope()
@@ -179,7 +179,7 @@ private fun VideoPlayerContent(
         .pointerInput(Unit) {
           detectDragGestures(
             onDragStart = { offset ->
-              startPosition = playerState.currentPosition
+              controller.handleGestureEvent(GestureEvent.SwipeStart)
               accumulatedOffset = Offset.Zero
             },
             onDrag = { change, dragAmount ->
@@ -196,12 +196,10 @@ private fun VideoPlayerContent(
               if (isHorizontalDrag) {
                 // 水平移动：时间跳转
                 val maxDuration = 5.minutes
-                val deltaMs = (accumulatedOffset.x / totalWidth) * maxDuration.inWholeMilliseconds
-                val newPosition = (startPosition.inWholeMilliseconds + deltaMs).toLong().milliseconds
-                  .coerceIn(Duration.ZERO, playerState.duration)
+                val deltaMs = accumulatedOffset.x / totalWidth * maxDuration.inWholeMilliseconds
 
                 controller.handleGestureEvent(
-                  GestureEvent.SwipePreview(newPosition)
+                  GestureEvent.SwipePreview(deltaMs.toLong().milliseconds)
                 )
               } else {
                 // 垂直移动：音量调节
