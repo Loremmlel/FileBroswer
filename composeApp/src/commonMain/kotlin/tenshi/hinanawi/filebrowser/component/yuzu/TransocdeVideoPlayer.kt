@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import tenshi.hinanawi.filebrowser.SERVER_URL
+import tenshi.hinanawi.filebrowser.component.yuzu.video.VideoPlayer
 import tenshi.hinanawi.filebrowser.data.repo.OnlineTranscodeRepository
 import tenshi.hinanawi.filebrowser.data.repo.TranscodeRepository
 import tenshi.hinanawi.filebrowser.model.response.TranscodeStatus
-import tenshi.hinanawi.filebrowser.platform.VideoCore
 
 sealed class TranscodeUiState {
   object Idle : TranscodeUiState()
@@ -89,6 +89,7 @@ fun rememberTranscodeState(
 fun TranscodeVideoPlayer(
   modifier: Modifier = Modifier,
   path: String,
+  title: String,
   supportHevc: Boolean,
   onClose: () -> Unit
 ) {
@@ -110,13 +111,10 @@ fun TranscodeVideoPlayer(
       )
     }
     if (supportHevc) {
-      VideoCore(
-        modifier = modifier
-          .fillMaxSize(),
+      VideoPlayer(
+        modifier = Modifier.fillMaxSize(),
         url = "$SERVER_URL/direct-video?path=$path",
-        onReady = {
-
-        },
+        title = title,
         onError = { message ->
 
         },
@@ -185,15 +183,12 @@ fun TranscodeVideoPlayer(
         }
       }
       if (state is TranscodeUiState.InProgress || state is TranscodeUiState.Completed) {
-        VideoCore(
-          modifier = modifier
-            .fillMaxSize(),
+        VideoPlayer(
+          modifier = Modifier.fillMaxSize(),
           url = "$SERVER_URL/video/$taskId/playlist.m3u8",
-          onReady = {
-
-          },
+          title = title,
           onError = { message ->
-            setUiState(TranscodeUiState.Error(message))
+
           },
           onClose = onClose
         )
