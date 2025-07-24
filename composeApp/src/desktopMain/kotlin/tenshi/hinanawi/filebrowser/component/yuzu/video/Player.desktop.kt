@@ -1,24 +1,199 @@
 package tenshi.hinanawi.filebrowser.component.yuzu.video
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.SwingPanel
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import tenshi.hinanawi.filebrowser.util.currentTimeMillis
+import uk.co.caprica.vlcj.player.base.MediaPlayer
+import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
+import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
 import java.net.URLEncoder
+import java.util.*
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
+@Composable
+actual fun VideoPlayer(
+  modifier: Modifier,
+  url: String,
+  title: String,
+  autoPlay: Boolean,
+  showControls: Boolean,
+  onError: (String) -> Unit,
+  onClose: () -> Unit
+) {
+  val osName = remember {
+    System.getProperty("os.name").lowercase(Locale.ENGLISH)
+  }
+  val isMac = "mac" in osName || "darwin" in osName
+  val encodedUrl = encodeUrl(url)
+
+  if (isMac) {
+    MacExternalVideoPlayer(encodedUrl, onClose, onError)
+  } else {
+    EmbeddedVideoPlayer(modifier, encodedUrl, title, autoPlay, onError, onClose)
+  }
+}
+
+@Composable
+private fun MacExternalVideoPlayer(
+  url: String,
+  onClose: () -> Unit,
+  onError: (String) -> Unit
+) {
+  var isVlcOpen by remember { mutableStateOf(false) }
+  LaunchedEffect(url) {
+    try {
+      val vlcPath = "/Applications/VLC.app/Contents/MacOS/VLC"
+      val arguments = listOf(
+        vlcPath, url,
+        "--width=480",
+        "--height=270"
+      )
+      val process = ProcessBuilder(arguments).start()
+      isVlcOpen = true
+      delay(200)
+      process.waitFor()
+      onClose()
+    } catch (e: Exception) {
+      isVlcOpen = false
+      onError("无法启动VLC。请确保VLC已安装在 /Applications/VLC.app。错误: ${e.message}")
+    }
+  }
+
+  // 显示一个占位符，直到VLC启动
+  Box(
+    modifier = Modifier
+      .fillMaxSize()
+      .background(Color.Black)
+  ) {
+    Text(
+      text = if (isVlcOpen)
+        "已经打开VLC。如果看到playlist.m3u8，点击或者等待一会儿即可播放。播放期间应用会被冻结，需要关闭VLC进程才可。"
+      else
+        "正在VLC中打开...",
+      color = Color.White,
+      modifier = Modifier.align(Alignment.Center),
+      style = MaterialTheme.typography.bodyLarge
+    )
+  }
+}
+
+@Composable
+private fun EmbeddedVideoPlayer(
+  modifier: Modifier,
+  url: String,
+  title: String,
+  autoPlay: Boolean,
+  onError: (String) -> Unit,
+  onClose: () -> Unit
+) {
+  val mediaPlayerComponent = remember { EmbeddedMediaPlayerComponent() }
+  val controller = remember {
+    VideoPlayerController(DesktopVideoPlayer(mediaPlayerComponent))
+  }
+
+  LaunchedEffect(url) {
+    controller.initialize(encodeUrl(url), autoPlay)
+  }
+
+  LaunchedEffect(controller) {
+    controller.playerEvent.collect { event ->
+      if (event is VideoPlayerEvent.Error) {
+        onError(event.message)
+      }
+    }
+  }
+
+  DisposableEffect(Unit) {
+    onDispose {
+      controller.release()
+    }
+  }
+
+  val playerState by controller.playerState.collectAsState()
+  val controlsState by controller.controlsState.collectAsState()
+  var isFullscreen by remember { mutableStateOf(false) } // 全屏状态应由外部窗口处理
+
+  Box(
+    modifier = modifier
+      .fillMaxSize()
+      .background(Color.Black)
+      .rememberKeyboardEventHandler(controller)
+  ) {
+    SwingPanel(
+      factory = { mediaPlayerComponent },
+      modifier = Modifier.fillMaxSize()
+    )
+
+    VideoControlsOverlay(
+      state = playerState.copy(isFullscreen = isFullscreen),
+      controlsState = controlsState,
+      title = title,
+      onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
+      onFullscreen = {
+        isFullscreen = !isFullscreen
+        controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
+      },
+      onClose = onClose,
+      onControlsClick = { controller.handlePlayerEvent(VideoPlayerEvent.ShowControls) }
+    )
+
+    SpeedIndicator(
+      isVisible = controlsState.showSpeedIndicator,
+      speed = playerState.playbackSpeed,
+      modifier = Modifier.align(Alignment.Center)
+    )
+
+    SeekPreviewIndicator(
+      isVisible = controlsState.showSeekPreview,
+      targetPosition = controlsState.seekPreviewPosition,
+      currentDuration = playerState.duration,
+      modifier = Modifier.align(Alignment.Center)
+    )
+
+    VolumeIndicator(
+      isVisible = controlsState.showVolumeIndicator,
+      volume = playerState.volume,
+      modifier = Modifier
+        .align(Alignment.TopEnd)
+        .padding(16.dp)
+    )
+
+    KeyboardHelpOverlay(
+      modifier = Modifier
+        .align(Alignment.BottomCenter)
+        .padding(16.dp)
+    )
+
+    if (playerState.isLoading) {
+      CircularProgressIndicator(
+        modifier = Modifier.align(Alignment.Center)
+      )
+    }
+  }
+}
 
 @Composable
 private fun KeyboardHelpOverlay(
@@ -158,6 +333,105 @@ private fun Modifier.rememberKeyboardEventHandler(
     }
 }
 
+class DesktopVideoPlayer(
+  private val mediaPlayerComponent: EmbeddedMediaPlayerComponent,
+  private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+) : PlatformVideoPlayer {
+
+  private val mediaPlayer: MediaPlayer = mediaPlayerComponent.mediaPlayer()
+
+  private val _state = MutableStateFlow(VideoPlayerState())
+  override val state = _state.asStateFlow()
+
+  private val _event = MutableSharedFlow<VideoPlayerEvent>()
+  override val event = _event.asSharedFlow()
+
+  init {
+    mediaPlayer.events().addMediaPlayerEventListener(object : MediaPlayerEventAdapter() {
+      override fun playing(mediaPlayer: MediaPlayer) {
+        _state.value = _state.value.copy(isPlaying = true, isLoading = false)
+        scope.launch { _event.emit(VideoPlayerEvent.Play) }
+      }
+
+      override fun paused(mediaPlayer: MediaPlayer) {
+        _state.value = _state.value.copy(isPlaying = false)
+        scope.launch { _event.emit(VideoPlayerEvent.Pause) }
+      }
+
+      override fun stopped(mediaPlayer: MediaPlayer) {
+        _state.value = _state.value.copy(isPlaying = false)
+      }
+
+      override fun finished(mediaPlayer: MediaPlayer) {
+        _state.value = _state.value.copy(isPlaying = false, currentPosition = _state.value.duration)
+      }
+
+      override fun error(mediaPlayer: MediaPlayer) {
+        val errorMsg = "VLC播放器遇到错误"
+        _state.value = _state.value.copy(error = errorMsg, isLoading = false)
+        scope.launch { _event.emit(VideoPlayerEvent.Error(errorMsg)) }
+      }
+
+      override fun timeChanged(mediaPlayer: MediaPlayer, newTime: Long) {
+        _state.value = _state.value.copy(currentPosition = newTime.milliseconds)
+      }
+
+      override fun lengthChanged(mediaPlayer: MediaPlayer, newLength: Long) {
+        _state.value = _state.value.copy(duration = newLength.milliseconds)
+      }
+
+      override fun buffering(mediaPlayer: MediaPlayer, newCache: Float) {
+        _state.value = _state.value.copy(isLoading = newCache < 100f)
+      }
+
+      override fun volumeChanged(mediaPlayer: MediaPlayer, volume: Float) {
+        // vlcj的音量事件提供一个float值，我们假设1.0f代表100%
+        // 为了与UI状态保持一致（0-1f），我们将其限制在0-1的范围内
+        _state.value = _state.value.copy(volume = volume.coerceIn(0f, 1f))
+      }
+    })
+  }
+
+  override fun initialize(url: String, autoPlay: Boolean) {
+    val ok = mediaPlayer.media().play(url)
+    if (!ok) {
+      scope.launch { _event.emit(VideoPlayerEvent.Error("无法播放指定的URL: $url")) }
+      return
+    }
+    if (!autoPlay) {
+      // play()会立即开始播放，所以如果不需要自动播放，我们立即暂停它
+      mediaPlayer.controls().setPause(true)
+    }
+  }
+
+  override fun play() {
+    mediaPlayer.controls().play()
+  }
+
+  override fun pause() {
+    mediaPlayer.controls().pause()
+  }
+
+  override fun seekTo(position: Duration) {
+    mediaPlayer.controls().setTime(position.inWholeMilliseconds)
+  }
+
+  override fun setVolume(volume: Float) {
+    // 我们的状态音量是0-1f，vlcj使用整数百分比0-200
+    mediaPlayer.audio().setVolume((volume * 100).toInt())
+    // 立即更新状态以保证UI响应性
+    _state.value = _state.value.copy(volume = volume)
+  }
+
+  override fun setPlaybackSpeed(speed: Float) {
+    mediaPlayer.controls().setRate(speed)
+    _state.value = _state.value.copy(playbackSpeed = speed)
+  }
+
+  override fun release() {
+    mediaPlayerComponent.release()
+  }
+}
 
 private fun encodeUrl(url: String): String = try {
   val parts = url.split("?", limit = 2)
