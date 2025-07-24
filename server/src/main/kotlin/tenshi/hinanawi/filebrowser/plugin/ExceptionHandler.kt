@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.application.hooks.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import kotlinx.coroutines.channels.ClosedSendChannelException
 import org.slf4j.LoggerFactory
 import tenshi.hinanawi.filebrowser.exception.ServiceException
 import tenshi.hinanawi.filebrowser.model.Message
@@ -52,6 +53,9 @@ suspend inline fun ApplicationCall.safeExecute(
         Response(400, e.serviceMessage.toClientMessage(), null)
       )
     }
+  } catch (e: ClosedSendChannelException) {
+    // 单独处理，不然日志一大坨
+    logger.info("客户端断开视频链接: ip:${request.local.remoteAddress}, ${e.message}")
   } catch (e: Exception) {
     logger.error("路由执行失败: ${request.httpMethod.value} ${request.uri}", e)
     if (!response.isCommitted) {
