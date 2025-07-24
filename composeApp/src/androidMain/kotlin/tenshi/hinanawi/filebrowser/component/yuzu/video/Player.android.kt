@@ -173,7 +173,7 @@ private fun VideoPlayerContent(
             var isLongPress = false
 
             val longPressJob = scope.launch {
-              delay(300L)
+              delay(200)
               isLongPress = true
               controller.handleGestureEvent(GestureEvent.LongPress(true))
             }
