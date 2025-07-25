@@ -147,66 +147,64 @@ actual fun VideoPlayer(
       modifier = Modifier.fillMaxSize()
     )
 
-    key(dialog) {
-      ComposeViewport(dialog) {
-        VideoControlsOverlay(
-          state = playerState.copy(isFullscreen = isFullscreen),
-          controlsState = controlsState,
-          title = title,
-          onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
-          onFullscreen = {
-            isFullscreen = !isFullscreen
-            controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
-          },
-          onClose = onClose,
-          onControlsClick = {
-            if (isMobile) {
-              controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
-            } else {
-              controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
-            }
+    ComposeViewport(dialog) {
+      VideoControlsOverlay(
+        state = playerState.copy(isFullscreen = isFullscreen),
+        controlsState = controlsState,
+        title = title,
+        onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
+        onFullscreen = {
+          isFullscreen = !isFullscreen
+          controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
+        },
+        onClose = onClose,
+        onControlsClick = {
+          if (isMobile) {
+            controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
+          } else {
+            controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
           }
-        )
+        }
+      )
 
-        // 速度指示器
-        SpeedIndicator(
-          isVisible = controlsState.showSpeedIndicator,
-          speed = playerState.playbackSpeed,
-          modifier = Modifier.align(Alignment.Center)
-        )
+      // 速度指示器
+      SpeedIndicator(
+        isVisible = controlsState.showSpeedIndicator,
+        speed = playerState.playbackSpeed,
+        modifier = Modifier.align(Alignment.Center)
+      )
 
-        // 跳转预览指示器
-        SeekPreviewIndicator(
-          isVisible = controlsState.showSeekPreview,
-          targetPosition = controlsState.seekPreviewPosition,
-          currentDuration = playerState.duration,
-          modifier = Modifier.align(Alignment.Center)
-        )
+      // 跳转预览指示器
+      SeekPreviewIndicator(
+        isVisible = controlsState.showSeekPreview,
+        targetPosition = controlsState.seekPreviewPosition,
+        currentDuration = playerState.duration,
+        modifier = Modifier.align(Alignment.Center)
+      )
 
-        // 音量指示器
-        VolumeIndicator(
-          isVisible = controlsState.showVolumeIndicator,
-          volume = playerState.volume,
+      // 音量指示器
+      VolumeIndicator(
+        isVisible = controlsState.showVolumeIndicator,
+        volume = playerState.volume,
+        modifier = Modifier
+          .align(Alignment.TopEnd)
+          .padding(16.dp)
+      )
+
+      // 桌面端显示键盘帮助
+      if (!isMobile) {
+        KeyboardHelpOverlay(
           modifier = Modifier
-            .align(Alignment.TopEnd)
+            .align(Alignment.BottomStart)
             .padding(16.dp)
         )
+      }
 
-        // 桌面端显示键盘帮助
-        if (!isMobile) {
-          KeyboardHelpOverlay(
-            modifier = Modifier
-              .align(Alignment.BottomStart)
-              .padding(16.dp)
-          )
-        }
-
-        // 加载指示器
-        if (playerState.isLoading) {
-          CircularProgressIndicator(
-            modifier = Modifier.align(Alignment.Center)
-          )
-        }
+      // 加载指示器
+      if (playerState.isLoading) {
+        CircularProgressIndicator(
+          modifier = Modifier.align(Alignment.Center)
+        )
       }
     }
   }
