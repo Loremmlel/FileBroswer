@@ -62,7 +62,7 @@ private fun MacExternalVideoPlayer(
   onClose: () -> Unit,
   onError: (String) -> Unit
 ) {
-  var isVlcOpen by remember { mutableStateOf(false) }
+  var process by remember { mutableStateOf<Process?>(null) }
   LaunchedEffect(url) {
     try {
       val vlcPath = "/Applications/VLC.app/Contents/MacOS/VLC"
@@ -71,14 +71,21 @@ private fun MacExternalVideoPlayer(
         "--width=480",
         "--height=270"
       )
-      val process = ProcessBuilder(arguments).start()
-      isVlcOpen = true
-      delay(200)
-      process.waitFor()
+      val p = ProcessBuilder(arguments).start()
+      process = p
+
+      withContext(Dispatchers.IO) {
+        p.waitFor()
+      }
       onClose()
     } catch (e: Exception) {
-      isVlcOpen = false
       onError("无法启动VLC。请确保VLC已安装在 /Applications/VLC.app。错误: ${e.message}")
+    }
+  }
+
+  DisposableEffect(Unit) {
+    onDispose {
+      process?.destroyForcibly()
     }
   }
 
@@ -89,8 +96,8 @@ private fun MacExternalVideoPlayer(
       .background(Color.Black)
   ) {
     Text(
-      text = if (isVlcOpen)
-        "已经打开VLC。如果看到playlist.m3u8，点击或者等待一会儿即可播放。播放期间应用会被冻结，需要关闭VLC进程才可。"
+      text = if (process != null)
+        "已经打开VLC。如果看到playlist.m3u8，点击或者等待一会儿即可播放。"
       else
         "正在VLC中打开...",
       color = Color.White,
@@ -385,8 +392,6 @@ class DesktopVideoPlayer(
       }
 
       override fun volumeChanged(mediaPlayer: MediaPlayer, volume: Float) {
-        // vlcj的音量事件提供一个float值，我们假设1.0f代表100%
-        // 为了与UI状态保持一致（0-1f），我们将其限制在0-1的范围内
         _state.value = _state.value.copy(volume = volume.coerceIn(0f, 1f))
       }
     })
@@ -399,7 +404,6 @@ class DesktopVideoPlayer(
       return
     }
     if (!autoPlay) {
-      // play()会立即开始播放，所以如果不需要自动播放，我们立即暂停它
       mediaPlayer.controls().setPause(true)
     }
   }
@@ -417,9 +421,7 @@ class DesktopVideoPlayer(
   }
 
   override fun setVolume(volume: Float) {
-    // 我们的状态音量是0-1f，vlcj使用整数百分比0-200
     mediaPlayer.audio().setVolume((volume * 100).toInt())
-    // 立即更新状态以保证UI响应性
     _state.value = _state.value.copy(volume = volume)
   }
 
