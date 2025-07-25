@@ -59,8 +59,8 @@ class BrowseViewModel(
       Triple(files, favoriteFilesMap, favorites)
     },
     combine(_fileLoading, _previewItem, _supportHevc) { fileLoading, previewItem, supportHevc ->
-    Triple(fileLoading, previewItem, supportHevc)
-  }
+      Triple(fileLoading, previewItem, supportHevc)
+    }
   ) { (files, favoriteExistSet, favorites), (fileLoading, previewItem, supportHevc) ->
     BrowserUiState(
       files = files,

@@ -17,6 +17,7 @@ interface ImageRepository {
 
 class OnlineImageRepository : BaseOnlineRepository(), ImageRepository {
   private val basePath = "/image"
+
   // fix: Kotlin Flow 的并发发射限制：普通 flow 构建器不允许从多个协程并发发射数据
   // 解决方案：使用 callbackFlow
   override fun getImageStream(path: String): Flow<RemoteImageState> = callbackFlow {
