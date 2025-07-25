@@ -333,6 +333,51 @@ fun VolumeIndicator(
 }
 
 @Composable
+fun KeyboardHelpOverlay(
+  modifier: Modifier = Modifier
+) {
+  Column(
+    modifier = modifier
+      .background(
+        Color.Black.copy(alpha = 0.7f),
+        RoundedCornerShape(8.dp)
+      )
+      .padding(12.dp)
+  ) {
+    Text(
+      text = "键盘操作:",
+      color = Color.White,
+      style = MaterialTheme.typography.labelMedium
+    )
+    Text(
+      text = "空格: 播放/暂停",
+      color = Color.White.copy(alpha = 0.8f),
+      style = MaterialTheme.typography.bodySmall
+    )
+    Text(
+      text = "←/→: 快退/快进",
+      color = Color.White.copy(alpha = 0.8f),
+      style = MaterialTheme.typography.bodySmall
+    )
+    Text(
+      text = "↑/↓: 音量调节",
+      color = Color.White.copy(alpha = 0.8f),
+      style = MaterialTheme.typography.bodySmall
+    )
+    Text(
+      text = "F: 全屏切换",
+      color = Color.White.copy(alpha = 0.8f),
+      style = MaterialTheme.typography.bodySmall
+    )
+    Text(
+      text = "长按→: 3倍速播放",
+      color = Color.White.copy(alpha = 0.8f),
+      style = MaterialTheme.typography.bodySmall
+    )
+  }
+}
+
+@Composable
 fun Modifier.rememberGestureEventHandler(
   controller: VideoPlayerController
 ): Modifier {

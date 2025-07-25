@@ -2,10 +2,8 @@ package tenshi.hinanawi.filebrowser.component.yuzu.video
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -194,51 +192,6 @@ private fun EmbeddedVideoPlayer(
         modifier = Modifier.align(Alignment.Center)
       )
     }
-  }
-}
-
-@Composable
-private fun KeyboardHelpOverlay(
-  modifier: Modifier = Modifier
-) {
-  Column(
-    modifier = modifier
-      .background(
-        Color.Black.copy(alpha = 0.7f),
-        RoundedCornerShape(8.dp)
-      )
-      .padding(12.dp)
-  ) {
-    Text(
-      text = "键盘操作:",
-      color = Color.White,
-      style = MaterialTheme.typography.labelMedium
-    )
-    Text(
-      text = "空格: 播放/暂停",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
-    Text(
-      text = "←/→: 快退/快进",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
-    Text(
-      text = "↑/↓: 音量调节",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
-    Text(
-      text = "F: 全屏切换",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
-    Text(
-      text = "长按→: 3倍速播放",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
   }
 }
 
