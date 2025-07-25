@@ -68,8 +68,8 @@ private fun MacExternalVideoPlayer(
       val vlcPath = "/Applications/VLC.app/Contents/MacOS/VLC"
       val arguments = listOf(
         vlcPath, url,
-        "--width=480",
-        "--height=270"
+        "--start-paused",
+        "--no-macosx-autoplay"
       )
       val p = ProcessBuilder(arguments).start()
       process = p
