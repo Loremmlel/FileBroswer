@@ -102,27 +102,110 @@ actual fun VideoPlayer(
     }
   }
 
-  val playerState by controller.playerState.collectAsState()
-  val controlsState by controller.controlsState.collectAsState()
-  var isFullscreen by remember { mutableStateOf(false) }
-
   val dialog = remember { document.createElement("dialog") as HTMLDialogElement }
 
-  // 处理全屏
-  LaunchedEffect(isFullscreen) {
-    val videoElement = (controller.platformPlayer as BrowserVideoPlayer).video
-    if (isFullscreen) {
-      videoElement.requestFullscreen()
-    } else {
-      if (document.fullscreen) {
-        document.exitFullscreen()
+//  // 处理全屏
+//  LaunchedEffect(isFullscreen) {
+//    val videoElement = (controller.platformPlayer as BrowserVideoPlayer).video
+//    if (isFullscreen) {
+//      videoElement.requestFullscreen()
+//    } else {
+//      if (document.fullscreen) {
+//        document.exitFullscreen()
+//      }
+//    }
+//  }
+
+  DisposableEffect(Unit) {
+    dialog.style.apply {
+      width = "100%"
+      height = "100%"
+      backgroundColor = "transparent"
+      border = "none"
+    }
+
+    ComposeViewport(dialog) {
+      val playerState by controller.playerState.collectAsState()
+      val controlsState by controller.controlsState.collectAsState()
+      var isFullscreen by remember { mutableStateOf(false) }
+
+      LaunchedEffect(isFullscreen) {
+        val videoElement = (controller.platformPlayer as BrowserVideoPlayer).video
+        if (isFullscreen) {
+          videoElement.requestFullscreen()
+        } else {
+          if (document.fullscreen) {
+            document.exitFullscreen()
+          }
+        }
+      }
+
+      // 添加一个 Box 来为子组件提供对齐（align）的能力
+      Box(modifier = Modifier.fillMaxSize()) {
+        VideoControlsOverlay(
+          state = playerState.copy(isFullscreen = isFullscreen),
+          controlsState = controlsState,
+          title = title,
+          onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
+          onFullscreen = {
+            isFullscreen = !isFullscreen
+            controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
+          },
+          onClose = onClose,
+          onControlsClick = {
+            if (isMobile) {
+              controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
+            } else {
+              controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
+            }
+          }
+        )
+
+        // 速度指示器
+        SpeedIndicator(
+          isVisible = controlsState.showSpeedIndicator,
+          speed = playerState.playbackSpeed,
+          modifier = Modifier.align(Alignment.Center)
+        )
+
+        // 跳转预览指示器
+        SeekPreviewIndicator(
+          isVisible = controlsState.showSeekPreview,
+          targetPosition = controlsState.seekPreviewPosition,
+          currentDuration = playerState.duration,
+          modifier = Modifier.align(Alignment.Center)
+        )
+
+        // 音量指示器
+        VolumeIndicator(
+          isVisible = controlsState.showVolumeIndicator,
+          volume = playerState.volume,
+          modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(16.dp)
+        )
+
+        // 桌面端显示键盘帮助
+        if (!isMobile) {
+          KeyboardHelpOverlay(
+            modifier = Modifier
+              .align(Alignment.BottomStart)
+              .padding(16.dp)
+          )
+        }
+
+        // 加载指示器
+        if (playerState.isLoading) {
+          CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center)
+          )
+        }
       }
     }
-  }
 
-  DisposableEffect(dialog) {
     body.appendChild(dialog)
     dialog.showModal()
+
     onDispose {
       dialog.close()
       dialog.remove()
@@ -146,67 +229,6 @@ actual fun VideoPlayer(
       player = controller.platformPlayer as BrowserVideoPlayer,
       modifier = Modifier.fillMaxSize()
     )
-
-    ComposeViewport(dialog) {
-      VideoControlsOverlay(
-        state = playerState.copy(isFullscreen = isFullscreen),
-        controlsState = controlsState,
-        title = title,
-        onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
-        onFullscreen = {
-          isFullscreen = !isFullscreen
-          controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
-        },
-        onClose = onClose,
-        onControlsClick = {
-          if (isMobile) {
-            controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
-          } else {
-            controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
-          }
-        }
-      )
-
-      // 速度指示器
-      SpeedIndicator(
-        isVisible = controlsState.showSpeedIndicator,
-        speed = playerState.playbackSpeed,
-        modifier = Modifier.align(Alignment.Center)
-      )
-
-      // 跳转预览指示器
-      SeekPreviewIndicator(
-        isVisible = controlsState.showSeekPreview,
-        targetPosition = controlsState.seekPreviewPosition,
-        currentDuration = playerState.duration,
-        modifier = Modifier.align(Alignment.Center)
-      )
-
-      // 音量指示器
-      VolumeIndicator(
-        isVisible = controlsState.showVolumeIndicator,
-        volume = playerState.volume,
-        modifier = Modifier
-          .align(Alignment.TopEnd)
-          .padding(16.dp)
-      )
-
-      // 桌面端显示键盘帮助
-      if (!isMobile) {
-        KeyboardHelpOverlay(
-          modifier = Modifier
-            .align(Alignment.BottomStart)
-            .padding(16.dp)
-        )
-      }
-
-      // 加载指示器
-      if (playerState.isLoading) {
-        CircularProgressIndicator(
-          modifier = Modifier.align(Alignment.Center)
-        )
-      }
-    }
   }
 }
 
