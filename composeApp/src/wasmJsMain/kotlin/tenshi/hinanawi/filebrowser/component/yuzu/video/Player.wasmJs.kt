@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.ComposeViewport
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.*
@@ -17,10 +20,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.w3c.dom.CanPlayTypeResult
-import org.w3c.dom.EMPTY
-import org.w3c.dom.HTMLDivElement
-import org.w3c.dom.HTMLVideoElement
+import org.w3c.dom.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -67,6 +67,7 @@ external interface HlsError {
   val fatal: Boolean
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 actual fun VideoPlayer(
   modifier: Modifier,
@@ -77,6 +78,7 @@ actual fun VideoPlayer(
   onError: (String) -> Unit,
   onClose: () -> Unit
 ) {
+  val body = document.body!!
   val isMobile = remember { detectMobileDevice() }
   val controller = remember {
     VideoPlayerController(BrowserVideoPlayer())
@@ -104,6 +106,8 @@ actual fun VideoPlayer(
   val controlsState by controller.controlsState.collectAsState()
   var isFullscreen by remember { mutableStateOf(false) }
 
+  val dialog = remember { document.createElement("dialog") as HTMLDialogElement }
+
   // 处理全屏
   LaunchedEffect(isFullscreen) {
     val videoElement = (controller.platformPlayer as BrowserVideoPlayer).video
@@ -113,6 +117,15 @@ actual fun VideoPlayer(
       if (document.fullscreen) {
         document.exitFullscreen()
       }
+    }
+  }
+
+  DisposableEffect(dialog) {
+    body.appendChild(dialog)
+    dialog.showModal()
+    onDispose {
+      dialog.close()
+      dialog.remove()
     }
   }
 
@@ -128,103 +141,143 @@ actual fun VideoPlayer(
         }
       )
   ) {
-    VideoElementContainer(
+    // Video element - 使用 HtmlView
+    HtmlVideoView(
       player = controller.platformPlayer as BrowserVideoPlayer,
       modifier = Modifier.fillMaxSize()
     )
 
-    // 控制覆盖层
-    VideoControlsOverlay(
-      state = playerState.copy(isFullscreen = isFullscreen),
-      controlsState = controlsState,
-      title = title,
-      onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
-      onFullscreen = {
-        isFullscreen = !isFullscreen
-        controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
-      },
-      onClose = onClose,
-      onControlsClick = {
-        if (isMobile) {
-          controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
-        } else {
-          controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
+    key(dialog) {
+      ComposeViewport(dialog) {
+        VideoControlsOverlay(
+          state = playerState.copy(isFullscreen = isFullscreen),
+          controlsState = controlsState,
+          title = title,
+          onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
+          onFullscreen = {
+            isFullscreen = !isFullscreen
+            controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
+          },
+          onClose = onClose,
+          onControlsClick = {
+            if (isMobile) {
+              controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
+            } else {
+              controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
+            }
+          }
+        )
+
+        // 速度指示器
+        SpeedIndicator(
+          isVisible = controlsState.showSpeedIndicator,
+          speed = playerState.playbackSpeed,
+          modifier = Modifier.align(Alignment.Center)
+        )
+
+        // 跳转预览指示器
+        SeekPreviewIndicator(
+          isVisible = controlsState.showSeekPreview,
+          targetPosition = controlsState.seekPreviewPosition,
+          currentDuration = playerState.duration,
+          modifier = Modifier.align(Alignment.Center)
+        )
+
+        // 音量指示器
+        VolumeIndicator(
+          isVisible = controlsState.showVolumeIndicator,
+          volume = playerState.volume,
+          modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(16.dp)
+        )
+
+        // 桌面端显示键盘帮助
+        if (!isMobile) {
+          KeyboardHelpOverlay(
+            modifier = Modifier
+              .align(Alignment.BottomStart)
+              .padding(16.dp)
+          )
+        }
+
+        // 加载指示器
+        if (playerState.isLoading) {
+          CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center)
+          )
         }
       }
-    )
-
-    // 速度指示器
-    SpeedIndicator(
-      isVisible = controlsState.showSpeedIndicator,
-      speed = playerState.playbackSpeed,
-      modifier = Modifier.align(Alignment.Center)
-    )
-
-    // 跳转预览指示器
-    SeekPreviewIndicator(
-      isVisible = controlsState.showSeekPreview,
-      targetPosition = controlsState.seekPreviewPosition,
-      currentDuration = playerState.duration,
-      modifier = Modifier.align(Alignment.Center)
-    )
-
-    // 音量指示器
-    VolumeIndicator(
-      isVisible = controlsState.showVolumeIndicator,
-      volume = playerState.volume,
-      modifier = Modifier
-        .align(Alignment.TopEnd)
-        .padding(16.dp)
-    )
-
-    // 桌面端显示键盘帮助
-    if (!isMobile) {
-      KeyboardHelpOverlay(
-        modifier = Modifier
-          .align(Alignment.BottomStart)
-          .padding(16.dp)
-      )
-    }
-
-    // 加载指示器
-    if (playerState.isLoading) {
-      CircularProgressIndicator(
-        modifier = Modifier.align(Alignment.Center)
-      )
     }
   }
 }
 
 @Composable
-private fun VideoElementContainer(
+private fun HtmlVideoView(
   player: BrowserVideoPlayer,
   modifier: Modifier = Modifier
 ) {
   DisposableEffect(Unit) {
-    val videoElement = player.video
-    // 创建容器并添加视频元素
-    val container = (document.createElement("div") as HTMLDivElement).apply {
-      id = "video-container"
-      style.cssText = """
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-      """.trimIndent()
-    }
+    // 创建一个容器来放置 video 元素
+    val container = document.createElement("div") as HTMLElement
+    container.id = "video-player-container"
+    container.style.cssText = """
+      position: fixed;
+      z-index: 1;
+      background-color: black;
+      overflow: hidden;
+      pointer-events: none;
+    """.trimIndent()
 
-    document.body?.appendChild(container)
-    container.appendChild(videoElement)
+    // 获取 canvas 元素
+    val canvas = document.querySelector("canvas") as HTMLCanvasElement?
+    canvas?.parentElement?.insertBefore(container, canvas)
+
+    container.appendChild(player.video)
 
     onDispose {
-      videoElement.remove()
       container.remove()
     }
   }
 
-  Box(modifier = modifier.fillMaxSize())
+  LaunchedEffect(Unit) {
+    window.addEventListener("resize") {
+      updateVideoContainerPosition()
+    }
+
+    // 初始更新
+    delay(100) // 等待 Compose 布局完成
+    updateVideoContainerPosition()
+  }
+
+  // 监听组件位置变化
+  Box(
+    modifier = modifier
+      .onGloballyPositioned { coordinates ->
+        updateVideoContainerPosition()
+      }
+  ) {
+  }
+}
+
+private fun updateVideoContainerPosition() {
+  js(
+    """
+    (function() {
+      const container = document.getElementById('video-player-container');
+      const canvas = document.querySelector('canvas');
+      if (!container || !canvas) return;
+      
+      const canvasRect = canvas.getBoundingClientRect();
+      
+      // 让 video 容器完全覆盖 canvas
+      container.style.left = canvasRect.left + 'px';
+      container.style.top = canvasRect.top + 'px';
+      container.style.width = canvasRect.width + 'px';
+      container.style.height = canvasRect.height + 'px';
+    })()
+  """
+  )
 }
 
 class BrowserVideoPlayer(
@@ -236,6 +289,7 @@ class BrowserVideoPlayer(
       height: 100%;
       object-fit: contain;
       background-color: black;
+      pointer-events: none;
     """.trimIndent()
     controls = false
     setAttribute("playsinline", "true")
