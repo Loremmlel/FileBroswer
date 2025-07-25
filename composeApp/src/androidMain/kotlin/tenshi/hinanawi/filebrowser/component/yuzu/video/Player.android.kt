@@ -5,10 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
 import androidx.annotation.OptIn
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,8 +12,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -37,11 +31,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import tenshi.hinanawi.filebrowser.util.currentTimeMillis
-import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.minutes
 
 @SuppressLint("SourceLockedOrientationActivity")
 @Composable
@@ -206,91 +197,6 @@ private fun VideoPlayerContent(
       )
     }
   }
-}
-
-@Composable
-private fun Modifier.rememberGestureEventHandler(
-  controller: VideoPlayerController
-): Modifier {
-  val scope = rememberCoroutineScope()
-
-  var accumulatedOffset by remember { mutableStateOf(Offset.Zero) }
-  var isHorizontalDrag by remember { mutableStateOf(false) }
-
-  return this
-    .pointerInput(Unit) {
-      awaitEachGesture {
-        awaitFirstDown()
-        val downTime = currentTimeMillis()
-        var isLongPress = false
-
-        val longPressJob = scope.launch {
-          delay(200)
-          isLongPress = true
-          controller.handleGestureEvent(GestureEvent.LongPress(true))
-        }
-
-        val up = waitForUpOrCancellation()
-        longPressJob.cancel()
-
-        if (isLongPress) {
-          controller.handleGestureEvent(GestureEvent.LongPress(false))
-        } else if (up != null && currentTimeMillis() - downTime < 300L) {
-          controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
-        }
-      }
-    }
-    .pointerInput(Unit) {
-      detectDragGestures(
-        onDragStart = { offset ->
-          controller.handleGestureEvent(GestureEvent.SwipeStart)
-          accumulatedOffset = Offset.Zero
-        },
-        onDrag = { change, dragAmount ->
-          accumulatedOffset += Offset(dragAmount.x, dragAmount.y)
-
-          val totalWidth = size.width.toFloat()
-          val totalHeight = size.height.toFloat()
-
-          // 识别主要拖动方向
-          if (!isHorizontalDrag) {
-            isHorizontalDrag = abs(accumulatedOffset.x) > abs(accumulatedOffset.y)
-          }
-
-          if (isHorizontalDrag) {
-            // 水平移动：时间跳转
-            val maxDuration = 5.minutes
-            val deltaMs = accumulatedOffset.x / totalWidth * maxDuration.inWholeMilliseconds
-
-            controller.handleGestureEvent(
-              GestureEvent.SwipePreview(deltaMs.toLong().milliseconds)
-            )
-          } else {
-            // 垂直移动：音量调节
-            val volumeChange = accumulatedOffset.y / totalHeight * 0.5f
-            controller.handleGestureEvent(
-              GestureEvent.VolumeAdjust(volumeChange)
-            )
-          }
-        },
-        onDragEnd = {
-          when {
-            // 水平滑动结束：执行跳转
-            isHorizontalDrag -> {
-              controller.handleGestureEvent(GestureEvent.SwipeEnd)
-            }
-            // 垂直滑动结束：显示音量指示器
-            accumulatedOffset.y != 0f -> {
-              controller.handleGestureEvent(
-                GestureEvent.VolumeAdjust(accumulatedOffset.y)
-              )
-            }
-          }
-          accumulatedOffset = Offset.Zero
-          isHorizontalDrag = false
-        }
-      )
-    }
 }
 
 class AndroidVideoPlayer(

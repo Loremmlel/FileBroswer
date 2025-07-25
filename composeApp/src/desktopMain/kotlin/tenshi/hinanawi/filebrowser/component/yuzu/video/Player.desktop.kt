@@ -13,17 +13,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import tenshi.hinanawi.filebrowser.util.currentTimeMillis
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
@@ -244,99 +240,6 @@ private fun KeyboardHelpOverlay(
       style = MaterialTheme.typography.bodySmall
     )
   }
-}
-
-@Composable
-private fun Modifier.rememberKeyboardEventHandler(
-  controller: VideoPlayerController
-): Modifier {
-  val scope = rememberCoroutineScope()
-  val focusRequester = remember { FocusRequester() }
-
-  var isRightPressed by remember { mutableStateOf(false) }
-  var rightPressJob by remember { mutableStateOf<Job?>(null) }
-  var rightPressStartTime by remember { mutableLongStateOf(currentTimeMillis()) }
-
-  LaunchedEffect(Unit) {
-    focusRequester.requestFocus()
-  }
-
-  return this
-    .focusRequester(focusRequester)
-    .onKeyEvent { keyEvent ->
-      when (keyEvent.type) {
-        KeyEventType.KeyDown -> {
-          when (keyEvent.key) {
-            Key.Spacebar -> {
-              controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause)
-              true
-            }
-
-            Key.DirectionLeft -> {
-              controller.handleKeyboardEvent(KeyboardEvent.FastRewind)
-              true
-            }
-
-            Key.DirectionRight -> {
-              if (!isRightPressed) {
-                isRightPressed = true
-                rightPressStartTime = currentTimeMillis()
-                rightPressJob = scope.launch {
-                  delay(200)
-                  controller.handleKeyboardEvent(KeyboardEvent.LongPressRight(true))
-                }
-              }
-              true
-            }
-
-            Key.DirectionUp -> {
-              controller.handleKeyboardEvent(KeyboardEvent.VolumeChange(0.1f))
-              true
-            }
-
-            Key.DirectionDown -> {
-              controller.handleKeyboardEvent(KeyboardEvent.VolumeChange(-0.1f))
-              true
-            }
-
-            Key.F -> {
-              controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
-              true
-            }
-
-            Key.Escape -> {
-              controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
-              true
-            }
-
-            else -> false
-          }
-        }
-
-        KeyEventType.KeyUp -> {
-          when (keyEvent.key) {
-            Key.DirectionRight -> {
-              if (isRightPressed) {
-                isRightPressed = false
-                rightPressJob?.cancel()
-                controller.handleKeyboardEvent(
-                  if (currentTimeMillis() - rightPressStartTime <= 200)
-                    KeyboardEvent.FastForward
-                  else
-                    KeyboardEvent.LongPressRight(false)
-                )
-                rightPressJob = null
-              }
-              true
-            }
-
-            else -> false
-          }
-        }
-
-        else -> false
-      }
-    }
 }
 
 class DesktopVideoPlayer(

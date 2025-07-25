@@ -3,6 +3,10 @@ package tenshi.hinanawi.filebrowser.component.yuzu.video
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,15 +19,27 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import tenshi.hinanawi.filebrowser.util.currentTimeMillis
 import tenshi.hinanawi.filebrowser.util.nullIndicatorClickable
+import kotlin.math.abs
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * 控制覆盖层
@@ -314,6 +330,184 @@ fun VolumeIndicator(
       }
     }
   }
+}
+
+@Composable
+fun Modifier.rememberGestureEventHandler(
+  controller: VideoPlayerController
+): Modifier {
+  val scope = rememberCoroutineScope()
+
+  var accumulatedOffset by remember { mutableStateOf(Offset.Zero) }
+  var isHorizontalDrag by remember { mutableStateOf(false) }
+
+  return this
+    .pointerInput(Unit) {
+      awaitEachGesture {
+        awaitFirstDown()
+        val downTime = currentTimeMillis()
+        var isLongPress = false
+
+        val longPressJob = scope.launch {
+          delay(200)
+          isLongPress = true
+          controller.handleGestureEvent(GestureEvent.LongPress(true))
+        }
+
+        val up = waitForUpOrCancellation()
+        longPressJob.cancel()
+
+        if (isLongPress) {
+          controller.handleGestureEvent(GestureEvent.LongPress(false))
+        } else if (up != null && currentTimeMillis() - downTime < 300L) {
+          controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
+        }
+      }
+    }
+    .pointerInput(Unit) {
+      detectDragGestures(
+        onDragStart = { offset ->
+          controller.handleGestureEvent(GestureEvent.SwipeStart)
+          accumulatedOffset = Offset.Zero
+        },
+        onDrag = { change, dragAmount ->
+          accumulatedOffset += Offset(dragAmount.x, dragAmount.y)
+
+          val totalWidth = size.width.toFloat()
+          val totalHeight = size.height.toFloat()
+
+          // 识别主要拖动方向
+          if (!isHorizontalDrag) {
+            isHorizontalDrag = abs(accumulatedOffset.x) > abs(accumulatedOffset.y)
+          }
+
+          if (isHorizontalDrag) {
+            // 水平移动：时间跳转
+            val maxDuration = 5.minutes
+            val deltaMs = accumulatedOffset.x / totalWidth * maxDuration.inWholeMilliseconds
+
+            controller.handleGestureEvent(
+              GestureEvent.SwipePreview(deltaMs.toLong().milliseconds)
+            )
+          } else {
+            // 垂直移动：音量调节
+            val volumeChange = accumulatedOffset.y / totalHeight * 0.5f
+            controller.handleGestureEvent(
+              GestureEvent.VolumeAdjust(volumeChange)
+            )
+          }
+        },
+        onDragEnd = {
+          when {
+            // 水平滑动结束：执行跳转
+            isHorizontalDrag -> {
+              controller.handleGestureEvent(GestureEvent.SwipeEnd)
+            }
+            // 垂直滑动结束：显示音量指示器
+            accumulatedOffset.y != 0f -> {
+              controller.handleGestureEvent(
+                GestureEvent.VolumeAdjust(accumulatedOffset.y)
+              )
+            }
+          }
+          accumulatedOffset = Offset.Zero
+          isHorizontalDrag = false
+        }
+      )
+    }
+}
+
+@Composable
+fun Modifier.rememberKeyboardEventHandler(
+  controller: VideoPlayerController
+): Modifier {
+  val scope = rememberCoroutineScope()
+  val focusRequester = remember { FocusRequester() }
+
+  var isRightPressed by remember { mutableStateOf(false) }
+  var rightPressJob by remember { mutableStateOf<Job?>(null) }
+  var rightPressStartTime by remember { mutableLongStateOf(currentTimeMillis()) }
+
+  LaunchedEffect(Unit) {
+    focusRequester.requestFocus()
+  }
+
+  return this
+    .focusRequester(focusRequester)
+    .onKeyEvent { keyEvent ->
+      when (keyEvent.type) {
+        KeyEventType.KeyDown -> {
+          when (keyEvent.key) {
+            Key.Spacebar -> {
+              controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause)
+              true
+            }
+
+            Key.DirectionLeft -> {
+              controller.handleKeyboardEvent(KeyboardEvent.FastRewind)
+              true
+            }
+
+            Key.DirectionRight -> {
+              if (!isRightPressed) {
+                isRightPressed = true
+                rightPressStartTime = currentTimeMillis()
+                rightPressJob = scope.launch {
+                  delay(200)
+                  controller.handleKeyboardEvent(KeyboardEvent.LongPressRight(true))
+                }
+              }
+              true
+            }
+
+            Key.DirectionUp -> {
+              controller.handleKeyboardEvent(KeyboardEvent.VolumeChange(0.1f))
+              true
+            }
+
+            Key.DirectionDown -> {
+              controller.handleKeyboardEvent(KeyboardEvent.VolumeChange(-0.1f))
+              true
+            }
+
+            Key.F -> {
+              controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
+              true
+            }
+
+            Key.Escape -> {
+              controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
+              true
+            }
+
+            else -> false
+          }
+        }
+
+        KeyEventType.KeyUp -> {
+          when (keyEvent.key) {
+            Key.DirectionRight -> {
+              if (isRightPressed) {
+                isRightPressed = false
+                rightPressJob?.cancel()
+                controller.handleKeyboardEvent(
+                  if (currentTimeMillis() - rightPressStartTime <= 200)
+                    KeyboardEvent.FastForward
+                  else
+                    KeyboardEvent.LongPressRight(false)
+                )
+                rightPressJob = null
+              }
+              true
+            }
+
+            else -> false
+          }
+        }
+
+        else -> false
+      }
+    }
 }
 
 private fun formatDuration(duration: Duration): String {
