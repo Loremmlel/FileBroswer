@@ -115,7 +115,8 @@ private fun EmbeddedVideoPlayer(
   }
 
   LaunchedEffect(url) {
-    controller.initialize(encodeUrl(url), autoPlay)
+    // fix记录：这里双重编码url了，AI真不靠谱
+    controller.initialize(url, autoPlay)
   }
 
   LaunchedEffect(controller) {
