@@ -3,6 +3,7 @@ package tenshi.hinanawi.filebrowser.component.yuzu.video
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -63,7 +64,6 @@ fun VideoControlsOverlay(
   ) {
     Box(
       modifier = Modifier
-        .background(Color.Transparent)
         .fillMaxSize()
         .nullIndicatorClickable { onControlsClick() }
     ) {
@@ -337,44 +337,55 @@ fun VolumeIndicator(
 fun KeyboardHelpOverlay(
   modifier: Modifier = Modifier
 ) {
-  Column(
-    modifier = modifier
-      .background(
-        Color.Black.copy(alpha = 0.7f),
-        RoundedCornerShape(8.dp)
-      )
-      .padding(12.dp)
+  var visible by remember { mutableStateOf(true) }
+  LaunchedEffect(Unit) {
+    delay(5000)
+    visible = false
+  }
+  AnimatedVisibility(
+    visible = visible,
+    enter = fadeIn(),
+    exit = fadeOut()
   ) {
-    Text(
-      text = "键盘操作:",
-      color = Color.White,
-      style = MaterialTheme.typography.labelMedium
-    )
-    Text(
-      text = "空格: 播放/暂停",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
-    Text(
-      text = "←/→: 快退/快进",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
-    Text(
-      text = "↑/↓: 音量调节",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
-    Text(
-      text = "F: 全屏切换",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
-    Text(
-      text = "长按→: 3倍速播放",
-      color = Color.White.copy(alpha = 0.8f),
-      style = MaterialTheme.typography.bodySmall
-    )
+    Column(
+      modifier = modifier
+        .background(
+          Color.Black.copy(alpha = 0.7f),
+          RoundedCornerShape(8.dp)
+        )
+        .padding(12.dp)
+    ) {
+      Text(
+        text = "键盘操作:",
+        color = Color.White,
+        style = MaterialTheme.typography.labelMedium
+      )
+      Text(
+        text = "空格: 播放/暂停",
+        color = Color.White.copy(alpha = 0.8f),
+        style = MaterialTheme.typography.bodySmall
+      )
+      Text(
+        text = "←/→: 快退/快进",
+        color = Color.White.copy(alpha = 0.8f),
+        style = MaterialTheme.typography.bodySmall
+      )
+      Text(
+        text = "↑/↓: 音量调节",
+        color = Color.White.copy(alpha = 0.8f),
+        style = MaterialTheme.typography.bodySmall
+      )
+      Text(
+        text = "F: 全屏切换",
+        color = Color.White.copy(alpha = 0.8f),
+        style = MaterialTheme.typography.bodySmall
+      )
+      Text(
+        text = "长按→: 3倍速播放",
+        color = Color.White.copy(alpha = 0.8f),
+        style = MaterialTheme.typography.bodySmall
+      )
+    }
   }
 }
 
@@ -475,10 +486,12 @@ fun Modifier.rememberKeyboardEventHandler(
   var rightPressStartTime by remember { mutableLongStateOf(currentTimeMillis()) }
 
   LaunchedEffect(Unit) {
+    delay(500)
     focusRequester.requestFocus()
   }
 
   return this
+    .focusable()
     .focusRequester(focusRequester)
     .onKeyEvent { keyEvent ->
       when (keyEvent.type) {

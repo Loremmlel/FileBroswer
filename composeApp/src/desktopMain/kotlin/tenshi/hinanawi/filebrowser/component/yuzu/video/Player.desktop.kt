@@ -1,6 +1,7 @@
 package tenshi.hinanawi.filebrowser.component.yuzu.video
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -9,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
@@ -100,6 +102,7 @@ private fun MacExternalVideoPlayer(
   }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun EmbeddedVideoPlayer(
   modifier: Modifier,
@@ -109,7 +112,14 @@ private fun EmbeddedVideoPlayer(
   onError: (String) -> Unit,
   onClose: () -> Unit
 ) {
-  val mediaPlayerComponent = remember { EmbeddedMediaPlayerComponent() }
+  val mediaPlayerComponent = remember {
+    EmbeddedMediaPlayerComponent().apply {
+      isFocusable = false
+      isEnabled = false
+      isRequestFocusEnabled = false
+      background = java.awt.Color(0, 0, 0, 0)
+    }
+  }
   val controller = remember {
     VideoPlayerController(DesktopVideoPlayer(mediaPlayerComponent))
   }
@@ -143,12 +153,19 @@ private fun EmbeddedVideoPlayer(
       .background(Color.Black)
       .rememberKeyboardEventHandler(controller)
   ) {
+    // 有bug，swingPanel一直都在Compose组件之上，都好几年了还没修复。但勉强能看视频，没办法，等吧。
     SwingPanel(
-      factory = { mediaPlayerComponent },
-      modifier = Modifier.fillMaxSize()
+      factory = {
+        mediaPlayerComponent
+      },
+      modifier = Modifier
+        .fillMaxSize()
+        .focusable(false)
+        .background(Color.Transparent)
     )
 
     VideoControlsOverlay(
+      modifier = Modifier.background(Color.Transparent),
       state = playerState.copy(isFullscreen = isFullscreen),
       controlsState = controlsState,
       title = title,
