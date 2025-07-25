@@ -19,10 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import tenshi.hinanawi.filebrowser.component.yuzu.Thumbnail
-import tenshi.hinanawi.filebrowser.component.yuzu.rememberThumbnailState
 import tenshi.hinanawi.filebrowser.data.repo.ThumbnailRepository
 import tenshi.hinanawi.filebrowser.model.response.FileInfo
-import tenshi.hinanawi.filebrowser.model.response.FileType
 import tenshi.hinanawi.filebrowser.util.formatFileSize
 
 @Composable
@@ -39,12 +37,7 @@ internal fun FileItem(
   val iconButtonSize = 24.dp
   val iconButtonPadding = 4.dp
   var showConfirm by remember { mutableStateOf(false) }
-
-  val shouldLoadThumbnail = file.type == FileType.Image || file.type == FileType.Video
-  val thumbnailState by if (shouldLoadThumbnail) rememberThumbnailState(
-    file.path,
-    thumbnailRepository
-  ) else mutableStateOf(null)
+  // fix记录：不知道为什么这里遗留了rememberThumbnailState，导致重复请求...
 
   Box(
     modifier = modifier
