@@ -63,6 +63,7 @@ fun VideoControlsOverlay(
   ) {
     Box(
       modifier = Modifier
+        .background(Color.Transparent)
         .fillMaxSize()
         .nullIndicatorClickable { onControlsClick() }
     ) {

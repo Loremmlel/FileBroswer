@@ -141,7 +141,17 @@ actual fun VideoPlayer(
       }
 
       // 添加一个 Box 来为子组件提供对齐（align）的能力
-      Box(modifier = Modifier.fillMaxSize()) {
+      Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Transparent)
+        .then(
+          if (isMobile) {
+            Modifier.rememberGestureEventHandler(controller)
+          } else {
+            Modifier.rememberKeyboardEventHandler(controller)
+          }
+        )
+      ) {
         VideoControlsOverlay(
           state = playerState.copy(isFullscreen = isFullscreen),
           controlsState = controlsState,
@@ -215,14 +225,6 @@ actual fun VideoPlayer(
   Box(
     modifier = modifier
       .fillMaxSize()
-      .background(Color.Black)
-      .then(
-        if (isMobile) {
-          Modifier.rememberGestureEventHandler(controller)
-        } else {
-          Modifier.rememberKeyboardEventHandler(controller)
-        }
-      )
   ) {
     // Video element - 使用 HtmlView
     HtmlVideoView(
