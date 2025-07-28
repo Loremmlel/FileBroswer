@@ -22,7 +22,7 @@ class ThumbnailService {
   private val thumbnailMaxWidth: Int = 256
   private val thumbnailMaxHeight: Int = 256
 
-  private val logger = LoggerFactory.getLogger("BusinessLogger")
+  private val logger = LoggerFactory.getLogger(ThumbnailService::class.java)
 
   fun createThumbnail(file: File): ByteArray? {
     if (!file.exists() || !file.isFile) {

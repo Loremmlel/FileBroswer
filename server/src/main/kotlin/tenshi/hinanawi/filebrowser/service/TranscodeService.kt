@@ -8,6 +8,7 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
+import kotlin.math.log
 import kotlin.time.Duration.Companion.minutes
 
 class TranscodeService {
@@ -23,7 +24,7 @@ class TranscodeService {
   private val cacheDir = File(AppConfig.cachePath).apply { mkdirs() }
   private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-  private val logger = LoggerFactory.getLogger("BusinessLogger")
+  private val logger = LoggerFactory.getLogger(TranscodeService::class.java)
 
   private val durationPattern by lazy { Pattern.compile("Duration: (\\d+):(\\d+):(\\d+\\.\\d+)") }
   private val timePattern by lazy { Pattern.compile("time=(\\d+):(\\d+):(\\d+\\.\\d+)") }
@@ -189,8 +190,13 @@ class TranscodeService {
   }
 
   fun cleanup() {
-    tasks.keys.forEach { stopTranscode(it) }
-    cacheDir.deleteRecursively()
+    try {
+      tasks.keys.forEach { stopTranscode(it) }
+      cacheDir.deleteRecursively()
+      logger.info("转码缓存清理成功")
+    }catch (e: Exception) {
+      logger.warn("转码缓存清理失败", e)
+    }
   }
 
   private data class HwaccelConfig(

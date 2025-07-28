@@ -15,7 +15,7 @@ class ServiceDiscoveryBroadcaster(
   private val broadcastPort: Int = 8888,
   private val broadcastInterval: Long = 3000L // 3秒广播一次
 ) {
-  private val logger = LoggerFactory.getLogger("business")
+  private val logger = LoggerFactory.getLogger(ServiceDiscoveryBroadcaster::class.java)
   private val json = Json { ignoreUnknownKeys = true }
   private var broadcastJob: Job? = null
   private val broadcastScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
