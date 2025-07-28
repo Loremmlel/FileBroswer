@@ -15,7 +15,7 @@ class ServiceDiscovererMDNS {
 
     val serviceInfo = ServiceInfo.create(
       "_http._tcp.local.",
-      "FileBrowser Server",
+      "filebrowser-server",
       SERVER_PORT,
       "柚子的文件服务器"
     )
