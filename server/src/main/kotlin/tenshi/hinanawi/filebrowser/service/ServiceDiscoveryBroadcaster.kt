@@ -5,7 +5,10 @@ import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import tenshi.hinanawi.filebrowser.SERVER_PORT
 import tenshi.hinanawi.filebrowser.model.ServiceBroadcast
-import java.net.*
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.Inet4Address
+import java.net.NetworkInterface
 
 /**
  * 服务发现广播器
@@ -33,12 +36,11 @@ class ServiceDiscoveryBroadcaster(
         socket = DatagramSocket()
         socket?.broadcast = true
 
-        val localHost = getLocalIPAddress()
-        logger.info("开始广播服务发现信息: $localHost:$SERVER_PORT")
+        logger.info("开始广播服务发现信息")
 
         while (isActive) {
           try {
-            broadcastService(localHost)
+            broadcastService()
             delay(broadcastInterval)
           } catch (e: Exception) {
             logger.error("广播服务信息失败", e)
@@ -58,81 +60,41 @@ class ServiceDiscoveryBroadcaster(
     socket = null
   }
 
-  private fun broadcastService(host: String) {
-    val broadcast = ServiceBroadcast(
-      host = host,
-      port = SERVER_PORT
-    )
+  private fun broadcastService() = try {
+    val interfaces = NetworkInterface.getNetworkInterfaces()
+    while (interfaces.hasMoreElements()) {
+      val networkInterface = interfaces.nextElement()
+      if (networkInterface.isLoopback || !networkInterface.isUp) continue
 
-    val message = json.encodeToString(broadcast)
-    val data = message.toByteArray()
+      for (interfaceAddress in networkInterface.interfaceAddresses) {
+        val broadcast = interfaceAddress.broadcast ?: continue
+        val address = interfaceAddress.address
 
-    // 广播到所有网络接口
-    val broadcastAddresses = getBroadcastAddresses()
+        if (address is Inet4Address && !address.isLoopbackAddress) {
+          val serviceBroadcast = ServiceBroadcast(
+            host = address.hostAddress,
+            port = SERVER_PORT
+          )
+          val message = json.encodeToString(serviceBroadcast)
+          val data = message.toByteArray()
 
-    for (broadcastAddress in broadcastAddresses) {
-      try {
-        val packet = DatagramPacket(
-          data,
-          data.size,
-          InetAddress.getByName(broadcastAddress),
-          broadcastPort
-        )
-        socket?.send(packet)
-        logger.debug("广播服务信息到: $broadcastAddress:$broadcastPort")
-      } catch (e: Exception) {
-        logger.debug("广播到 $broadcastAddress 失败: ${e.message}")
-      }
-    }
-  }
-
-  private fun getLocalIPAddress(): String {
-    try {
-      val interfaces = NetworkInterface.getNetworkInterfaces()
-      while (interfaces.hasMoreElements()) {
-        val networkInterface = interfaces.nextElement()
-        if (networkInterface.isLoopback || !networkInterface.isUp) continue
-
-        val addresses = networkInterface.inetAddresses
-        while (addresses.hasMoreElements()) {
-          val address = addresses.nextElement()
-          if (address is Inet4Address && !address.isLoopbackAddress) {
-            return address.hostAddress
+          try {
+            val packet = DatagramPacket(
+              data,
+              data.size,
+              broadcast,
+              broadcastPort
+            )
+            socket?.send(packet)
+            logger.debug("广播服务信息到: ${broadcast.hostAddress}:$broadcastPort on host ${address.hostAddress}")
+          } catch (e: Exception) {
+            logger.debug("广播到 ${broadcast.hostAddress} 失败: ${e.message}")
           }
         }
       }
-    } catch (e: Exception) {
-      logger.error("获取本地IP地址失败", e)
     }
-    return "127.0.0.1"
-  }
-
-  private fun getBroadcastAddresses(): List<String> {
-    val broadcastAddresses = mutableListOf<String>()
-
-    try {
-      val interfaces = NetworkInterface.getNetworkInterfaces()
-      while (interfaces.hasMoreElements()) {
-        val networkInterface = interfaces.nextElement()
-        if (networkInterface.isLoopback || !networkInterface.isUp) continue
-
-        for (interfaceAddress in networkInterface.interfaceAddresses) {
-          val broadcast = interfaceAddress.broadcast
-          if (broadcast != null) {
-            broadcastAddresses.add(broadcast.hostAddress)
-          }
-        }
-      }
-    } catch (e: Exception) {
-      logger.error("获取广播地址失败", e)
-    }
-
-    // 如果没有找到广播地址，使用默认的
-    if (broadcastAddresses.isEmpty()) {
-      broadcastAddresses.add("255.255.255.255")
-    }
-
-    return broadcastAddresses
+  } catch (e: Exception) {
+    logger.error("获取网络接口失败", e)
   }
 }
 
