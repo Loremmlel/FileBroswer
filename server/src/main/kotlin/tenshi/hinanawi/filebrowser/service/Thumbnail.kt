@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import tenshi.hinanawi.filebrowser.model.response.FileType
+import tenshi.hinanawi.filebrowser.util.executeAndGetOutput
+import tenshi.hinanawi.filebrowser.util.executeCommand
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.awt.Image
 import java.awt.RenderingHints
@@ -84,14 +86,15 @@ class ThumbnailService {
         "-q:v", "2",
         "-y", tempOutputFile.absolutePath
       )
-      val process = ProcessBuilder(command)
-        .redirectErrorStream(true)
-        .start()
-      val completed = process.waitFor(15, TimeUnit.SECONDS)
-      if (!completed || process.exitValue() != 0) {
+      val success = executeCommand(
+        command = command,
+        timeout = 15,
+        unit = TimeUnit.SECONDS,
+        logger = logger,
+        processName = "ffmpeg创建视频缩略图"
+      )
+      if (!success) {
         logger.warn("ffmpeg创建视频缩略图失败: ${video.absolutePath}")
-        val output = process.inputStream.bufferedReader().readText()
-        logger.warn("ffmpeg输出: $output")
         return null
       }
       return createImageThumbnail(tempOutputFile)
@@ -126,17 +129,14 @@ class ThumbnailService {
       "-show_streams",
       video.absolutePath
     )
-    val process = ProcessBuilder(command)
-      .redirectErrorStream(true)
-      .start()
-    val completed = process.waitFor(10, TimeUnit.SECONDS)
-    val output = process.inputStream.bufferedReader().readText()
-
-    if (!completed || process.exitValue() != 0) {
-      logger.warn("ffprobe获取视频时长失败: ${video.absolutePath}")
-      logger.warn("ffprobe输出: $output")
-      -1.0
-    }
+    // fix记录：process在windows和macos上表现不一样。windows你waitFor之后再读取输出，会失败。因为输出塞满缓冲区之后会阻塞线程
+    val output = executeAndGetOutput(
+      command = command,
+      timeout = 10,
+      unit = TimeUnit.SECONDS,
+      logger = logger,
+      processName = "ffprobe获取视频时长"
+    ) ?: return -1.0
     parseDurationFromJson(output)
   } catch (e: Exception) {
     logger.warn("获取视频文件时长失败: ${video.absolutePath}", e.message)
