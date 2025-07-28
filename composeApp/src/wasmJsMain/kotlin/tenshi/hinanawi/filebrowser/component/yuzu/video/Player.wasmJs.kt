@@ -118,10 +118,12 @@ actual fun VideoPlayer(
 
   DisposableEffect(Unit) {
     dialog.style.apply {
-      width = "100%"
-      height = "100%"
+      width = "100vw"
+      height = "100vh"
       backgroundColor = "transparent"
       border = "none"
+      padding = "0"
+      margin = "0"
     }
 
     ComposeViewport(dialog) {
@@ -153,6 +155,7 @@ actual fun VideoPlayer(
         )
       ) {
         VideoControlsOverlay(
+          modifier = Modifier.background(Color.Transparent),
           state = playerState.copy(isFullscreen = isFullscreen),
           controlsState = controlsState,
           title = title,

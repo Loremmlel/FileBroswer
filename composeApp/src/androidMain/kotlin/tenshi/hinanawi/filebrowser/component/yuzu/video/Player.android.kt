@@ -5,14 +5,18 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
 import androidx.annotation.OptIn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -318,5 +322,70 @@ class AndroidVideoPlayer(
     positionUpdateJob?.cancel()
     positionUpdateJob = null
   }
-
 }
+
+//@Preview
+//@Composable
+//private fun ControlPanelPreview() {
+//  val context = LocalContext.current
+//  val controller = remember(context) {
+//    val player = AndroidVideoPlayer(context)
+//    VideoPlayerController(player)
+//  }
+//
+//  val playerState by controller.playerState.collectAsState()
+//  val controlsState by controller.controlsState.collectAsState()
+//
+//  var isFullscreen by remember { mutableStateOf(false) }
+//
+//  Box(modifier = Modifier
+//    .fillMaxSize()
+//    .background(Color.Transparent)
+//    .rememberGestureEventHandler(controller)
+//  ) {
+//    VideoControlsOverlay(
+//      modifier = Modifier.background(Color.Transparent),
+//      state = playerState.copy(isFullscreen = isFullscreen),
+//      controlsState = controlsState,
+//      title = "test",
+//      onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
+//      onFullscreen = {
+//        isFullscreen = !isFullscreen
+//        controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
+//      },
+//      onClose = {},
+//      onControlsClick = { controller.handlePlayerEvent(VideoPlayerEvent.HideControls) }
+//    )
+//
+//    // 速度指示器
+//    SpeedIndicator(
+//      isVisible = controlsState.showSpeedIndicator,
+//      speed = playerState.playbackSpeed,
+//      modifier = Modifier.align(Alignment.Center)
+//    )
+//
+//    // 跳转预览指示器
+//    SeekPreviewIndicator(
+//      isVisible = controlsState.showSeekPreview,
+//      targetPosition = controlsState.seekPreviewPosition,
+//      currentDuration = playerState.duration,
+//      modifier = Modifier.align(Alignment.Center)
+//    )
+//
+//    // 音量指示器
+//    VolumeIndicator(
+//      isVisible = controlsState.showVolumeIndicator,
+//      volume = playerState.volume,
+//      modifier = Modifier
+//        .align(Alignment.TopEnd)
+//        .padding(16.dp)
+//    )
+//
+//    // 加载指示器
+//    if (playerState.isLoading) {
+//      CircularProgressIndicator(
+//        modifier = Modifier.align(Alignment.Center)
+//      )
+//    }
+//  }
+//}

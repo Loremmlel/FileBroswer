@@ -59,7 +59,7 @@ fun VideoControlsOverlay(
     visible = controlsState.isVisible,
     enter = fadeIn(),
     exit = fadeOut(),
-    modifier = modifier
+    modifier = modifier.background(Color.Transparent)
   ) {
     Box(
       modifier = Modifier
