@@ -79,6 +79,7 @@ kotlin {
       implementation(libs.kotlinx.coroutinesSwing)
       implementation(libs.ktor.client.okhttp)
       implementation(libs.vlcj)
+      implementation(libs.jmdns)
     }
     wasmJsMain.dependencies {
       implementation(libs.ktor.client.js)
