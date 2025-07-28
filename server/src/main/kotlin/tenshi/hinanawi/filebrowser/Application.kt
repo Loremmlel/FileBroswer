@@ -12,13 +12,13 @@ import tenshi.hinanawi.filebrowser.plugin.GlobalExceptionHandler
 import tenshi.hinanawi.filebrowser.plugin.RequestLogging
 import tenshi.hinanawi.filebrowser.plugin.ResponseBodyLogging
 import tenshi.hinanawi.filebrowser.route.*
-import tenshi.hinanawi.filebrowser.service.ServiceDiscoveryBroadcaster
+import tenshi.hinanawi.filebrowser.service.ServiceDiscovererMDNS
 import tenshi.hinanawi.filebrowser.service.TranscodeService
 
 fun main() {
   System.setProperty("io.ktor.development", "true")
   val transcoder = TranscodeService()
-  val broadcaster = ServiceDiscoveryBroadcaster()
+  val serviceDiscoverer = ServiceDiscovererMDNS()
 
   val server = embeddedServer(
     CIO,
@@ -30,11 +30,11 @@ fun main() {
   )
   server.monitor.apply {
     subscribe(ApplicationStarted) {
-      broadcaster.start()
+      serviceDiscoverer.start()
     }
     subscribe(ApplicationStopping) {
       transcoder.cleanup()
-      broadcaster.stop()
+      serviceDiscoverer.stop()
     }
   }
   server.start(wait = true)

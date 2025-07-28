@@ -28,6 +28,7 @@ dependencies {
   implementation(libs.exposed.kotlin.datetime)
   implementation(libs.postgresql)
   implementation(libs.hikari)
+  implementation(libs.jmdns)
   testImplementation(libs.ktor.serverTestHost)
   testImplementation(libs.kotlin.testJunit)
   testImplementation(libs.h2)

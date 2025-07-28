@@ -23,9 +23,9 @@ postgresql = "42.6.2"
 h2 = "2.3.232"
 hikari = "6.3.0"
 logback = "1.5.18"
-mockk = "1.14.4"
 media3 = "1.7.1"
 vlcj = "4.8.4"
+jmdns = "3.6.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -68,8 +68,8 @@ exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datet
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 vlcj = { module = "uk.co.caprica:vlcj", version.ref = "vlcj" }
+jmdns = { module = "org.jmdns:jmdns", version.ref = "jmdns"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
