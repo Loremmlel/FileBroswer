@@ -12,12 +12,15 @@ import tenshi.hinanawi.filebrowser.plugin.GlobalExceptionHandler
 import tenshi.hinanawi.filebrowser.plugin.RequestLogging
 import tenshi.hinanawi.filebrowser.plugin.ResponseBodyLogging
 import tenshi.hinanawi.filebrowser.route.*
+import tenshi.hinanawi.filebrowser.service.ServiceDiscoveryBroadcaster
 import tenshi.hinanawi.filebrowser.service.TranscodeService
 
 fun main() {
   System.setProperty("io.ktor.development", "true")
   val transcoder = TranscodeService()
-  embeddedServer(
+  val broadcaster = ServiceDiscoveryBroadcaster()
+
+  val server = embeddedServer(
     CIO,
     port = SERVER_PORT,
     host = "0.0.0.0",
@@ -25,10 +28,16 @@ fun main() {
       module(transcoder)
     }
   )
-    .start(wait = true)
-    .monitor.subscribe(ApplicationStopping) {
-      transcoder.cleanup()
+  server.monitor.apply {
+    subscribe(ApplicationStarted) {
+      broadcaster.start()
     }
+    subscribe(ApplicationStopping) {
+      transcoder.cleanup()
+      broadcaster.stop()
+    }
+  }
+  server.start(wait = true)
 }
 
 fun Application.module(
