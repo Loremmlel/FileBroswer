@@ -126,95 +126,96 @@ actual fun VideoPlayer(
       margin = "0"
     }
 
-    ComposeViewport(dialog) {
-      val playerState by controller.playerState.collectAsState()
-      val controlsState by controller.controlsState.collectAsState()
-      var isFullscreen by remember { mutableStateOf(false) }
-
-      LaunchedEffect(isFullscreen) {
-        val videoElement = (controller.platformPlayer as BrowserVideoPlayer).video
-        if (isFullscreen) {
-          videoElement.requestFullscreen()
-        } else {
-          if (document.fullscreen) {
-            document.exitFullscreen()
-          }
-        }
-      }
-
-      // 添加一个 Box 来为子组件提供对齐（align）的能力
-      Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Transparent)
-        .then(
-          if (isMobile) {
-            Modifier.rememberGestureEventHandler(controller)
-          } else {
-            Modifier.rememberKeyboardEventHandler(controller)
-          }
-        )
-      ) {
-        VideoControlsOverlay(
-          modifier = Modifier.background(Color.Transparent),
-          state = playerState.copy(isFullscreen = isFullscreen),
-          controlsState = controlsState,
-          title = title,
-          onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
-          onFullscreen = {
-            isFullscreen = !isFullscreen
-            controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
-          },
-          onClose = onClose,
-          onControlsClick = {
-            if (isMobile) {
-              controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
-            } else {
-              controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
-            }
-          }
-        )
-
-        // 速度指示器
-        SpeedIndicator(
-          isVisible = controlsState.showSpeedIndicator,
-          speed = playerState.playbackSpeed,
-          modifier = Modifier.align(Alignment.Center)
-        )
-
-        // 跳转预览指示器
-        SeekPreviewIndicator(
-          isVisible = controlsState.showSeekPreview,
-          targetPosition = controlsState.seekPreviewPosition,
-          currentDuration = playerState.duration,
-          modifier = Modifier.align(Alignment.Center)
-        )
-
-        // 音量指示器
-        VolumeIndicator(
-          isVisible = controlsState.showVolumeIndicator,
-          volume = playerState.volume,
-          modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(16.dp)
-        )
-
-        // 桌面端显示键盘帮助
-        if (!isMobile) {
-          KeyboardHelpOverlay(
-            modifier = Modifier
-              .align(Alignment.BottomStart)
-              .padding(16.dp)
-          )
-        }
-
-        // 加载指示器
-        if (playerState.isLoading) {
-          CircularProgressIndicator(
-            modifier = Modifier.align(Alignment.Center)
-          )
-        }
-      }
-    }
+    // 等我有时间了，把这些组件用html标签一个个实现然后控制吧。
+//    ComposeViewport(dialog) {
+//      val playerState by controller.playerState.collectAsState()
+//      val controlsState by controller.controlsState.collectAsState()
+//      var isFullscreen by remember { mutableStateOf(false) }
+//
+//      LaunchedEffect(isFullscreen) {
+//        val videoElement = (controller.platformPlayer as BrowserVideoPlayer).video
+//        if (isFullscreen) {
+//          videoElement.requestFullscreen()
+//        } else {
+//          if (document.fullscreen) {
+//            document.exitFullscreen()
+//          }
+//        }
+//      }
+//
+//      // 添加一个 Box 来为子组件提供对齐（align）的能力
+//      Box(modifier = Modifier
+//        .fillMaxSize()
+//        .background(Color.Transparent)
+//        .then(
+//          if (isMobile) {
+//            Modifier.rememberGestureEventHandler(controller)
+//          } else {
+//            Modifier.rememberKeyboardEventHandler(controller)
+//          }
+//        )
+//      ) {
+//        VideoControlsOverlay(
+//          modifier = Modifier.background(Color.Transparent),
+//          state = playerState.copy(isFullscreen = isFullscreen),
+//          controlsState = controlsState,
+//          title = title,
+//          onPlayPause = { controller.handlePlayerEvent(VideoPlayerEvent.TogglePlayPause) },
+//          onFullscreen = {
+//            isFullscreen = !isFullscreen
+//            controller.handlePlayerEvent(VideoPlayerEvent.ToggleFullscreen)
+//          },
+//          onClose = onClose,
+//          onControlsClick = {
+//            if (isMobile) {
+//              controller.handlePlayerEvent(VideoPlayerEvent.ShowControls)
+//            } else {
+//              controller.handlePlayerEvent(VideoPlayerEvent.HideControls)
+//            }
+//          }
+//        )
+//
+//        // 速度指示器
+//        SpeedIndicator(
+//          isVisible = controlsState.showSpeedIndicator,
+//          speed = playerState.playbackSpeed,
+//          modifier = Modifier.align(Alignment.Center)
+//        )
+//
+//        // 跳转预览指示器
+//        SeekPreviewIndicator(
+//          isVisible = controlsState.showSeekPreview,
+//          targetPosition = controlsState.seekPreviewPosition,
+//          currentDuration = playerState.duration,
+//          modifier = Modifier.align(Alignment.Center)
+//        )
+//
+//        // 音量指示器
+//        VolumeIndicator(
+//          isVisible = controlsState.showVolumeIndicator,
+//          volume = playerState.volume,
+//          modifier = Modifier
+//            .align(Alignment.TopEnd)
+//            .padding(16.dp)
+//        )
+//
+//        // 桌面端显示键盘帮助
+//        if (!isMobile) {
+//          KeyboardHelpOverlay(
+//            modifier = Modifier
+//              .align(Alignment.BottomStart)
+//              .padding(16.dp)
+//          )
+//        }
+//
+//        // 加载指示器
+//        if (playerState.isLoading) {
+//          CircularProgressIndicator(
+//            modifier = Modifier.align(Alignment.Center)
+//          )
+//        }
+//      }
+//    }
 
     body.appendChild(dialog)
     dialog.showModal()
@@ -316,7 +317,7 @@ class BrowserVideoPlayer(
       background-color: black;
       pointer-events: none;
     """.trimIndent()
-    controls = false
+    controls = true
     setAttribute("playsinline", "true")
     setAttribute("webkit-playsinline", "true")
     crossOrigin = "anonymous"
