@@ -8,7 +8,6 @@ import tenshi.hinanawi.filebrowser.model.response.FileType
 import tenshi.hinanawi.filebrowser.util.executeAndGetOutput
 import tenshi.hinanawi.filebrowser.util.executeCommand
 import tenshi.hinanawi.filebrowser.util.getFileType
-import java.awt.Image
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
@@ -40,24 +39,35 @@ class ThumbnailService {
   }
 
   private fun createImageThumbnail(image: File): ByteArray? = try {
-    val originalImage = ImageIO.read(image)
-    val (scaledWidth, scaledHeight) = calculateScaledDimensions(
-      originalImage.width, originalImage.height
-    )
-    val scaledImage = originalImage.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH)
-    val outputImage = BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB)
+    val originalImage = ImageIO.read(image) ?: return null
 
-    val g2d = outputImage.createGraphics()
+    try {
+      val (scaledWidth, scaledHeight) = calculateScaledDimensions(
+        originalImage.width, originalImage.height
+      )
 
-    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
-    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
-    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-    g2d.drawImage(scaledImage, 0, 0, null)
-    g2d.dispose()
+      // 使用更内存友好的缩放方式
+      val outputImage = BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB)
+      val g2d = outputImage.createGraphics()
 
-    ByteArrayOutputStream().use { outputStream ->
-      ImageIO.write(outputImage, "jpg", outputStream)
-      outputStream.toByteArray()
+      try {
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+        // 直接绘制原图到目标尺寸，避免创建中间的scaledImage
+        g2d.drawImage(originalImage, 0, 0, scaledWidth, scaledHeight, null)
+
+        ByteArrayOutputStream().use { outputStream ->
+          ImageIO.write(outputImage, "jpg", outputStream)
+          outputStream.toByteArray()
+        }
+      } finally {
+        g2d.dispose()
+      }
+    } finally {
+      // 显式释放原始图像资源
+      originalImage.flush()
     }
   } catch (e: Exception) {
     logger.warn("创建缩略图失败: ${image.absolutePath}", e.message)
