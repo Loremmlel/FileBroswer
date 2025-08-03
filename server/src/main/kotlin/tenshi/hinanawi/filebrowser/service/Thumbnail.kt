@@ -39,7 +39,11 @@ class ThumbnailService {
   }
 
   private fun createImageThumbnail(image: File): ByteArray? = try {
-    val originalImage = ImageIO.read(image) ?: return null
+    val originalImage = ImageIO.read(image) ?: run {
+      // 如果ImageIO无法读取，可能是不支持的格式（如WebP）
+      logger.warn("ImageIO无法读取图片格式，可能需要添加相应的ImageIO插件: ${image.absolutePath}")
+      return null
+    }
 
     try {
       val (scaledWidth, scaledHeight) = calculateScaledDimensions(

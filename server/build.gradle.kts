@@ -29,6 +29,8 @@ dependencies {
   implementation(libs.postgresql)
   implementation(libs.hikari)
   implementation(libs.jmdns)
+  // 添加WebP支持
+  implementation(libs.webp.imageio)
   testImplementation(libs.ktor.serverTestHost)
   testImplementation(libs.kotlin.testJunit)
   testImplementation(libs.h2)

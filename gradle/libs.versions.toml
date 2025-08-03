@@ -26,6 +26,7 @@ logback = "1.5.18"
 media3 = "1.7.1"
 vlcj = "4.8.4"
 jmdns = "3.6.1"
+webpImageio = "0.1.6"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -70,6 +71,7 @@ h2 = { module = "com.h2database:h2", version.ref = "h2" }
 hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 vlcj = { module = "uk.co.caprica:vlcj", version.ref = "vlcj" }
 jmdns = { module = "org.jmdns:jmdns", version.ref = "jmdns"}
+webp-imageio = { module = "org.sejda.imageio:webp-imageio", version.ref = "webpImageio" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
