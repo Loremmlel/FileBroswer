@@ -28,7 +28,6 @@ dependencies {
   implementation(libs.exposed.kotlin.datetime)
   implementation(libs.postgresql)
   implementation(libs.hikari)
-  implementation(libs.jmdns)
   // 添加WebP支持
   implementation(libs.webp.imageio)
   testImplementation(libs.ktor.serverTestHost)
