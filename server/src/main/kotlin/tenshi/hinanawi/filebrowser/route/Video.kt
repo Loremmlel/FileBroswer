@@ -15,6 +15,7 @@ import tenshi.hinanawi.filebrowser.util.getCacheControl
 import tenshi.hinanawi.filebrowser.util.getContentType
 import tenshi.hinanawi.filebrowser.util.getFileType
 import java.io.File
+import java.nio.file.Paths
 
 fun Route.video() {
   route("/video") {
@@ -45,7 +46,9 @@ fun Route.video() {
         val cacheDir = File(AppConfig.cachePath, taskId)
         val file = File(cacheDir, segments)
 
-        if (!file.canonicalPath.startsWith(AppConfig.basePath)) {
+        // windows的反斜杠!!!
+        val path = Paths.get(file.canonicalPath)
+        if (!path.normalize().startsWith(AppConfig.basePath)) {
           respond(
             HttpStatusCode.Forbidden,
             Response<Unit>(403, Message.FilesForbidden, null)
