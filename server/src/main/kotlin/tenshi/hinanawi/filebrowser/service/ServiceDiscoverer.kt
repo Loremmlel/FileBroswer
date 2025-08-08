@@ -16,6 +16,8 @@ class ServiceDiscoverer {
   private var running = false
   private var broadcastThread: Thread? = null
   private var socket: DatagramSocket? = null
+  @Volatile
+  private var isLogged = false
 
   companion object {
     private const val BROADCAST_PORT = 23333
@@ -39,6 +41,10 @@ class ServiceDiscoverer {
               logger.warn("无法找到合适的本地IP地址")
               Thread.sleep(BROADCAST_INTERVAL)
               continue
+            }
+            if (!isLogged) {
+              isLogged = true
+              logger.info("本地IP地址: $ipAddress")
             }
             val message = "$HANDSHAKE_MESSAGE:$ipAddress"
             val sendData = message.toByteArray()
@@ -93,7 +99,8 @@ class ServiceDiscoverer {
         val inetAddresses = networkInterface.inetAddresses
         while (inetAddresses.hasMoreElements()) {
           val inetAddress = inetAddresses.nextElement()
-          if (inetAddress is Inet4Address && !inetAddress.isLoopbackAddress && !inetAddress.isSiteLocalAddress) {
+          // 应该允许站点本地IP地址，因为基本都是在路由器下的局域网内
+          if (inetAddress is Inet4Address && !inetAddress.isLoopbackAddress) {
             return inetAddress.hostAddress
           }
         }

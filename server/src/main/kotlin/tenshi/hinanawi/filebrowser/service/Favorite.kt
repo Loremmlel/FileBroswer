@@ -41,7 +41,6 @@ class FavoriteService {
    * @param name 收藏夹名称
    * @param sortOrder 排序顺序，默认为0
    * @return 创建的收藏夹 [FavoriteDto]
-   * @throws ServiceException 父收藏夹不存在
    */
   fun createFavorite(name: String, sortOrder: Int = 0) = transaction {
     val favorite = Favorite.new {
