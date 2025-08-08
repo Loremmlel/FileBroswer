@@ -8,7 +8,6 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
-import kotlin.math.log
 import kotlin.time.Duration.Companion.minutes
 
 class TranscodeService {

@@ -37,7 +37,7 @@ fun Route.transcode(
     }
   }
 
-  // 如果使用"/transocde/{id}"，依然会应用PathValidator插件
+  // 如果使用"/transcode/{id}"，依然会应用PathValidator插件
   route("/transcoding/{id}") {
     get {
       call.safeExecute {
