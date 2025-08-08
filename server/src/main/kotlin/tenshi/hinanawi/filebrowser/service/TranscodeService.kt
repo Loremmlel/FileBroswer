@@ -129,9 +129,9 @@ class TranscodeService {
             val (h, m, s) = timeMatch.destructured
             val currentTime = h.toDouble() * 3600 + m.toDouble() * 60 + s.toDouble()
             val progress = (currentTime / duration).coerceAtMost(0.99)
-            tasks[task.id]?.status?.let { status ->
-              tasks[task.id] = task.copy(
-                status = status.copy(progress = progress)
+            tasks.computeIfPresent(task.id) { _, currentTask ->
+              currentTask.copy(
+                status = currentTask.status.copy(progress = progress)
               )
             }
           }
