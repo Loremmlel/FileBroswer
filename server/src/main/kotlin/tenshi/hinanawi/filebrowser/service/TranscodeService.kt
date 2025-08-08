@@ -140,19 +140,19 @@ class TranscodeService {
 
       val exitCode = task.process.waitFor()
       logger.info("ffmpeg进程退出, 退出码: $exitCode")
-      tasks[task.id]?.status?.let { status ->
-        tasks[task.id] = task.copy(
+      tasks.computeIfPresent(task.id) { _, currentTask ->
+        currentTask.copy(
           status = if (exitCode == 0) {
-            status.copy(status = TranscodeStatus.Enum.Completed)
+            currentTask.status.copy(status = TranscodeStatus.Enum.Completed)
           } else {
-            status.copy(status = TranscodeStatus.Enum.Error, error = "ffmpeg进程非正常退出, 退出码: $exitCode")
+            currentTask.status.copy(status = TranscodeStatus.Enum.Error, error = "ffmpeg进程非正常退出, 退出码: $exitCode")
           }
         )
       }
     } catch (e: Exception) {
-      tasks[task.id]?.status?.let { status ->
-        tasks[task.id] = task.copy(
-          status = status.copy(status = TranscodeStatus.Enum.Error, error = e.message)
+      tasks.computeIfPresent(task.id) { _, currentTask ->
+        currentTask.copy(
+          status = currentTask.status.copy(status = TranscodeStatus.Enum.Error, error = e.message)
         )
       }
     }
