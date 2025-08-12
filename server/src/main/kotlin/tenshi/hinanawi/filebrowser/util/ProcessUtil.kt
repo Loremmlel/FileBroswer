@@ -17,38 +17,40 @@ fun executeCommand(
   unit: TimeUnit,
   logger: Logger,
   processName: String
-): Boolean = try {
-  val process = ProcessBuilder(command)
-    .redirectErrorStream(true)
-    .start()
+): Boolean {
+  try {
+    val process = ProcessBuilder(command)
+      .redirectErrorStream(true)
+      .start()
 
-  val outputConsumer = Thread {
-    process.inputStream.bufferedReader().use { reader ->
-      val output = StringBuilder()
-      reader.forEachLine { line ->
-        output.appendLine(line)
+    val outputConsumer = Thread {
+      process.inputStream.bufferedReader().use { reader ->
+        val output = StringBuilder()
+        reader.forEachLine { line ->
+          output.appendLine(line)
+        }
       }
     }
+    outputConsumer.start()
+
+    val completed = process.waitFor(timeout, unit)
+    outputConsumer.join(1000)
+
+    if (!completed) {
+      logger.warn("$processName 执行超时")
+      return false
+    }
+
+    if (process.exitValue() != 0) {
+      logger.warn("$processName 执行失败，退出码: ${process.exitValue()}")
+      return false
+    }
+
+    return true
+  } catch (e: Exception) {
+    logger.warn("执行 $processName 失败", e.message)
+    return false
   }
-  outputConsumer.start()
-
-  val completed = process.waitFor(timeout, unit)
-  outputConsumer.join(1000)
-
-  if (!completed) {
-    logger.warn("$processName 执行超时")
-    false
-  }
-
-  if (process.exitValue() != 0) {
-    logger.warn("$processName 执行失败，退出码: ${process.exitValue()}")
-    false
-  }
-
-  true
-} catch (e: Exception) {
-  logger.warn("执行 $processName 失败", e.message)
-  false
 }
 
 /**
@@ -66,37 +68,39 @@ fun executeAndGetOutput(
   unit: TimeUnit,
   logger: Logger,
   processName: String
-): String? = try {
-  val process = ProcessBuilder(command)
-    .redirectErrorStream(true)
-    .start()
+): String? {
+  try {
+    val process = ProcessBuilder(command)
+      .redirectErrorStream(true)
+      .start()
 
-  val output = StringBuilder()
-  val outputConsumer = Thread {
-    process.inputStream.bufferedReader().use { reader ->
-      reader.forEachLine { line ->
-        output.appendLine(line)
+    val output = StringBuilder()
+    val outputConsumer = Thread {
+      process.inputStream.bufferedReader().use { reader ->
+        reader.forEachLine { line ->
+          output.appendLine(line)
+        }
       }
     }
+    outputConsumer.start()
+
+    val completed = process.waitFor(timeout, unit)
+    outputConsumer.join(1000)
+
+    if (!completed) {
+      logger.warn("$processName 执行超时")
+      return null
+    }
+
+    if (process.exitValue() != 0) {
+      logger.warn("$processName 执行失败，退出码: ${process.exitValue()}")
+      logger.warn("$processName 输出: $output")
+      return null
+    }
+
+    return output.toString()
+  } catch (e: Exception) {
+    logger.warn("执行 $processName 失败", e.message)
+    return null
   }
-  outputConsumer.start()
-
-  val completed = process.waitFor(timeout, unit)
-  outputConsumer.join(1000)
-
-  if (!completed) {
-    logger.warn("$processName 执行超时")
-    null
-  }
-
-  if (process.exitValue() != 0) {
-    logger.warn("$processName 执行失败，退出码: ${process.exitValue()}")
-    logger.warn("$processName 输出: $output")
-    null
-  }
-
-  output.toString()
-} catch (e: Exception) {
-  logger.warn("执行 $processName 失败", e.message)
-  null
 }
