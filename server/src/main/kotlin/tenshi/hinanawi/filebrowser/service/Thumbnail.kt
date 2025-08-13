@@ -63,7 +63,7 @@ class ThumbnailService {
         g2d.drawImage(originalImage, 0, 0, scaledWidth, scaledHeight, null)
 
         ByteArrayOutputStream().use { outputStream ->
-          ImageIO.write(outputImage, "jpg", outputStream)
+          ImageIO.write(outputImage, "png", outputStream)
           outputStream.toByteArray()
         }
       } finally {
@@ -90,7 +90,7 @@ class ThumbnailService {
     val randomSeekTime = Random.nextDouble(startTime, endTime)
     val seekPosition = formatDuration(randomSeekTime)
 
-    val tempOutputFile = File.createTempFile("temp", ".jpg")
+    val tempOutputFile = File.createTempFile("temp", ".png")
     try {
       val command = listOf(
         "ffmpeg",
