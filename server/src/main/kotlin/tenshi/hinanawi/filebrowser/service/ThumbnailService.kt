@@ -63,7 +63,7 @@ class ThumbnailService {
         g2d.drawImage(originalImage, 0, 0, scaledWidth, scaledHeight, null)
 
         ByteArrayOutputStream().use { outputStream ->
-          ImageIO.write(outputImage, "png", outputStream)
+          ImageIO.write(outputImage, "webp", outputStream)
           outputStream.toByteArray()
         }
       } finally {
