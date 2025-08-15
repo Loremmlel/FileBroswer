@@ -23,7 +23,7 @@ class ThumbnailService {
 
   private val logger = LoggerFactory.getLogger(ThumbnailService::class.java)
 
-  private val formatName by lazy {
+  private val outputFormatName by lazy {
     if (ImageIO.getWriterFormatNames().contains("webp")) "webp" else "png"
   }
 
@@ -67,7 +67,7 @@ class ThumbnailService {
         g2d.drawImage(originalImage, 0, 0, scaledWidth, scaledHeight, null)
 
         ByteArrayOutputStream().use { outputStream ->
-          ImageIO.write(outputImage, formatName, outputStream)
+          ImageIO.write(outputImage, outputFormatName, outputStream)
           outputStream.toByteArray()
         }
       } finally {
