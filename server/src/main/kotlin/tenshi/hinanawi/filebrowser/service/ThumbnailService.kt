@@ -24,7 +24,14 @@ class ThumbnailService {
   private val logger = LoggerFactory.getLogger(ThumbnailService::class.java)
 
   private val outputFormatName by lazy {
-    if (ImageIO.getWriterFormatNames().contains("webp")) "webp" else "png"
+    try {
+      val testImage = BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB)
+      val baos = ByteArrayOutputStream()
+      ImageIO.write(testImage, "webp", baos)
+      if (ImageIO.getWriterFormatNames().contains("webp")) "webp" else "png"
+    } catch (_: Throwable) {
+      "png"
+    }
   }
 
   fun createThumbnail(file: File): ByteArray? {
